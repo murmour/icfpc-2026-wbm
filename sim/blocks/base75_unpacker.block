@@ -1,0 +1,35 @@
+{
+  "name": "Compact base-75 word unpacker",
+  "size": "28x4",
+  "interior": [
+    "                            ",
+    ">@rM8bW>M`75 `W/WsWmdsv     ",
+    "       ^            < v     ",
+    "^                     <     "
+  ],
+  "ports": {
+    "rom": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [3, 3],
+      "length_range": [2, 64]
+    },
+    "codes": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [1, 1],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "short_word",
+      "inputs": {
+        "rom": [2476]
+      },
+      "expected": {
+        "codes": [1, 33, 0, 0, 0, 0, 0, 0, 0]
+      }
+    }
+  ]
+}

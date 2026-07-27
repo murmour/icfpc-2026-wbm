@@ -1,0 +1,8 @@
+program GradeBookColumns
+dynamic memory ids[16]
+dynamic memory grade1[16]
+dynamic memory grade2[16]
+dynamic memory grade3[16]
+dynamic memory grade4[16]
+
+gradebook(ids, grade1, grade2, grade3, grade4)

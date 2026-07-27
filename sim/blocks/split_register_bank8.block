@@ -1,0 +1,862 @@
+{
+  "name": "Split two-lane 8-register selector",
+  "size": "17x27",
+  "interior": [
+    "   ^ <  v  > ^   ",
+    "vsr<    v    >rsv",
+    "   Xr WsvsW rX   ",
+    "   dm^  v  ^ma   ",
+    "   ^ <  v  > ^   ",
+    "vsr<    v    >rsv",
+    "   Xr WsvsW rX   ",
+    "   dm^  v  ^ma   ",
+    "   ^ <  v  > ^   ",
+    "vsr<    v    >rsv",
+    "   Xr WsvsW rX   ",
+    "   dm^  v  ^ma   ",
+    "   ^ <  v  > ^   ",
+    "vsr<    v    >rsv",
+    "   Xr WsvsW rX   ",
+    "   dm^  v  ^ma   ",
+    "   ^<<<< >>>>^   ",
+    "   X>>v      Xv  ",
+    "   ^    ]x]  ^   ",
+    "           N     ",
+    "       1   1     ",
+    "       M   M     ",
+    "       r   r     ",
+    "  v   >^v <^<<< v",
+    "  v     <^^      ",
+    ">s>@rbrM>^v     <",
+    "^         <      "
+  ],
+  "ports": {
+    "cell_0_in": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        13,
+        13
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_0_out": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        12,
+        12
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_1_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        12,
+        12
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_1_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        13,
+        13
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_2_in": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        9,
+        9
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_2_out": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        8,
+        8
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_3_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        8,
+        8
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_3_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        9,
+        9
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_4_in": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        5,
+        5
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_4_out": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        4,
+        4
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_5_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        4,
+        4
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_5_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        5,
+        5
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_6_in": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        1,
+        1
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_6_out": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        0,
+        0
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_7_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        0,
+        0
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "cell_7_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        1,
+        1
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "request": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        4,
+        4
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    },
+    "response": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        6,
+        6
+      ],
+      "length_range": [
+        2,
+        128
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "first even-lane read",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          0,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 0 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          0,
+          0,
+          0,
+          1,
+          1000,
+          0,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1000
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 1 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          1,
+          0,
+          1,
+          1,
+          1001,
+          1,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1001
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 2 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          2,
+          0,
+          2,
+          1,
+          1002,
+          2,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1002
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 3 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          3,
+          0,
+          3,
+          1,
+          1003,
+          3,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1003
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 4 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          4,
+          0,
+          4,
+          1,
+          1004,
+          4,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1004
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 5 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          5,
+          0,
+          5,
+          1,
+          1005,
+          5,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1005
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 6 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          6,
+          0,
+          6,
+          1,
+          1006,
+          6,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1006
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "isolated register 7 read and write",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          7,
+          0,
+          7,
+          1,
+          1007,
+          7,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          1007
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    },
+    {
+      "name": "all lanes, reads, writes, and signed extremes",
+      "inputs": {
+        "cell_0_out": [
+          0
+        ],
+        "cell_1_out": [
+          0
+        ],
+        "cell_2_out": [
+          0
+        ],
+        "cell_3_out": [
+          0
+        ],
+        "cell_4_out": [
+          0
+        ],
+        "cell_5_out": [
+          0
+        ],
+        "cell_6_out": [
+          0
+        ],
+        "cell_7_out": [
+          0
+        ],
+        "request": [
+          0,
+          0,
+          1,
+          0,
+          2,
+          0,
+          3,
+          0,
+          4,
+          0,
+          5,
+          0,
+          6,
+          0,
+          7,
+          0,
+          0,
+          1,
+          101,
+          1,
+          1,
+          -202,
+          2,
+          1,
+          303,
+          3,
+          1,
+          -404,
+          4,
+          1,
+          505,
+          5,
+          1,
+          -606,
+          6,
+          1,
+          707,
+          7,
+          1,
+          -808,
+          7,
+          0,
+          6,
+          0,
+          5,
+          0,
+          4,
+          0,
+          3,
+          0,
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          -9223372036854775807,
+          7,
+          1,
+          9223372036854775807,
+          0,
+          0,
+          7,
+          0
+        ]
+      },
+      "expected": {
+        "response": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          -808,
+          707,
+          -606,
+          505,
+          -404,
+          303,
+          -202,
+          101,
+          -9223372036854775807,
+          9223372036854775807
+        ]
+      },
+      "loopbacks": {
+        "cell_0_in": "cell_0_out",
+        "cell_1_in": "cell_1_out",
+        "cell_2_in": "cell_2_out",
+        "cell_3_in": "cell_3_out",
+        "cell_4_in": "cell_4_out",
+        "cell_5_in": "cell_5_out",
+        "cell_6_in": "cell_6_out",
+        "cell_7_in": "cell_7_out"
+      }
+    }
+  ]
+}

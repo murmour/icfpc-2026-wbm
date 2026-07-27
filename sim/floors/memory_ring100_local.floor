@@ -1,0 +1,86 @@
+{
+  "grid_width": 27,
+  "grid_height": 27,
+  "blocks": [
+    {
+      "id": "input",
+      "type": "I",
+      "x": 0,
+      "y": 6
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 3,
+      "y": 6
+    },
+    {
+      "id": "engine",
+      "file": "blocks/ring100_engine_local.block",
+      "x": 0,
+      "y": 11
+    },
+    {
+      "id": "ring",
+      "file": "blocks/ring100_repeater.block",
+      "x": 12,
+      "y": 2
+    }
+  ],
+  "connections": [
+    {
+      "src": "ring.out_ring",
+      "dst": "engine.in_ring",
+      "src_side": "top",
+      "waypoints": [
+        {"x": 22, "y": 0}
+      ],
+      "snake": {
+        "x": 0,
+        "y": 0,
+        "width": 11,
+        "height": 6,
+        "axis": "horizontal",
+        "start": "top-right"
+      },
+      "tail_waypoints": [
+        {"x": 10, "y": 8},
+        {"x": 7, "y": 8},
+        {"x": 7, "y": 9},
+        {"x": 11, "y": 9},
+        {"x": 11, "y": 10},
+        {"x": 20, "y": 10}
+      ]
+    },
+    {
+      "src": "engine.out_ring",
+      "dst": "ring.in_ring",
+      "waypoints": [
+        {"x": 26, "y": 20},
+        {"x": 26, "y": 8},
+        {"x": 21, "y": 8}
+      ]
+    },
+    {
+      "src": "input.out",
+      "dst": "engine.request",
+      "dst_side": "top",
+      "dst_offset": 2,
+      "waypoints": [
+        {"x": 1, "y": 9},
+        {"x": 1, "y": 10},
+        {"x": 3, "y": 10}
+      ]
+    },
+    {
+      "src": "engine.response",
+      "dst": "output.in",
+      "src_side": "top",
+      "src_offset": 5,
+      "waypoints": [
+        {"x": 6, "y": 9},
+        {"x": 4, "y": 9}
+      ]
+    }
+  ]
+}

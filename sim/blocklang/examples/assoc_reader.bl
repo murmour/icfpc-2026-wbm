@@ -1,0 +1,41 @@
+block assoc_reader
+
+input in_storage auto 2 200
+input scratch_in auto 2 10
+output out_count auto 2 64
+output out_pair auto 2 64
+output scratch_out auto 2 10
+
+forever {
+  A = query in_storage
+  send out_count
+  repeat A {
+    A = recv in_storage
+    send scratch_out
+    B = A
+    A = 32
+    swap
+    A <<= B
+    A >>= B
+    B = A
+    A = recv scratch_in
+    A -= B
+    send scratch_out
+    swap
+    send scratch_out
+    A = 32
+    B = A
+    A = recv scratch_in
+    A >>= B
+    send out_pair
+    A = recv scratch_in
+    send out_pair
+  }
+}
+
+test unpack_test {
+  input in_storage: 4294967396 8589934587
+  loopback scratch_out: scratch_in
+  expected out_count: 2
+  expected out_pair: 1 100 2 -5
+}

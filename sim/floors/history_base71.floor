@@ -1,0 +1,85 @@
+{
+  "grid_width": 100,
+  "grid_height": 100,
+  "blocks": [
+    {
+      "id": "rom",
+      "file": "blocks/history_base71_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "unpacker",
+      "file": "blocks/base71_unpacker.block",
+      "x": 0,
+      "y": 75
+    },
+    {
+      "id": "mapper",
+      "file": "blocks/base71_mapper.block",
+      "x": 52,
+      "y": 74
+    },
+    {
+      "id": "selector",
+      "file": "blocks/base71_selector.block",
+      "x": 30,
+      "y": 91
+    },
+    {
+      "id": "state",
+      "file": "blocks/fifo_relay_mirror.block",
+      "x": 15,
+      "y": 90
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 48,
+      "y": 92
+    }
+  ],
+  "connections": [
+    {
+      "src": "rom.words",
+      "dst": "unpacker.rom"
+    },
+    {
+      "src": "unpacker.ranks",
+      "dst": "selector.rank",
+      "waypoints": [
+        {"x": 43, "y": 84},
+        {"x": 43, "y": 89},
+        {"x": 29, "y": 89}
+      ]
+    },
+    {
+      "src": "selector.bytes",
+      "dst": "output.in",
+      "waypoints": [
+        {"x": 47, "y": 93}
+      ]
+    },
+    {
+      "src": "mapper.values",
+      "dst": "selector.map",
+      "waypoints": [
+        {"x": 50, "y": 82},
+        {"x": 50, "y": 90},
+        {"x": 38, "y": 90}
+      ]
+    },
+    {
+      "src": "unpacker.state_out",
+      "dst": "state.input"
+    },
+    {
+      "src": "state.output",
+      "dst": "unpacker.state_in",
+      "waypoints": [
+        {"x": 10, "y": 92},
+        {"x": 10, "y": 88}
+      ]
+    }
+  ]
+}

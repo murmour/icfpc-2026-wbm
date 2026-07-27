@@ -1,0 +1,111 @@
+{
+  "name": "packed_ascii_decoder",
+  "size": "39x11",
+  "interior": [
+    ">@v >v >v >bd                     >v >v",
+    "  >r^>s^>r^ >`8`M+*Mv >/v >Wv >md ^    ",
+    "                        >s^            ",
+    "                                       ",
+    "                                       ",
+    "                                       ",
+    "                                       ",
+    "                                   >r^ ",
+    "                    >r^     >s^        ",
+    "            ^                   <      ",
+    "^                                     <"
+  ],
+  "ports": {
+    "bytes": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        29,
+        29
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "rom": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [
+        3,
+        3
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "state_in": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        8,
+        8
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "state_out": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [
+        16,
+        16
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "one_word",
+      "inputs": {
+        "rom": [
+          1106241,
+          3
+        ]
+      },
+      "expected": {
+        "bytes": [
+          65,
+          66,
+          67
+        ]
+      },
+      "loopbacks": {
+        "state_out": "state_in"
+      }
+    },
+    {
+      "name": "two_words",
+      "inputs": {
+        "rom": [
+          1106241,
+          3,
+          15608,
+          2
+        ]
+      },
+      "expected": {
+        "bytes": [
+          65,
+          66,
+          67,
+          120,
+          121
+        ]
+      },
+      "loopbacks": {
+        "state_out": "state_in"
+      }
+    }
+  ]
+}

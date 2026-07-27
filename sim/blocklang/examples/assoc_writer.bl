@@ -1,0 +1,21 @@
+block assoc_writer
+
+input in_pair left 0 2 64
+output out_storage bottom 0 2 200
+
+forever {
+  A = recv in_pair
+  B = A
+  A = 32
+  swap
+  A <<= B
+  B = A
+  A = recv in_pair
+  A += B
+  send out_storage
+}
+
+test pack_test {
+  input in_pair: 1 100 2 -5
+  expected out_storage: 4294967396 8589934587
+}

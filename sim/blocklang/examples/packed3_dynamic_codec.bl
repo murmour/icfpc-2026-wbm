@@ -1,0 +1,96 @@
+block packed3_dynamic_codec
+
+input control auto
+input scratch_in auto
+
+output result auto
+output scratch_out auto
+
+forever {
+  # Control is operation, bit shift, and value for WRITE.
+  A = recv control
+  send result
+  send scratch_out
+  A = recv control
+  send scratch_out
+
+  A = recv control
+  send scratch_out
+
+  A = recv scratch_in
+  if sign A {
+    negative {
+      A = 0
+    }
+    zero {
+      # READ: sign-extend lane k from the packed word.
+      A = recv scratch_in
+      B = A
+      A = 43
+      A -= B
+      B = A
+
+      A = recv scratch_in
+      send result
+      A <<= B
+      B = A
+      A = 43
+      swap
+      A >>= B
+      send result
+    }
+    positive {
+      # WRITE: preserve k and the original word.
+      A = recv scratch_in
+      B = A
+      A = recv scratch_in
+      send scratch_out
+      swap
+      send scratch_out
+
+      B = A
+      A = 43
+      A -= B
+      B = A
+
+      A = recv scratch_in
+      send scratch_out
+      A <<= B
+      B = A
+      A = 43
+      swap
+      A >>= B
+
+      # Compute and position the 21-bit XOR delta.
+      B = A
+      A = recv control
+      A ^= B
+      B = A
+      A = 2097151
+      swap
+      A &= B
+
+      B = A
+      A = recv scratch_in
+      swap
+      A <<= B
+      B = A
+
+      A = recv scratch_in
+      A ^= B
+      send result
+    }
+  }
+}
+
+test read_lanes {
+  input control: 0 0 2097145 0 21 4398031831040 0 42 9223341250529198080
+  loopback scratch_out: scratch_in
+  expected result: 0 2097145 -7 0 4398031831040 -7 0 9223341250529198080 -7
+}
+
+test write_lanes {
+  input control: 1 0 42 -7 1 21 42 -7 1 42 42 -7
+  loopback scratch_out: scratch_in
+  expected result: 1 2097145 1 4398031831082 1 9223341250529198122
+}

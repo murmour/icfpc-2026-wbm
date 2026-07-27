@@ -1,0 +1,44 @@
+block packed_codec_coordinator
+
+input local_control auto
+input target_word auto
+
+output codec_control auto
+
+forever {
+  A = recv local_control
+  send codec_control
+  if sign A {
+    negative {
+      A = 0
+    }
+    zero {
+      A = recv local_control
+      B = A
+      A = 21
+      A *= B
+      send codec_control
+
+      A = recv target_word
+      send codec_control
+    }
+    positive {
+      A = recv local_control
+      B = A
+      A = 21
+      A *= B
+      send codec_control
+
+      A = recv target_word
+      send codec_control
+      A = recv local_control
+      send codec_control
+    }
+  }
+}
+
+test mixed {
+  input local_control: 0 0 1 1 -7 0 2 1 0 42
+  input target_word: 100 200 300 400
+  expected codec_control: 0 0 100 1 21 200 -7 0 42 300 1 0 400 42
+}

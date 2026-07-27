@@ -1,0 +1,62 @@
+{
+  "grid_width": 313,
+  "grid_height": 600,
+  "blocks": [
+    {
+      "id": "rom",
+      "file": "blocks/history_huffman_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "reader",
+      "file": "blocks/packed_bit_reader.block",
+      "x": 41,
+      "y": 62
+    },
+    {
+      "id": "state",
+      "file": "blocks/repeater_min.block",
+      "x": 84,
+      "y": 64
+    },
+    {
+      "id": "decoder",
+      "file": "blocks/history_huffman_decoder.block",
+      "x": 78,
+      "y": 80
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 305,
+      "y": 402
+    }
+  ],
+  "connections": [
+    {
+      "src": "rom.words",
+      "dst": "reader.rom"
+    },
+    {
+      "src": "reader.state_out",
+      "dst": "state.in"
+    },
+    {
+      "src": "state.out",
+      "dst": "reader.state_in"
+    },
+    {
+      "src": "reader.bits",
+      "dst": "decoder.bits",
+      "dst_side": "top",
+      "dst_offset": 47
+    },
+    {
+      "src": "decoder.bytes",
+      "dst": "output.in",
+      "src_side": "right",
+      "src_offset": 322
+    }
+  ]
+}

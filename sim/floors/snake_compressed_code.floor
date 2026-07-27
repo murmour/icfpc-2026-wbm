@@ -1,0 +1,70 @@
+{
+  "grid_width": 103,
+  "grid_height": 72,
+  "blocks": [
+    {
+      "id": "packed",
+      "file": "../processor/tasks/snake/snake_code_packed_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "unpacker",
+      "file": "blocks/processor_code_unpacker.block",
+      "x": 52,
+      "y": 34
+    },
+    {
+      "id": "mux",
+      "file": "blocks/processor_code_escape_mux.block",
+      "x": 85,
+      "y": 34
+    },
+    {
+      "id": "raw",
+      "file": "../processor/tasks/snake/snake_code_raw_rom.block",
+      "x": 33,
+      "y": 54
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 94,
+      "y": 51
+    }
+  ],
+  "connections": [
+    {
+      "src": "packed.words",
+      "dst": "unpacker.rom"
+    },
+    {
+      "src": "unpacker.codes",
+      "dst": "mux.codes",
+      "waypoints": [
+        {"x": 83, "y": 36},
+        {"x": 83, "y": 32},
+        {"x": 89, "y": 32}
+      ]
+    },
+    {
+      "src": "raw.words",
+      "dst": "mux.raw",
+      "waypoints": [
+        {"x": 85, "y": 69},
+        {"x": 31, "y": 69},
+        {"x": 31, "y": 48},
+        {"x": 90, "y": 48}
+      ]
+    },
+    {
+      "src": "mux.words",
+      "dst": "output.in",
+      "waypoints": [
+        {"x": 91, "y": 56},
+        {"x": 95, "y": 56},
+        {"x": 95, "y": 54}
+      ]
+    }
+  ]
+}

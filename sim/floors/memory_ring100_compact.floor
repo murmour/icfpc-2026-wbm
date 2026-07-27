@@ -1,0 +1,98 @@
+{
+  "grid_width": 33,
+  "grid_height": 33,
+  "blocks": [
+    {
+      "id": "input",
+      "type": "I",
+      "x": 0,
+      "y": 12
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 0,
+      "y": 21
+    },
+    {
+      "id": "engine",
+      "file": "blocks/ring100_engine.block",
+      "x": 5,
+      "y": 12
+    },
+    {
+      "id": "ring",
+      "file": "blocks/ring100_repeater.block",
+      "x": 17,
+      "y": 4
+    },
+    {
+      "id": "scratch",
+      "file": "blocks/repeater_min.block",
+      "x": 10,
+      "y": 29
+    }
+  ],
+  "connections": [
+    {
+      "src": "ring.out_ring",
+      "dst": "engine.in_ring",
+      "src_side": "top",
+      "waypoints": [
+        {"x": 27, "y": 2},
+        {"x": 32, "y": 2},
+        {"x": 32, "y": 0},
+        {"x": 0, "y": 0},
+        {"x": 0, "y": 2},
+        {"x": 26, "y": 2},
+        {"x": 26, "y": 3},
+        {"x": 14, "y": 3},
+        {"x": 14, "y": 11},
+        {"x": 25, "y": 11}
+      ]
+    },
+    {
+      "src": "engine.out_ring",
+      "dst": "ring.in_ring",
+      "waypoints": [
+        {"x": 32, "y": 21},
+        {"x": 32, "y": 10},
+        {"x": 26, "y": 10}
+      ]
+    },
+    {
+      "src": "input.out",
+      "dst": "engine.request",
+      "waypoints": [
+        {"x": 4, "y": 13}
+      ]
+    },
+    {
+      "src": "engine.response",
+      "dst": "output.in",
+      "waypoints": [
+        {"x": 3, "y": 22}
+      ]
+    },
+    {
+      "src": "engine.scratch_out",
+      "dst": "scratch.in",
+      "src_side": "bottom",
+      "waypoints": [
+        {"x": 19, "y": 29},
+        {"x": 16, "y": 29},
+        {"x": 16, "y": 31},
+        {"x": 15, "y": 31}
+      ]
+    },
+    {
+      "src": "scratch.out",
+      "dst": "engine.scratch_in",
+      "waypoints": [
+        {"x": 8, "y": 31},
+        {"x": 7, "y": 31},
+        {"x": 7, "y": 28}
+      ]
+    }
+  ]
+}

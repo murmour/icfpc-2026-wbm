@@ -1,0 +1,103 @@
+block assoc_unpacked_controller
+
+input request auto 2 64
+input storage_in auto 200 400
+output storage_out auto 2 16
+output response auto 2 64
+
+forever {
+  A = recv request
+  if sign A {
+    negative {
+      nop
+    }
+    zero {
+      # READ: B remains the target address. A successful match changes B to
+      # -1, making every remaining valid address take the refresh path.
+      A = recv request
+      B = A
+      query storage_in
+      repeat backpack {
+        A = recv storage_in
+        decrement backpack
+        A ^= B
+        if sign A {
+          negative {
+            A ^= B
+            send storage_out
+            A = recv storage_in
+            send storage_out
+          }
+          zero {
+            A ^= B
+            send storage_out
+            A = recv storage_in
+            broadcast all
+            A = -1
+            B = A
+          }
+          positive {
+            A ^= B
+            send storage_out
+            A = recv storage_in
+            send storage_out
+          }
+        }
+      }
+      swap
+      if sign A {
+        negative {
+          nop
+        }
+        zero {
+          A = 0
+          send response
+        }
+        positive {
+          A = 0
+          send response
+        }
+      }
+    }
+    positive {
+      # WRITE: q snapshots the old queue before the replacement pair is
+      # staged. Matching old pairs are discarded; all others are refreshed.
+      A = recv request
+      B = A
+      query storage_in
+      A = recv request
+      swap
+      send storage_out
+      swap
+      send storage_out
+      repeat backpack {
+        A = recv storage_in
+        decrement backpack
+        A ^= B
+        if sign A {
+          negative {
+            A ^= B
+            send storage_out
+            A = recv storage_in
+            send storage_out
+          }
+          zero {
+            A = recv storage_in
+          }
+          positive {
+            A ^= B
+            send storage_out
+            A = recv storage_in
+            send storage_out
+          }
+        }
+      }
+    }
+  }
+}
+
+test basic {
+  input request: 0 3 1 7 42 0 7 1 7 -5 0 7 0 8
+  loopback storage_out: storage_in
+  expected response: 0 42 -5 0
+}

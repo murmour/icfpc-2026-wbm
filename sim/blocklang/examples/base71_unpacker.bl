@@ -1,0 +1,34 @@
+block base71_unpacker
+
+input rom auto
+input state_in bottom 10 2 64
+output state_out bottom 17 2 64
+output ranks right 8 2 64
+
+forever {
+  A = recv rom
+  send state_out
+  raw 9M1+
+  repeat A {
+    raw 8M*M7+
+    B = A
+    A = recv state_in
+    A /= B
+    send state_out
+    swap
+    send ranks
+  }
+  A = recv state_in
+}
+
+test digits {
+  input rom: 417866978282696995
+  loopback state_out: state_in
+  expected ranks: 0 1 2 3 4 5 6 7 8 9
+}
+
+test repeated {
+  input rom: 46503479300141160
+  loopback state_out: state_in
+  expected ranks: 1 1 1 1 1 1 1 1 1 1
+}

@@ -1,0 +1,70 @@
+{
+  "grid_width": 49,
+  "grid_height": 72,
+  "blocks": [
+    {
+      "id": "rom",
+      "file": "../processor/tasks/snake/codecs/snake_tagged_radix18_c2_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "decoder",
+      "file": "../processor/tasks/snake/codecs/tagged_radix18_decoder.block",
+      "x": 0,
+      "y": 54
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 32,
+      "y": 66
+    }
+  ],
+  "connections": [
+    {
+      "src": "rom.words",
+      "dst": "decoder.rom"
+    },
+    {
+      "src": "decoder.words",
+      "dst": "output.in",
+      "waypoints": [
+        {
+          "x": 29,
+          "y": 70
+        },
+        {
+          "x": 33,
+          "y": 70
+        },
+        {
+          "x": 33,
+          "y": 69
+        }
+      ]
+    },
+    {
+      "src": "decoder.state_out",
+      "dst": "decoder.state_in",
+      "waypoints": [
+        {
+          "x": 24,
+          "y": 53
+        },
+        {
+          "x": 24,
+          "y": 52
+        },
+        {
+          "x": 18,
+          "y": 52
+        },
+        {
+          "x": 18,
+          "y": 53
+        }
+      ]
+    }
+  ]
+}

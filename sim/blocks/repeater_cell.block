@@ -1,0 +1,33 @@
+{
+  "name": "Self-initializing repeater memory cell",
+  "size": "3x2",
+  "interior": [
+    "U@v",
+    "^s<"
+  ],
+  "ports": {
+    "in": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [0, 0],
+      "length_range": [2, 128]
+    },
+    "out": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [1, 1],
+      "length_range": [2, 128]
+    }
+  },
+  "tests": [
+    {
+      "name": "initial zero and replacement values",
+      "inputs": {
+        "in": [42, -17, 1000000]
+      },
+      "expected": {
+        "out": [0, 42, -17, 1000000]
+      }
+    }
+  ]
+}

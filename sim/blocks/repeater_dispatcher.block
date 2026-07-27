@@ -1,0 +1,142 @@
+{
+  "name": "Four-way serialized memory dispatcher",
+  "size": "96x13",
+  "interior": [
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    ">  > @rXrM`25`W/bWM1+ > dv               >dv               >dv               >dv               >",
+    "       >rM`25`W/bWM1+N^ ms                ms                ms                ms                ",
+    "                        >                ^>                ^>                ^>                ^",
+    "                        vXv               vXv               vXv               vXv               ",
+    "                        0 R               0 R               0 R               0 R               ",
+    "                        M s               M s               M s               M s               ",
+    "                        r 1               r 1               r 1               r 1               ",
+    "                          M                 M                 M                 M               ",
+    "                          r                 r                 r                 r               ",
+    "^sWXW                   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+  ],
+  "ports": {
+    "request": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        3,
+        3
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "response": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        12,
+        12
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_0_completion": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        24,
+        24
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_0_request": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        18,
+        18
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_1_completion": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        42,
+        42
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_1_request": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        36,
+        36
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_2_completion": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        60,
+        60
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_2_request": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        54,
+        54
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_3_completion": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        78,
+        78
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "segment_3_request": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        72,
+        72
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  },
+  "tests": null
+}

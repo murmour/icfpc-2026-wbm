@@ -1,0 +1,22 @@
+block repeat_counter
+
+input request auto
+output response auto
+
+forever {
+  A = recv request
+  repeat A {
+    A = 1
+    send response
+  }
+}
+
+test three {
+  input request: 3
+  expected response: 1 1 1
+}
+
+test one {
+  input request: 1
+  expected response: 1
+}

@@ -1,0 +1,94 @@
+{
+  "name": "sort_chain_encoder",
+  "size": "51x5",
+  "interior": [
+    ">@v >bd                  >`16`Nv >`16`bd         >v",
+    "  >r^ >v >M`10001`-v >md ^     >s^     >`0`v >md ^ ",
+    "       >r^         >s^                     >s^     ",
+    "      ^                <               ^       <   ",
+    "^                                                 <"
+  ],
+  "ports": {
+    "stream": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [
+        32,
+        32
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "values": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [
+        3,
+        3
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "mixed_rounds",
+      "inputs": {
+        "values": [
+          3,
+          3,
+          1,
+          2,
+          1,
+          42
+        ]
+      },
+      "expected": {
+        "stream": [
+          9998,
+          10000,
+          9999,
+          -16,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          9959,
+          -16,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+block processor_code_escape_mux
+
+input codes auto
+input raw auto
+output words auto
+
+forever {
+  A = recv codes
+  B = A
+  A = 175
+  swap
+  A -= B
+  if sign A {
+    negative {
+      A += B
+      send words
+    }
+    zero {
+      A = recv raw
+      send words
+    }
+    positive {
+      nop
+    }
+  }
+}
+
+test direct {
+  input codes: 0 42 174
+  input raw: 999
+  expected words: 0 42 174
+}
+
+test escape {
+  input codes: 175
+  input raw: 123456789
+  expected words: 123456789
+}
+
+test padding {
+  input codes: 176
+  input raw: 999
+  expected words:
+}

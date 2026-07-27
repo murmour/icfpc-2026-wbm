@@ -1,0 +1,53 @@
+{
+  "name": "packed_ascii_decoder_v3",
+  "size": "28x4",
+  "interior": [
+    "                        >Wsv",
+    ">@rM8bW>M`128`W/WsWmdM2-X  v",
+    "       ^            <   >  v",
+    "^                          <"
+  ],
+  "ports": {
+    "rom": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [2, 2],
+      "length_range": [2, 64]
+    },
+    "bytes": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [26, 26],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "full_word",
+      "inputs": {
+        "rom": [7624947128054209713]
+      },
+      "expected": {
+        "bytes": [49, 57, 57, 54, 58, 32, 80, 104, 105]
+      }
+    },
+    {
+      "name": "padded_word",
+      "inputs": {
+        "rom": [90783541332881648]
+      },
+      "expected": {
+        "bytes": [112, 97, 100, 100, 101, 100, 33, 33]
+      }
+    },
+    {
+      "name": "eof_word",
+      "inputs": {
+        "rom": [162841135370809584]
+      },
+      "expected": {
+        "bytes": [112, 97, 100, 100, 101, 100, 33, 33]
+      }
+    }
+  ]
+}

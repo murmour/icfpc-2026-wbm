@@ -1,0 +1,31 @@
+program SudokuSplit
+memory rows[9] = 0
+memory columns[9] = 0
+memory boxes[9] = 0
+
+forever:
+    r = input()
+    c = input()
+    v = input()
+    bit = 1 << (v - 1)
+    row_index = r
+    col_index = c
+    box = (r / 3) * 3 + c / 3
+    box_index = box
+    row_mask = rows[row_index]
+    col_mask = columns[col_index]
+    box_mask = boxes[box_index]
+    used = row_mask | col_mask | box_mask
+    conflict = used & bit
+    new_row_mask = row_mask | bit
+    new_col_mask = col_mask | bit
+    new_box_mask = box_mask | bit
+    one = 1
+    zero = 0
+    if conflict == 0:
+        rows[row_index] = new_row_mask
+        columns[col_index] = new_col_mask
+        boxes[box_index] = new_box_mask
+        output(one)
+    else:
+        output(zero)

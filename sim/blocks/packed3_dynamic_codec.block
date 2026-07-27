@@ -1,0 +1,142 @@
+{
+  "name": "packed3_dynamic_codec",
+  "size": "96x20",
+  "interior": [
+    "                          >`0`                                                                v ",
+    "                                                                                                ",
+    ">@v >v >v >v >v >v >v >v >Xv >M`43`-Mv >v >{M`43`W}v >                                        >v",
+    "  >r^>s^   >r^   >r^                    >s^        >s^                                          ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "        >s^   >s^   >s^>r^ >r^       >r^                                                        ",
+    "                                                                                                ",
+    "                          >v >Mv >v >Wv >M`43`-Mv >v >{M`43`W}Mv >~M`2097151`W&Mv >W{Mv >~v > ^ ",
+    "                                                               >r^                        >s^   ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                                                                                                ",
+    "                           >r^ >r^>s^ >s^       >r^>s^                          >r^   >r^       ",
+    "^                                                                                              <"
+  ],
+  "ports": {
+    "control": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [
+        45,
+        45
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "result": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [
+        35,
+        35
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "scratch_in": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        33,
+        33
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "scratch_out": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        22,
+        22
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "read_lanes",
+      "inputs": {
+        "control": [
+          0,
+          0,
+          2097145,
+          0,
+          21,
+          4398031831040,
+          0,
+          42,
+          9223341250529198080
+        ]
+      },
+      "expected": {
+        "result": [
+          0,
+          2097145,
+          -7,
+          0,
+          4398031831040,
+          -7,
+          0,
+          9223341250529198080,
+          -7
+        ]
+      },
+      "loopbacks": {
+        "scratch_out": "scratch_in"
+      }
+    },
+    {
+      "name": "write_lanes",
+      "inputs": {
+        "control": [
+          1,
+          0,
+          42,
+          -7,
+          1,
+          21,
+          42,
+          -7,
+          1,
+          42,
+          42,
+          -7
+        ]
+      },
+      "expected": {
+        "result": [
+          1,
+          2097145,
+          1,
+          4398031831082,
+          1,
+          9223341250529198122
+        ]
+      },
+      "loopbacks": {
+        "scratch_out": "scratch_in"
+      }
+    }
+  ]
+}

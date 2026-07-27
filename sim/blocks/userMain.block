@@ -1,0 +1,53 @@
+{
+  "name": "Original RAM Controller",
+  "size": "45x20",
+  "interior": [
+    "@`1000001`M>rXrbv                            ",
+    "             r                               ",
+    "             b                               ",
+    "           ^                             <   ",
+    "           vr                       <        ",
+    "                                             ",
+    "                >     >   drs             sv ",
+    "                          r                  ",
+    "                          s                  ",
+    "                          m                  ",
+    "                      ^   <                  ",
+    "             >        >   dr        ^        ",
+    "                          r                  ",
+    "                          s                  ",
+    "                          m                  ",
+    "                      ^   <                  ",
+    "                      v   <                  ",
+    "                      >rs-X              ^   ",
+    "                      ^        <           < ",
+    "           >                  s^             "
+  ],
+  "ports": {
+    "in_data": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [12, 12],
+      "length_range": [0, 1000]
+    },
+    "in_mem": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [22, 22],
+      "length_range": [0, 1000]
+    },
+    "out_data": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [6, 6],
+      "length_range": [0, 1000]
+    },
+    "out_mem": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [30, 30],
+      "length_range": [0, 1000]
+    }
+  },
+  "tests": []
+}

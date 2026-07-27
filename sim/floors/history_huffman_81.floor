@@ -1,0 +1,93 @@
+{
+  "grid_width": 81,
+  "grid_height": 81,
+  "blocks": [
+    {
+      "id": "rom",
+      "file": "blocks/history_huffman_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "table",
+      "file": "blocks/history_huffman_table.block",
+      "x": 0,
+      "y": 61
+    },
+    {
+      "id": "bits",
+      "file": "blocks/history_huffman_bit_unpacker_rotated.block",
+      "x": 73,
+      "y": 0
+    },
+    {
+      "id": "counts",
+      "file": "blocks/history_huffman_counts.block",
+      "x": 72,
+      "y": 25
+    },
+    {
+      "id": "decoder",
+      "file": "blocks/history_huffman_compact_decoder.block",
+      "x": 53,
+      "y": 62
+    },
+    {
+      "id": "table_unpacker",
+      "file": "blocks/history_huffman_table_unpacker.block",
+      "x": 53,
+      "y": 76
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 50,
+      "y": 67
+    }
+  ],
+  "connections": [
+    {
+      "src": "rom.words",
+      "dst": "bits.words"
+    },
+    {
+      "src": "bits.bits",
+      "dst": "decoder.bits",
+      "waypoints": [
+        {"x": 71, "y": 22},
+        {"x": 71, "y": 61},
+        {"x": 52, "y": 61},
+        {"x": 52, "y": 65}
+      ]
+    },
+    {
+      "src": "counts.values",
+      "dst": "decoder.depths",
+      "waypoints": [
+        {"x": 79, "y": 60},
+        {"x": 76, "y": 60},
+        {"x": 76, "y": 61}
+      ]
+    },
+    {
+      "src": "table.words",
+      "dst": "table_unpacker.words"
+    },
+    {
+      "src": "table_unpacker.codes",
+      "dst": "decoder.codes",
+      "waypoints": [
+        {"x": 79, "y": 77},
+        {"x": 79, "y": 71},
+        {"x": 78, "y": 71}
+      ]
+    },
+    {
+      "src": "decoder.bytes",
+      "dst": "output.in",
+      "waypoints": [
+        {"x": 51, "y": 70}
+      ]
+    }
+  ]
+}

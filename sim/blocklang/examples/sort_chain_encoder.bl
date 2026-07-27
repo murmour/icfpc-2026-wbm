@@ -1,0 +1,28 @@
+block sort_chain_encoder
+
+input values auto 2 64
+output stream auto 2 64
+
+forever {
+  A = recv values
+  repeat A {
+    A = recv values
+    B = A
+    A = 10001
+    A -= B
+    send stream
+  }
+
+  A = -16
+  send stream
+  A = 16
+  repeat A {
+    A = 0
+    send stream
+  }
+}
+
+test mixed_rounds {
+  input values: 3 3 1 2 1 42
+  expected stream: 9998 10000 9999 -16 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9959 -16 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Minimal one-value FIFO relay",
+  "size": "5x2",
+  "interior": [
+    ">@rsv",
+    "^   <"
+  ],
+  "ports": {
+    "input": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [2, 2],
+      "length_range": [2, 64]
+    },
+    "output": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [3, 3],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "relays signed values in order",
+      "inputs": {
+        "input": [42, -7, 1000000]
+      },
+      "expected": {
+        "output": [42, -7, 1000000]
+      }
+    }
+  ]
+}

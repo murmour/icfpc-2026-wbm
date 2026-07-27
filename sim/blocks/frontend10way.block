@@ -1,0 +1,48 @@
+{
+  "name": "Memory request frontend, ten-way",
+  "size": "17x17",
+  "interior": [
+    "@>rX`10`Mr/S0SWSv",
+    "   `             ",
+    "   1             ",
+    "   0             ",
+    "   `             ",
+    "   M             ",
+    "   r             ",
+    "   /             ",
+    "   S             ",
+    "   1             ",
+    "   S             ",
+    "   W             ",
+    "   S             ",
+    "   r             ",
+    "   S     >rv     ",
+    "   >     ^      <",
+    " ^         <     "
+  ],
+  "ports": {
+    "in": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [2, 2],
+      "length_range": [2, 512]
+    },
+    "ack": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [14, 14],
+      "length_range": [2, 512]
+    },
+    "out0": {"type": "output", "side": "right", "offset_range": [0, 0], "length_range": [2, 512]},
+    "out1": {"type": "output", "side": "right", "offset_range": [1, 1], "length_range": [2, 512]},
+    "out2": {"type": "output", "side": "right", "offset_range": [2, 2], "length_range": [2, 512]},
+    "out3": {"type": "output", "side": "right", "offset_range": [3, 3], "length_range": [2, 512]},
+    "out4": {"type": "output", "side": "right", "offset_range": [4, 4], "length_range": [2, 512]},
+    "out5": {"type": "output", "side": "right", "offset_range": [5, 5], "length_range": [2, 512]},
+    "out6": {"type": "output", "side": "right", "offset_range": [6, 6], "length_range": [2, 512]},
+    "out7": {"type": "output", "side": "right", "offset_range": [7, 7], "length_range": [2, 512]},
+    "out8": {"type": "output", "side": "right", "offset_range": [8, 8], "length_range": [2, 512]},
+    "out9": {"type": "output", "side": "right", "offset_range": [9, 9], "length_range": [2, 512]}
+  },
+  "tests": []
+}

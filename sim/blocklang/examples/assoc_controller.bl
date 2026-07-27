@@ -1,0 +1,80 @@
+block assoc_controller
+
+input request left 0 2 64
+input in_count bottom 0 2 64
+input in_pair right 0 2 64
+output out_response bottom 5 2 64
+output out_writer top 0 2 64
+
+forever {
+  A = recv request
+  if sign A {
+    zero {
+      # READ operation
+      A = recv request
+      B = A
+      A = recv in_count
+      repeat A {
+        A = recv in_pair
+        A -= B
+        if sign A {
+          negative {
+            A += B
+            send out_writer
+            A = recv in_pair
+            send out_writer
+          }
+          zero {
+            A = 0
+            A += B
+            send out_writer
+            A = recv in_pair
+            send out_response
+            send out_writer
+          }
+          positive {
+            A += B
+            send out_writer
+            A = recv in_pair
+            send out_writer
+          }
+        }
+      }
+    }
+    positive {
+      # WRITE operation
+      A = recv request
+      send out_writer
+      B = A
+      A = recv request
+      send out_writer
+      A = recv in_count
+      repeat A {
+        A = recv in_pair
+        A -= B
+        if sign A {
+          negative {
+            A += B
+            send out_writer
+            A = recv in_pair
+            send out_writer
+          }
+          zero {
+            # Duplicate found: read and discard old value
+            A = recv in_pair
+          }
+          positive {
+            A += B
+            send out_writer
+            A = recv in_pair
+            send out_writer
+          }
+        }
+      }
+    }
+    negative {
+      # Ignore invalid operations
+      A = 0
+    }
+  }
+}

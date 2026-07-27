@@ -1,0 +1,68 @@
+block sort_chain_cell
+
+input stream_in auto 2 64
+output stream_out auto 2 64
+
+forever {
+  A = recv stream_in
+  if sign A {
+    negative {
+      send stream_out
+      A = 16
+      repeat A {
+        A = recv stream_in
+        A = -A
+        A += B
+        if sign A {
+          negative {
+            A = -A
+            A += B
+            send stream_out
+          }
+          zero {
+            swap
+            B = A
+            send stream_out
+          }
+          positive {
+            A = -A
+            A += B
+            swap
+            send stream_out
+          }
+        }
+      }
+    }
+    zero {
+      send stream_out
+    }
+    positive {
+      swap
+      A = -A
+      A += B
+      if sign A {
+        negative {
+          A = -A
+          A += B
+          swap
+          send stream_out
+        }
+        zero {
+          swap
+          B = A
+          send stream_out
+        }
+        positive {
+          A = -A
+          A += B
+          send stream_out
+        }
+      }
+    }
+  }
+}
+
+test state_and_reset {
+  input stream_in: 9998 10000 9999 -16 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9959 -16 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  expected stream_out: 0 9998 9999 -16 10000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -16 9959 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+}

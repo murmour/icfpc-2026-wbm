@@ -1,0 +1,261 @@
+block history_canonical_decoder
+
+input bits auto
+output ranks auto
+
+forever {
+  A = 1
+  B = A
+
+  A = recv bits
+  A += B
+  A += B
+  B = A
+  A = 41
+  A -= B
+  A -= B
+  A = -A
+  if sign A {
+    negative {
+      B = A
+      A = 2
+      swap
+      A /= B
+      B = A
+      A = 5
+      A += B
+      send ranks
+    }
+    zero {
+      nop
+    }
+    positive {
+      swap
+      B = A
+
+      A = recv bits
+      A += B
+      A += B
+      B = A
+      A = 97
+      A -= B
+      A -= B
+      A = -A
+      if sign A {
+        negative {
+          B = A
+          A = 2
+          swap
+          A /= B
+          B = A
+          A = 12
+          A += B
+          send ranks
+        }
+        zero {
+          nop
+        }
+        positive {
+          swap
+          B = A
+
+          A = recv bits
+          A += B
+          A += B
+          B = A
+          A = 215
+          A -= B
+          A -= B
+          A = -A
+          if sign A {
+            negative {
+              B = A
+              A = 2
+              swap
+              A /= B
+              B = A
+              A = 22
+              A += B
+              send ranks
+            }
+            zero {
+              nop
+            }
+            positive {
+              swap
+              B = A
+
+              A = recv bits
+              A += B
+              A += B
+              B = A
+              A = 469
+              A -= B
+              A -= B
+              A = -A
+              if sign A {
+                negative {
+                  B = A
+                  A = 2
+                  swap
+                  A /= B
+                  B = A
+                  A = 41
+                  A += B
+                  send ranks
+                }
+                zero {
+                  nop
+                }
+                positive {
+                  swap
+                  B = A
+
+                  A = recv bits
+                  A += B
+                  A += B
+                  B = A
+                  A = 995
+                  A -= B
+                  A -= B
+                  A = -A
+                  if sign A {
+                    negative {
+                      B = A
+                      A = 2
+                      swap
+                      A /= B
+                      B = A
+                      A = 69
+                      A += B
+                      send ranks
+                    }
+                    zero {
+                      nop
+                    }
+                    positive {
+                      swap
+                      B = A
+
+                      A = recv bits
+                      A += B
+                      A += B
+                      B = A
+                      A = 2041
+                      A -= B
+                      A -= B
+                      A = -A
+                      if sign A {
+                        negative {
+                          B = A
+                          A = 2
+                          swap
+                          A /= B
+                          B = A
+                          A = 94
+                          A += B
+                          send ranks
+                        }
+                        zero {
+                          nop
+                        }
+                        positive {
+                          swap
+                          B = A
+
+                          A = recv bits
+                          A += B
+                          A += B
+                          B = A
+                          A = 4059
+                          A -= B
+                          A -= B
+                          A = -A
+                          if sign A {
+                            negative {
+                              B = A
+                              A = 2
+                              swap
+                              A /= B
+                              B = A
+                              A = 98
+                              A += B
+                              send ranks
+                            }
+                            zero {
+                              nop
+                            }
+                            positive {
+                              swap
+                              B = A
+
+                              A = recv bits
+                              A += B
+                              A += B
+                              B = A
+                              A = 8189
+                              A -= B
+                              A -= B
+                              A = -A
+                              if sign A {
+                                negative {
+                                  B = A
+                                  A = 2
+                                  swap
+                                  A /= B
+                                  B = A
+                                  A = 101
+                                  A += B
+                                  send ranks
+                                }
+                                zero {
+                                  nop
+                                }
+                                positive {
+                                  swap
+                                  B = A
+
+                                  A = recv bits
+                                  A += B
+                                  A += B
+                                  B = A
+                                  A = 16383
+                                  A -= B
+                                  A -= B
+                                  A = -A
+                                  if sign A {
+                                    negative {
+                                      B = A
+                                      A = 2
+                                      swap
+                                      A /= B
+                                      B = A
+                                      A = 103
+                                      A += B
+                                      send ranks
+                                    }
+                                    zero {
+                                      nop
+                                    }
+                                    positive {
+                                      nop
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

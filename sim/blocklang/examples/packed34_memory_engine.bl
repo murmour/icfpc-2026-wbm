@@ -1,0 +1,141 @@
+block packed34_memory_engine
+
+input request auto
+input in_ring auto 34 128
+input scratch_in auto
+input word_in auto
+
+output out_ring auto
+output response auto
+output scratch_out auto
+output word_out auto
+
+forever {
+  # Save the operation while computing address / 3 and address % 3.
+  A = recv request
+  send scratch_out
+
+  A = recv request
+  B = A
+  A = 3
+  swap
+  A /= B
+
+  # Save the packed-word index, then turn the lane into a bit shift.
+  send scratch_out
+  swap
+  B = A
+  A = 21
+  A *= B
+  send scratch_out
+
+  # Recover operation and word index. B keeps the operation through rotation.
+  A = recv scratch_in
+  B = A
+  A = recv scratch_in
+  send scratch_out
+  repeat A {
+    A = recv in_ring
+    send out_ring
+  }
+
+  # Save the selected word, then branch on the operation retained in B.
+  A = recv in_ring
+  send word_out
+  swap
+  if sign A {
+    negative {
+      # Invalid operation codes are excluded by the problem constraints.
+      A = 0
+    }
+    zero {
+      # READ: sign-extend the selected 21-bit lane.
+      A = recv scratch_in
+      B = A
+      A = 43
+      A -= B
+      B = A
+
+      A = recv word_in
+      send out_ring
+      A <<= B
+      B = A
+      A = 43
+      swap
+      A >>= B
+      send response
+    }
+    positive {
+      # WRITE: reorder scratch from [q] to [k,q], preserving k in A.
+      A = recv scratch_in
+      B = A
+      A = recv scratch_in
+      swap
+      send scratch_out
+      swap
+      send scratch_out
+      swap
+
+      # Preserve the original word while extracting the old lane.
+      B = A
+      A = 43
+      A -= B
+      B = A
+
+      A = recv word_in
+      send word_out
+      A <<= B
+      B = A
+      A = 43
+      swap
+      A >>= B
+
+      # XOR-patching changes only the selected lane.
+      B = A
+      A = recv request
+      A ^= B
+      B = A
+      A = 2097151
+      swap
+      A &= B
+
+      B = A
+      A = recv scratch_in
+      swap
+      A <<= B
+      B = A
+
+      A = recv word_in
+      A ^= B
+      send out_ring
+    }
+  }
+
+  # Complete the 34-word rotation.
+  A = recv scratch_in
+  B = A
+  A = 33
+  A -= B
+  repeat A {
+    A = recv in_ring
+    send out_ring
+  }
+}
+
+test fresh {
+  input request: 0 0
+  input in_ring: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  loopback out_ring: in_ring
+  loopback scratch_out: scratch_in
+  loopback word_out: word_in
+  expected response: 0
+}
+
+test persistent_lanes {
+  input request: 1 0 -1000000 1 1 -7 1 2 1000000 1 99 42 0 0 0 1 0 2 0 99
+  input in_ring: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  loopback out_ring: in_ring
+  loopback scratch_out: scratch_in
+  loopback word_out: word_in
+  expected response: -1000000 -7 1000000 42
+}

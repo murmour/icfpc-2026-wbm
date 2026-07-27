@@ -1,0 +1,10 @@
+program Sort
+dynamic memory values[16]
+
+forever:
+    n = input()
+    repeat n:
+        values.push(input())
+    repeat n:
+        minimum = values.extract_min()
+        output(minimum)

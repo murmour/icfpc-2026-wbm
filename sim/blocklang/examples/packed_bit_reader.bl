@@ -1,0 +1,37 @@
+block packed_bit_reader
+
+input rom auto
+input state_in auto
+output state_out auto
+output bits auto
+
+forever {
+  A = recv rom
+  send state_out
+
+  A = 49
+  repeat A {
+    A = 2
+    B = A
+
+    A = recv state_in
+    A /= B
+    send state_out
+    swap
+    send bits
+  }
+
+  A = recv state_in
+}
+
+test low_bits {
+  input rom: 5
+  loopback state_out: state_in
+  expected bits: 1 0 1
+}
+
+test next_word {
+  input rom: 1 2
+  loopback state_out: state_in
+  expected bits: 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+}

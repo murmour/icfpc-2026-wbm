@@ -1,0 +1,29 @@
+program Sudoku
+memory masks[27] = 0
+
+forever:
+    r = input()
+    c = input()
+    v = input()
+    bit = 1 << (v - 1)
+    row_index = r
+    col_index = c + 9
+    box = (r / 3) * 3 + c / 3
+    box_index = box + 18
+    row_mask = masks[row_index]
+    col_mask = masks[col_index]
+    box_mask = masks[box_index]
+    used = row_mask | col_mask | box_mask
+    conflict = used & bit
+    new_row_mask = row_mask | bit
+    new_col_mask = col_mask | bit
+    new_box_mask = box_mask | bit
+    one = 1
+    zero = 0
+    if conflict == 0:
+        masks[row_index] = new_row_mask
+        masks[col_index] = new_col_mask
+        masks[box_index] = new_box_mask
+        output(one)
+    else:
+        output(zero)

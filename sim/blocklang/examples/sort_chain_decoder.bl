@@ -1,0 +1,41 @@
+block sort_chain_decoder
+
+input stream auto 2 64
+output values auto 2 64
+
+forever {
+  A = recv stream
+  if sign A {
+    negative {
+      A = 16
+      repeat A {
+        A = recv stream
+        if sign A {
+          negative {
+            halt
+          }
+          zero {
+            nop
+          }
+          positive {
+            B = A
+            A = 10001
+            A -= B
+            send values
+          }
+        }
+      }
+    }
+    zero {
+      nop
+    }
+    positive {
+      halt
+    }
+  }
+}
+
+test sorted_slots {
+  input stream: 0 0 0 -16 10001 10000 9999 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -16 1 20001 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  expected values: 0 1 2 10000 -10000
+}

@@ -1,0 +1,31 @@
+block packed_result_router
+
+input result auto
+
+output replacement auto
+output response auto
+
+forever {
+  A = recv result
+  if sign A {
+    negative {
+      A = 0
+    }
+    zero {
+      A = recv result
+      send replacement
+      A = recv result
+      send response
+    }
+    positive {
+      A = recv result
+      send replacement
+    }
+  }
+}
+
+test mixed {
+  input result: 0 100 -7 1 200 0 300 42
+  expected replacement: 100 200 300
+  expected response: -7 42
+}

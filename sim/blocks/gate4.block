@@ -1,0 +1,53 @@
+{
+  "name": "Bank gate 4",
+  "size": "25x22",
+  "interior": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "       >rXr>         v",
+    "         r",
+    "         r",
+    "         >          v",
+    "",
+    "       ^",
+    ">@4M>r-XrsXrs>          v",
+    "          r",
+    "          s",
+    "          r",
+    "          s",
+    "          >            v",
+    "       >rXr>          v",
+    "         r",
+    "         r",
+    "         >             v",
+    "^                   <<<<<"
+  ],
+  "ports": {
+    "in": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [11, 11],
+      "length_range": [2, 64]
+    },
+    "selected": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [11, 11],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "select and drain both comparison signs",
+      "inputs": {
+        "in": [3, 0, 2, 4, 0, 7, 5, 1, 1, 99, 4, 1, 2, -7, 0, 0, 9]
+      },
+      "expected": {
+        "selected": [0, 7, 1, 2, -7]
+      }
+    }
+  ]
+}

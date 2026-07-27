@@ -1,0 +1,46 @@
+{
+  "name": "history_huffman_counts",
+  "size": "7x26",
+  "interior": [
+    "\u003e@\u003e0s0v",
+    "^v0s0s\u003c",
+    "^\u003es0s0v",
+    "^v5s5s\u003c",
+    "^\u003es7s6v",
+    "^v5s+M\u003c",
+    "^\u003eM+s2v",
+    "^v*+9M\u003c",
+    "^\u003es5M9v",
+    "^v6s++\u003c",
+    "^\u003eM*M5v",
+    "^vM4s+\u003c",
+    "^\u003e7*s3v",
+    "^v**8M\u003c",
+    "^\u003e-s5Mv",
+    "^vM9s*\u003c",
+    "^\u003e*+M4v",
+    "^vs4s+\u003c",
+    "^\u003e7M+*v",
+    "^v7s3s\u003c",
+    "^\u003eM+*Mv",
+    "^v2s+3\u003c",
+    "^\u003es7M+v",
+    "^v+5M*\u003c",
+    "^\u003es1Nsv",
+    "^\u003c    \u003c"
+  ],
+  "ports": {
+    "values": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        6,
+        6
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  }
+}

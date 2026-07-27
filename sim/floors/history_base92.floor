@@ -1,0 +1,44 @@
+{
+  "grid_width": 90,
+  "grid_height": 90,
+  "blocks": [
+    {
+      "id": "rom",
+      "file": "blocks/history_base92_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "unpacker",
+      "file": "blocks/base92_unpacker.block",
+      "x": 0,
+      "y": 83
+    },
+    {
+      "id": "ascii",
+      "file": "blocks/base92_ascii.block",
+      "x": 33,
+      "y": 83
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 50,
+      "y": 85
+    }
+  ],
+  "connections": [
+    {
+      "src": "rom.words",
+      "dst": "unpacker.rom"
+    },
+    {
+      "src": "unpacker.codes",
+      "dst": "ascii.codes"
+    },
+    {
+      "src": "ascii.bytes",
+      "dst": "output.in"
+    }
+  ]
+}

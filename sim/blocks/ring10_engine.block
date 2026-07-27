@@ -1,0 +1,92 @@
+{
+  "name": "Ten-cell raw-request ring bank engine",
+  "size": "23x12",
+  "interior": [
+    ">@rX`10` MrbN+M   v",
+    "   v              v",
+    "   >`10` MrbN+NM  v   <",
+    "                  arsm^",
+    "                  W",
+    "  vs          srmbXNbmv",
+    "  vvMr                <",
+    "  v>               rWsv",
+    "  v               v   <",
+    "  >---------------v   <",
+    "                  arsm^",
+    "^                 <"
+  ],
+  "ports": {
+    "request": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [2, 2],
+      "length_range": [2, 64]
+    },
+    "in_ring": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [19, 19],
+      "length_range": [10, 64]
+    },
+    "out_ring": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [8, 8],
+      "length_range": [2, 64]
+    },
+    "response": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [5, 5],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "read first cell",
+      "inputs": {
+        "request": [0, 0],
+        "in_ring": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      },
+      "expected": {
+        "out_ring": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "response": [0]
+      }
+    },
+    {
+      "name": "read middle cell",
+      "inputs": {
+        "request": [0, 5],
+        "in_ring": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      },
+      "expected": {
+        "out_ring": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "response": [5]
+      }
+    },
+    {
+      "name": "write middle cell",
+      "inputs": {
+        "request": [1, 5, -7],
+        "in_ring": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      },
+      "expected": {
+        "out_ring": [0, 1, 2, 3, 4, -7, 6, 7, 8, 9],
+        "response": []
+      }
+    },
+    {
+      "name": "persistent loopback",
+      "inputs": {
+        "request": [0, 0, 1, 5, -7, 0, 5],
+        "in_ring": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      },
+      "loopbacks": {
+        "out_ring": "in_ring"
+      },
+      "expected": {
+        "response": [0, -7]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Compact base-92 code to ASCII converter",
+  "size": "13x4",
+  "interior": [
+    "   H         ",
+    ">@rXH        ",
+    "   >M`31`W+sv",
+    "^           <"
+  ],
+  "ports": {
+    "codes": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [1, 1],
+      "length_range": [2, 64]
+    },
+    "bytes": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [2, 2],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "word_and_eof",
+      "inputs": {
+        "codes": [18, 26, 26, 23, 27, 1, 49, 73, 74, 0]
+      },
+      "expected": {
+        "bytes": [49, 57, 57, 54, 58, 32, 80, 104, 105]
+      }
+    }
+  ]
+}

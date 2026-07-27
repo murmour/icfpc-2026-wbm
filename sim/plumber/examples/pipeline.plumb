@@ -1,0 +1,17 @@
+program pipeline
+
+block main {
+  forever {
+    A = recv input
+    send worker
+  }
+}
+
+block worker {
+  forever {
+    A = recv main
+    B = A
+    A += B
+    send output
+  }
+}

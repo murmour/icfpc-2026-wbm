@@ -1,0 +1,94 @@
+{
+  "name": "base99_ascii_mirror",
+  "size": "43x6",
+  "interior": [
+    "  ^X         -W9MW<v  s-s----W3Ms`611`<   <",
+    "v  <v     s+`84`MWX/W`21`MWxWM`65`+s     v ",
+    ">+M7*M`4565723557258711328`b}M`127`W&s   v ",
+    "vs`23`s`44`    ab*M-W`61`MWX/W`62`M-W1M< v ",
+    ">`85`s `83`sv  >WM`113 `+s     v      ^Xr@<",
+    "> > >       >      >           >         >^"
+  ],
+  "ports": {
+    "bytes": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        2,
+        2
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "codes": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        4,
+        4
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "alphabet_and_macro",
+      "inputs": {
+        "codes": [
+          1,
+          16,
+          17,
+          18,
+          26,
+          27,
+          52,
+          53,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          0
+        ]
+      },
+      "expected": {
+        "bytes": [
+          97,
+          112,
+          44,
+          32,
+          85,
+          83,
+          114,
+          122,
+          65,
+          90,
+          48,
+          59,
+          32,
+          34,
+          39,
+          40,
+          41,
+          44,
+          45,
+          46,
+          63,
+          116,
+          104,
+          101
+        ]
+      }
+    }
+  ]
+}

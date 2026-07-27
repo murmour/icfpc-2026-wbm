@@ -1,0 +1,59 @@
+{
+  "name": "history_base99_pairs",
+  "size": "47x4",
+  "interior": [
+    ">@> 1Ns`686`s`889`sM4W+s`971`s`1037`sM4W+s    v",
+    "^v    s`7041 `s++W5Ms+W4Ms`3331`s+W6Ms+W4M    <",
+    "^>  M4W+s`1499`s`2951`s`3395`s`3977`s`4815`s  v",
+    "^<      s`7905`s`9494`s+W6Ms+W1Ms`3784`s`0384`<"
+  ],
+  "ports": {
+    "pairs": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        2,
+        2
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "one_dictionary_cycle",
+      "inputs": null,
+      "expected": {
+        "pairs": [
+          -1,
+          686,
+          889,
+          893,
+          971,
+          1037,
+          1041,
+          1045,
+          1051,
+          1333,
+          1337,
+          1347,
+          1407,
+          1411,
+          1499,
+          2951,
+          3395,
+          3977,
+          4815,
+          4830,
+          4873,
+          4874,
+          4880,
+          4949,
+          5097
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+block sign_router
+
+input request auto
+output response auto
+
+forever {
+  A = recv request
+  if sign A {
+    negative {
+      A = -1
+      send response
+    }
+    zero {
+      A = 0
+      send response
+    }
+    positive {
+      A = 1
+      send response
+    }
+  }
+}
+
+test signs {
+  input request: -7 0 42
+  expected response: -1 0 1
+}

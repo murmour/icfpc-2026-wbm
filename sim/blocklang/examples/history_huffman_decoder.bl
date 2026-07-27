@@ -1,0 +1,1462 @@
+block history_huffman_decoder
+
+input bits auto
+output bytes auto
+
+forever {
+  A = recv bits
+  if sign A {
+    negative {
+      nop
+    }
+    zero {
+      A = recv bits
+      if sign A {
+        negative {
+          nop
+        }
+        zero {
+          A = recv bits
+          if sign A {
+            negative {
+              nop
+            }
+            zero {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  raw 4M8*
+                  send bytes
+                }
+                positive {
+                  raw 9M*+M7+
+                  send bytes
+                }
+              }
+            }
+            positive {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  raw 7M+*M3+
+                  send bytes
+                }
+                positive {
+                  raw 7M8+*
+                  send bytes
+                }
+              }
+            }
+          }
+        }
+        positive {
+          A = recv bits
+          if sign A {
+            negative {
+              nop
+            }
+            zero {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  raw 4M7**+
+                  send bytes
+                }
+                positive {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      raw 9M2+*
+                      send bytes
+                    }
+                    positive {
+                      raw 6M3**
+                      send bytes
+                    }
+                  }
+                }
+              }
+            }
+            positive {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      raw 5M4**M9+
+                      send bytes
+                    }
+                    positive {
+                      raw 3M4***+
+                      send bytes
+                    }
+                  }
+                }
+                positive {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      raw 6M3**+
+                      send bytes
+                    }
+                    positive {
+                      raw 5M**--
+                      send bytes
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    positive {
+      A = recv bits
+      if sign A {
+        negative {
+          nop
+        }
+        zero {
+          A = recv bits
+          if sign A {
+            negative {
+              nop
+            }
+            zero {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      raw 4M7+*
+                      send bytes
+                      raw 4M8*
+                      send bytes
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          raw 5M4**
+                          send bytes
+                        }
+                        positive {
+                          raw 8M5+*
+                          send bytes
+                        }
+                      }
+                    }
+                  }
+                }
+                positive {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          raw 4M7**
+                          send bytes
+                        }
+                        positive {
+                          raw 9M4+*
+                          send bytes
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          raw 2M9+M*
+                          send bytes
+                        }
+                        positive {
+                          raw 9M*+M7+
+                          send bytes
+                          raw 5M+M*+
+                          send bytes
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            positive {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          raw 7M*M9+
+                          send bytes
+                          raw 4M8*
+                          send bytes
+                        }
+                        positive {
+                          raw 3M4***+
+                          send bytes
+                          raw 6M3**+
+                          send bytes
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          raw 7M+*M3+
+                          send bytes
+                          raw 6M3**+
+                          send bytes
+                        }
+                        positive {
+                          raw 7M+*M3+
+                          send bytes
+                          raw 5M+M*+
+                          send bytes
+                        }
+                      }
+                    }
+                  }
+                }
+                positive {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 7M*
+                              send bytes
+                            }
+                            positive {
+                              raw 5M8+*
+                              send bytes
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 8M*M3+
+                              send bytes
+                            }
+                            positive {
+                              raw 5M9+*
+                              send bytes
+                            }
+                          }
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 7M4+*
+                              send bytes
+                            }
+                            positive {
+                              raw 4M5**
+                              send bytes
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 9M*M1+
+                              send bytes
+                            }
+                            positive {
+                              raw 7M+*
+                              send bytes
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        positive {
+          A = recv bits
+          if sign A {
+            negative {
+              nop
+            }
+            zero {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 6M3**-
+                              send bytes
+                            }
+                            positive {
+                              raw 7M+*M5+
+                              send bytes
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 7M+*M9+
+                              send bytes
+                            }
+                            positive {
+                              raw 5M+M*+
+                              send bytes
+                            }
+                          }
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 7M3++*
+                              send bytes
+                            }
+                            positive {
+                              raw 4M8*
+                              send bytes
+                              raw 9M*+M7+
+                              send bytes
+                              raw 5M+M*+
+                              send bytes
+                              raw 5M4**
+                              send bytes
+                              raw 4M8*
+                              send bytes
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 2M8**+
+                              send bytes
+                              raw 4M8*
+                              send bytes
+                              raw 5M8*
+                              send bytes
+                            }
+                            positive {
+                              raw 3M4***+
+                              send bytes
+                              raw 5M+M*+
+                              send bytes
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                positive {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 4M8*
+                              send bytes
+                              raw 9M*M2+
+                              send bytes
+                            }
+                            positive {
+                              raw 7M8+*
+                              send bytes
+                              raw 5M+M*+
+                              send bytes
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              raw 9M*+M7+
+                              send bytes
+                              raw 6M3**
+                              send bytes
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 5M9*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 5M+*
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 6M5+*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 4M**+
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 8M*M7+
+                                  send bytes
+                                }
+                                positive {
+                                  raw 6M+*
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 2M9***+
+                                  send bytes
+                                }
+                                positive {
+                                  raw 5M3**
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 4M5**-
+                                  send bytes
+                                }
+                                positive {
+                                  raw 6M7+*
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            positive {
+              A = recv bits
+              if sign A {
+                negative {
+                  nop
+                }
+                zero {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 6M+*M7+
+                                  send bytes
+                                }
+                                positive {
+                                  raw 9M*M2+
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 6M8+*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 9M*M5+
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 9M*M6+
+                                  send bytes
+                                }
+                                positive {
+                                  raw 4M7**M6+
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 5M+*M9+
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 5M+*
+                                  send bytes
+                                  raw 6M8*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 6M*M5+
+                                  send bytes
+                                  raw 5M+*M9+
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 5M+*
+                                  send bytes
+                                  raw 6M8*
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 6M*M5+
+                                  send bytes
+                                  raw 5M+*M9+
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 5M+*
+                                  send bytes
+                                  raw 6M8*
+                                  send bytes
+                                  raw 6M8*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 4M7+*
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 5M7++*
+                                  send bytes
+                                  raw 9M*M2+
+                                  send bytes
+                                  raw 5M8+*
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 2M8**+
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 4M7+*
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 9M*+M7+
+                                  send bytes
+                                  raw 5M+M*+
+                                  send bytes
+                                  raw 5M4**
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 4M8*
+                                  send bytes
+                                  raw 6M3**-
+                                  send bytes
+                                  raw 3M4***+
+                                  send bytes
+                                  raw 6M3**+
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 4M7**+
+                                  send bytes
+                                  raw 7M8+*
+                                  send bytes
+                                  raw 3M4***+
+                                  send bytes
+                                  raw 5M+M*+
+                                  send bytes
+                                }
+                                positive {
+                                  raw 7M8+*
+                                  send bytes
+                                  raw 5M+M*+
+                                  send bytes
+                                  raw 7M+*M5+
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 4M8*
+                                  send bytes
+                                  raw 2M8**+
+                                  send bytes
+                                }
+                                positive {
+                                  raw 4M7+*
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                  raw 9M*M2+
+                                  send bytes
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                positive {
+                  A = recv bits
+                  if sign A {
+                    negative {
+                      nop
+                    }
+                    zero {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  raw 7M+*M3+
+                                  send bytes
+                                  raw 5M4**
+                                  send bytes
+                                  raw 4M8*
+                                  send bytes
+                                }
+                                positive {
+                                  raw 9M4+*
+                                  send bytes
+                                  raw 5M+M*+
+                                  send bytes
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 2M6***-
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 3M6**-
+                                      send bytes
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 4M9+*
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 7M*M4+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 6M9*
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 5M6+*
+                                      send bytes
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 7M8*
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 3M6**+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 3M8**-
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 8M*M9+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 5M7++*
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 7M+*M8+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    positive {
+                      A = recv bits
+                      if sign A {
+                        negative {
+                          nop
+                        }
+                        zero {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 5M**-
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 5M**M3W-
+                                      send bytes
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 9M*M2+
+                                      send bytes
+                                      raw 7M8+*
+                                      send bytes
+                                      raw 5M4**M9+
+                                      send bytes
+                                      raw 3M4***+
+                                      send bytes
+                                      raw 5M+M*+
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                      raw 4M5**
+                                      send bytes
+                                      raw 7M+*M3+
+                                      send bytes
+                                      raw 2M9+M*
+                                      send bytes
+                                      raw 4M7**+
+                                      send bytes
+                                      raw 3M4***+
+                                      send bytes
+                                      raw 5M+M*+
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                      raw 2M9***+
+                                      send bytes
+                                      raw 3M4***+
+                                      send bytes
+                                      raw 5M+M*+
+                                      send bytes
+                                      raw 7M+*M3+
+                                      send bytes
+                                      raw 5M**--
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 4M7+*
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                      raw 5M7++*
+                                      send bytes
+                                      raw 9M*M2+
+                                      send bytes
+                                      raw 5M8+*
+                                      send bytes
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 4M7+*
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                      raw 8M*M3+
+                                      send bytes
+                                      raw 9M*+M7+
+                                      send bytes
+                                      raw 5M+M*+
+                                      send bytes
+                                      raw 9M*+M7+
+                                      send bytes
+                                      raw 5M4**
+                                      send bytes
+                                      raw 9M*+M7+
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                      raw 2M8**+
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 6M+*
+                                      send bytes
+                                      raw 9M*+M7+
+                                      send bytes
+                                      raw 5M**--
+                                      send bytes
+                                      raw 7M+*M9+
+                                      send bytes
+                                      raw 7M+*M3+
+                                      send bytes
+                                      raw 6M3**
+                                      send bytes
+                                      raw 6M3**
+                                      send bytes
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 7M+*
+                                      send bytes
+                                      raw 5M**--
+                                      send bytes
+                                      raw 4M7**+
+                                      send bytes
+                                      raw 6M3**+
+                                      send bytes
+                                      raw 9M*+M7+
+                                      send bytes
+                                      raw 9M2+*
+                                      send bytes
+                                      raw 4M7**+
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 6M*M5+
+                                      send bytes
+                                      raw 5M+*M9+
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                      raw 7M*
+                                      send bytes
+                                      raw 3M6**+
+                                      send bytes
+                                      raw 3M6**+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        positive {
+                          A = recv bits
+                          if sign A {
+                            negative {
+                              nop
+                            }
+                            zero {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 4M**+
+                                      send bytes
+                                      raw 9M*+M7+
+                                      send bytes
+                                      raw 4M7**M6+
+                                      send bytes
+                                      raw 7M8+*
+                                      send bytes
+                                      raw 5M4**
+                                      send bytes
+                                      raw 4M8*
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 7M+*
+                                      send bytes
+                                      raw 9M4+*
+                                      send bytes
+                                      raw 6M3**+
+                                      send bytes
+                                      raw 7M+*M5+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 7M8+*
+                                      send bytes
+                                      raw 7M+*M5+
+                                      send bytes
+                                      raw 8M5+*
+                                      send bytes
+                                    }
+                                    positive {
+                                      raw 2M9+M*
+                                      send bytes
+                                      raw 4M7**
+                                      send bytes
+                                      raw 7M+*M3+
+                                      send bytes
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            positive {
+                              A = recv bits
+                              if sign A {
+                                negative {
+                                  nop
+                                }
+                                zero {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      raw 7M4+*
+                                      send bytes
+                                      raw 4M5**-
+                                      send bytes
+                                    }
+                                    positive {
+                                      A = recv bits
+                                      if sign A {
+                                        negative {
+                                          nop
+                                        }
+                                        zero {
+                                          raw 5M8*
+                                          send bytes
+                                        }
+                                        positive {
+                                          raw 6M8*
+                                          send bytes
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                positive {
+                                  A = recv bits
+                                  if sign A {
+                                    negative {
+                                      nop
+                                    }
+                                    zero {
+                                      A = recv bits
+                                      if sign A {
+                                        negative {
+                                          nop
+                                        }
+                                        zero {
+                                          raw 7M9*
+                                          send bytes
+                                        }
+                                        positive {
+                                          raw 9M*+
+                                          send bytes
+                                        }
+                                      }
+                                    }
+                                    positive {
+                                      A = recv bits
+                                      if sign A {
+                                        negative {
+                                          nop
+                                        }
+                                        zero {
+                                          A = recv bits
+                                          if sign A {
+                                            negative {
+                                              nop
+                                            }
+                                            zero {
+                                              raw 9M*
+                                              send bytes
+                                            }
+                                            positive {
+                                              raw 8M3+*
+                                              send bytes
+                                            }
+                                          }
+                                        }
+                                        positive {
+                                          A = recv bits
+                                          if sign A {
+                                            negative {
+                                              nop
+                                            }
+                                            zero {
+                                              halt
+                                            }
+                                            positive {
+                                              A = recv bits
+                                              if sign A {
+                                                negative {
+                                                  nop
+                                                }
+                                                zero {
+                                                  raw 3M4**+
+                                                  send bytes
+                                                }
+                                                positive {
+                                                  raw 6M*M5+
+                                                  send bytes
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

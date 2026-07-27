@@ -1,0 +1,33 @@
+{
+  "name": "Minimal pipe repeater",
+  "size": "3x2",
+  "interior": [
+    ">@v",
+    "^sU"
+  ],
+  "ports": {
+    "in": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [1, 1],
+      "length_range": [2, 64]
+    },
+    "out": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [1, 1],
+      "length_range": [2, 64]
+    }
+  },
+  "tests": [
+    {
+      "name": "relays values unchanged",
+      "inputs": {
+        "in": [0, 42, -17, 1000001]
+      },
+      "expected": {
+        "out": [0, 42, -17, 1000001]
+      }
+    }
+  ]
+}

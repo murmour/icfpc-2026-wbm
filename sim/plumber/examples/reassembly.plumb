@@ -1,0 +1,248 @@
+program reassembly
+
+pipe ring 16..
+
+block ingress {
+  forever {
+    A = recv input
+    B = A
+    A = -1
+    send engine_bus
+    swap
+    repeat A {
+      A = recv input
+      send engine_bus
+      A = recv input
+      send engine_bus
+    }
+    halt
+  }
+}
+
+block engine {
+  forever {
+    A = 6
+    send engine_bus
+    A = recv engine_bus
+    B = A
+    A = 1
+    A += B
+    if sign A {
+      negative {
+      }
+      zero {
+        # Initialize the logical head and empty reorder window.
+        A = 1
+        send engine_bus
+        A = 2
+        send engine_bus
+      }
+      positive {
+        swap
+        B = A
+        A = 3
+        send engine_bus
+        A = recv engine_bus
+        swap
+        A -= B
+
+        # delta >= 16 loses the stream.
+        B = A
+        A = -16
+        A += B
+        if sign A {
+          negative {
+            swap
+            B = A
+            A = 100
+            A += B
+            send engine_bus
+            A = recv engine_bus
+            if sign A {
+              negative {
+              }
+              zero {
+              }
+              positive {
+                B = A
+                A = 200
+                A += B
+                send engine_bus
+              }
+            }
+          }
+          zero {
+            A = 6
+            send engine_bus
+            A = recv engine_bus
+            A = 50
+            send engine_bus
+            halt
+          }
+          positive {
+            A = 6
+            send engine_bus
+            A = recv engine_bus
+            A = 50
+            send engine_bus
+            halt
+          }
+        }
+      }
+    }
+  }
+}
+
+block engine_bus {
+  forever {
+    A = recv engine
+    B = A
+    A = -50
+    A += B
+    if sign A {
+      negative {
+        A = -3
+        A += B
+        if sign A {
+          negative {
+            B = A
+            A = 2
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                A = -1
+                send next_keeper
+              }
+              positive {
+                A = -1
+                send ring_worker
+              }
+            }
+          }
+          zero {
+            A = 0
+            send next_keeper
+            A = recv next_keeper
+            send engine
+          }
+          positive {
+            A = recv ingress
+            send engine
+          }
+        }
+      }
+      zero {
+        A = -1
+        send output
+        halt
+      }
+      positive {
+        A = -200
+        A += B
+        if sign A {
+          negative {
+            A = -100
+            A += B
+            B = A
+            A = 0
+            send ring_worker
+            swap
+            send ring_worker
+            A = recv ingress
+            send ring_worker
+            A = recv ring_worker
+            send engine
+          }
+          zero {
+          }
+          positive {
+            send next_keeper
+          }
+        }
+      }
+    }
+  }
+}
+
+block next_keeper {
+  forever {
+    A = recv engine_bus
+    if sign A {
+      negative {
+      }
+      zero {
+        swap
+        send engine_bus
+        swap
+      }
+      positive {
+        swap
+        A += B
+        B = A
+      }
+    }
+  }
+}
+
+block ring_worker {
+  forever {
+    A = recv engine_bus
+    if sign A {
+      negative {
+        A = 16
+        repeat A {
+          A = 0
+          send ring
+        }
+      }
+      zero {
+        A = recv engine_bus
+        B = A
+        repeat A {
+          A = recv ring
+          send ring
+        }
+
+        A = recv ring
+        A = recv engine_bus
+        send ring
+
+        A = 15
+        A -= B
+        repeat A {
+          A = recv ring
+          send ring
+        }
+
+        A = 0
+        B = A
+        A = recv ring
+        while positive A {
+          send output
+          A = 0
+          send ring
+
+          swap
+          B = A
+          A = 1
+          A += B
+          B = A
+
+          A = recv ring
+        }
+        send ring
+        A = 15
+        repeat A {
+          A = recv ring
+          send ring
+        }
+        swap
+        send engine_bus
+      }
+      positive {
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "history_huffman_table_unpacker",
+  "size": "23x3",
+  "interior": [
+    "\u003e@rM8bW\u003eM`127`W/WsWmdsv",
+    "       ^            \u003c v",
+    "^                     \u003c"
+  ],
+  "ports": {
+    "codes": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        0,
+        0
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "words": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        2,
+        2
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "one_word",
+      "inputs": {
+        "words": [
+          3884313764252483613
+        ]
+      },
+      "expected": {
+        "codes": [
+          1,
+          8,
+          15,
+          22,
+          29,
+          36,
+          43,
+          50,
+          57
+        ]
+      }
+    }
+  ]
+}

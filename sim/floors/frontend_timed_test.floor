@@ -1,0 +1,13 @@
+{
+  "grid_width": 70,
+  "grid_height": 30,
+  "blocks": [
+    {"id": "input", "type": "I", "x": 2, "y": 10},
+    {"id": "frontend", "file": "blocks/frontend10way_timed.block", "x": 10, "y": 2},
+    {"id": "output", "type": "O", "x": 55, "y": 10}
+  ],
+  "connections": [
+    {"src": "input.out", "dst": "frontend.in", "dst_side": "left"},
+    {"src": "frontend.out0", "dst": "output.in"}
+  ]
+}

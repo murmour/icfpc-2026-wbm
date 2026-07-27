@@ -1,0 +1,40 @@
+block packed_ascii_decoder
+
+input rom auto
+input state_in auto
+output state_out auto
+output bytes auto
+
+forever {
+  A = recv rom
+  send state_out
+
+  A = recv rom
+  repeat A {
+    A = 8
+    B = A
+    A += B
+    A *= B
+    B = A
+
+    A = recv state_in
+    A /= B
+    send state_out
+    swap
+    send bytes
+  }
+
+  A = recv state_in
+}
+
+test one_word {
+  input rom: 1106241 3
+  loopback state_out: state_in
+  expected bytes: 65 66 67
+}
+
+test two_words {
+  input rom: 1106241 3 15608 2
+  loopback state_out: state_in
+  expected bytes: 65 66 67 120 121
+}

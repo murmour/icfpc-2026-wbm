@@ -1,0 +1,89 @@
+program bubble_sort
+
+pipe storage 17..
+
+block encoder {
+  forever {
+    A = recv input
+    repeat A {
+      A = recv input
+      B = A
+      A = 10001
+      A += B
+      send sorter
+    }
+    A = 0
+    send sorter
+  }
+}
+
+block sorter {
+  forever {
+    # Load one encoded, zero-terminated list into the storage ring.
+    A = recv encoder
+    while positive A {
+      send storage
+      A = recv encoder
+    }
+    send storage
+
+    # Fifteen complete bubble passes sort every list of at most 16 values.
+    A = 15
+    repeat A {
+      A = recv storage
+      B = A
+      A = recv storage
+      while positive A {
+        swap
+        A = -A
+        A += B
+        if sign A {
+          negative {
+            A = -A
+            A += B
+            swap
+            send storage
+          }
+          zero {
+            A = -A
+            A += B
+            send storage
+          }
+          positive {
+            A = -A
+            A += B
+            send storage
+          }
+        }
+        A = recv storage
+      }
+
+      swap
+      send storage
+      A = 0
+      send storage
+    }
+
+    # Forward the sorted encoded stream, including its boundary.
+    A = recv storage
+    while positive A {
+      send decoder
+      A = recv storage
+    }
+    send decoder
+  }
+}
+
+block decoder {
+  forever {
+    A = recv sorter
+    while positive A {
+      B = A
+      A = 10001
+      swap
+      A -= B
+      send output
+      A = recv sorter
+    }
+  }
+}

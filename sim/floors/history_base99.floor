@@ -1,0 +1,95 @@
+{
+  "grid_width": 82,
+  "grid_height": 82,
+  "blocks": [
+    {
+      "id": "rom",
+      "file": "blocks/history_base99_rom.block",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "pairs",
+      "file": "blocks/history_base99_pairs.block",
+      "x": 6,
+      "y": 68
+    },
+    {
+      "id": "unpacker",
+      "file": "blocks/base99_unpacker.block",
+      "x": 57,
+      "y": 68
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 0,
+      "y": 68
+    },
+    {
+      "id": "ascii",
+      "file": "blocks/base99_ascii_mirror.block",
+      "x": 1,
+      "y": 74
+    },
+    {
+      "id": "decoder",
+      "file": "blocks/base99_digram_decoder_mirror.block",
+      "x": 49,
+      "y": 74
+    }
+  ],
+  "connections": [
+    {
+      "src": "rom.words",
+      "dst": "unpacker.rom",
+      "src_offset": 55,
+      "waypoints": [
+        {"x": 56, "y": 70}
+      ]
+    },
+    {
+      "src": "pairs.pairs",
+      "dst": "decoder.pairs",
+      "dst_side": "top",
+      "dst_offset": 6,
+      "waypoints": [
+        {"x": 56, "y": 71},
+        {"x": 56, "y": 73}
+      ]
+    },
+    {
+      "src": "unpacker.codes",
+      "dst": "decoder.codes",
+      "src_side": "right",
+      "src_offset": 2,
+      "dst_side": "top",
+      "dst_offset": 30,
+      "waypoints": [
+        {"x": 81, "y": 71},
+        {"x": 81, "y": 72},
+        {"x": 80, "y": 72},
+        {"x": 80, "y": 73}
+      ]
+    },
+    {
+      "src": "decoder.literals",
+      "dst": "ascii.codes",
+      "src_offset": 4,
+      "waypoints": [
+        {"x": 47, "y": 79}
+      ]
+    },
+    {
+      "src": "ascii.bytes",
+      "dst": "output.in",
+      "src_side": "top",
+      "src_offset": 0,
+      "waypoints": [
+        {"x": 2, "y": 72},
+        {"x": 1, "y": 72},
+        {"x": 1, "y": 71}
+      ]
+    }
+  ]
+}

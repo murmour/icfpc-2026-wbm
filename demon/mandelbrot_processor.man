@@ -1,0 +1,144 @@
+                                                                       +---------+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
+                                                                       |vsr<    v|>>|U@v|
+                                                                       |   Xr Wsv|<<|^s<|
+                                                                       |   dm^  v|  +---+
+                                                                       |   ^ <  v|  +---+
++-----------------------------------------------------------------+    |vsr<    v|>>|U@v|
+|>@0M3sWs2s3s`16777216`s3ss`32`Ns`13`sWs`64`s`15`s0ssWs8s1s3sWs5sv|    |   Xr Wsv|<<|^s<|
+| v s5s0s1s0s8s1s`2650213`s 3s 5s ss0s5s 0s1s 3s 8s1s`46`s3s5sss0<|    |   dm^  v|  +---+
+| >0s3s`32`Ns`12` sWs`64` s`14`s0 ss Ws8 s1 s3s0 s4s0 ss s4s3s   v|    |   ^ <  v|  +---+
+| v s0s 4s0s1s0s 8sWs  N `62099421`s3s4s ss0s 4s Ws1s 3s 8s1s`46`<|    |vsr<    v|>>|U@v|
+| >3s0s6s3 s0s7s3 s0s`11`s0ss6s8s1 s6s0s8s0 s ss7s8s1 s7 s0s9 s  v|    |   Xr Wsv|<<|^s<|
+| v s1s 2s8s1s`3262486099985211`s 3s +ss s/ s `01`s0s 9s0ss8s ss0<|    |   dm^  v|  +---+
+| >0sWs Ws9s`112` sWs/ ss8ss2s9 s  / s8s /s s  s  Ws3 s          v|    |   ^ <  v|  +---+
+| v s7s 1s8s6s ss 0s8s0s4s0ss8s s  s0s8s 0s1s 3s 8s1s M`61277761`<|    |vsr<    v|>>|U@v|
+| >0s9s0ss s9s3s2 s1s8 s1ss0s9s0s  s s9s3sW s1 s8 s3s1s0 s9s0 sssv|    |   Xr Wsv|<<|^s<|
+| vssWs Ws0s1s 0s8ss1s Ws`11`ss0s 9s7s0s 8s6s  s 0s9s0s  5s0s 8s9<|    |   dm^  v|  +---+
+| >sWs3 s`63`s1s8 s2s1 s0 s`10` s  W s9s2s`10` s  s`263` s3s0 s+sv|    |   ^ <  v|  +---+
+| v   s0s 8s0s 8s`11`s ss0s 8s 0s  / s3s8s  1s W  s3s 2s s0s`66`s<|    |vsr<    v|>>|U@v|
+| >`10` s  Wss s+s3s`15`s1s8 s3 s1 s0s8s0s  ss8s3 s`15`s1s8s1 s sv|    |   Xr Wsv|<<|^s<|
+| v  s 0s 1s0s 8ss1s3s  + s  s  s  W sWs0s  8s2s 8s+s  s s0s 8s 0<|    |   dm^  v|  +---+
+| > Ws  W  s7s Ws0ss`12`M s3 s1 s  s8s0s1s0 sW s0 sss`14`Ms3  s1sv|    |         |
+| v sW  s 0s1s 0s8ss1s 3s M `31`s  s /sW s`121`s 9sWsW s0s1s 2s8s<|    |s  ^ <   |
+| >0ss  s`15`M s3s1s s8s2 s1s0 sW  s Ws9 s`55`sW  s3s0 s`10`  s5sv|    |     1   |
+| v  s  3s8s1s`001`s s3ss s 0s 3s 0s s1s8s 1s `89`ss3s s /s  `01`<|    |     M   |
+| >1s0  s3 s0sss2s3s1s s8 s0s1 s0  s2s0s W  s6 s                 v|    |     r   |
+|^                                                               <|    |   ^ X<  |
++-----------------------------------------------------------------+    |>@>rbr^  |
+                                                       v               |  ^     <|
+                                                       |               +---------+
+                                                       |                   ^ v
+                                                       |                   ^ v
+                                                       |+------------------------------------+ >>>v
+                                                       ||>rbdrWr      s0srWs1sWs           @v| | +================================================================+
+                                                       || vm<                                | |>:                                                                :
+                                                       || > drWr      s0srWs0sr       s1sWs v| ||:                                                                :
+                                                       || vm<                                | ||:                                                                :
+                                                       >| > drWr      s0sr           s0srv   | ||:                                                                :
+                                                        | vm<      v    sWs1sW           <   | ||:                                                                :
+                                                        | > drWr      s1sWs                 v| ||:                                                                :
+                                                        | vm<                                | ||:                                                                :
+                                                        | > drW v >   Ws1sWs                v| ||:                                                                :
+                                                        | vm<                                | ||:                                                                :
+                                                        | > dr        s0sr            v      | ||:                                                                :
+                                                        | vm<                                | ||:                                                                :
+                                                        | > dr        s0sr                 v | ||:                                                                :
+                                                        | vm<                                | ||:                                                                :
+                                                        | > dr        s0sr                v  | ||:                                                                :
+                                                        | vm<                                | ||:                                                                :
+                                                        | > drbr      s0srW0ssrd+    v       | ||:                                                                :
+                                                        | vm<      v  sWs1s0W< >md*  v       | ||:                                                                :
+                                                        | > drWr      s0srv      >md-v       | ||:                                                                :
+                                                        |   r          vbWXvv   /am< v       | ||:                                                                :
+                                                        |   b               >^     < <     s |>^|:                                                                :
+                                                        | >rv          <     ^&am<           |  |:                                                                :
+                                                        | ^md                ^ >md}^         |  |:                                                                :
+                                                        |                    ^ ~m<           |  |:                                                                :
+                                                        |                                 s  |>-^:                                                                :
+                                                        |                                    |   :                                                                :
+                                                        |                                    |   :                                                                :
+                                                        |       >r^                   s      |   :                                                                :
+                                                        |                                    |>-v:                                                                :
+                                                        |^  <      <   <  <<          <   <<<|  |:                                                                :
+                                                        +------------------------------------+  |:                                                                :
+                                                                                 +-+>^          |:                                                                :
+                                                                                 |I|            |:                                                                :
+                                                                                 +-+            |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |:                                                                :
+                                                                                                |+================================================================+
+                                                                                                >-^

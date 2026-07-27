@@ -1,0 +1,79 @@
+{
+  "grid_width": 140,
+  "grid_height": 50,
+  "blocks": [
+    {
+      "id": "input",
+      "type": "I",
+      "x": 2,
+      "y": 8
+    },
+    {
+      "id": "frontend",
+      "file": "blocks/frontend10.block",
+      "x": 10,
+      "y": 2
+    },
+    {
+      "id": "gate",
+      "file": "blocks/gate0.block",
+      "x": 40,
+      "y": 2
+    },
+    {
+      "id": "controller",
+      "file": "blocks/controller.block",
+      "x": 75,
+      "y": 2
+    },
+    {
+      "id": "bank",
+      "file": "blocks/bank10.block",
+      "x": 90,
+      "y": 35
+    },
+    {
+      "id": "output",
+      "type": "O",
+      "x": 130,
+      "y": 10
+    }
+  ],
+  "connections": [
+    {
+      "src": "input.out",
+      "dst": "frontend.in",
+      "dst_side": "left"
+    },
+    {
+      "src": "frontend.out_a",
+      "dst": "gate.in"
+    },
+    {
+      "src": "gate.selected",
+      "dst": "controller.request"
+    },
+    {
+      "src": "controller.output",
+      "dst": "output.in"
+    },
+    {
+      "src": "controller.ack",
+      "dst": "frontend.ack",
+      "src_side": "bottom",
+      "dst_side": "bottom"
+    },
+    {
+      "src": "controller.memory_out",
+      "dst": "bank.in",
+      "src_side": "bottom",
+      "dst_side": "top"
+    },
+    {
+      "src": "bank.out",
+      "dst": "controller.memory_in",
+      "src_side": "top",
+      "dst_side": "bottom"
+    }
+  ]
+}

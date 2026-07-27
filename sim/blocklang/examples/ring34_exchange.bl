@@ -1,0 +1,62 @@
+block compiled_ring34_exchange
+
+input request auto
+input in_ring auto 34 128
+input replacement auto
+output out_ring auto
+output target auto
+
+forever {
+  A = recv request
+  repeat A {
+    A = recv in_ring
+    send out_ring
+  }
+
+  A = recv in_ring
+  send target
+  A = recv replacement
+  send out_ring
+
+  A = recv request
+  B = A
+  A = 1
+  swap
+  A -= B
+  repeat A {
+    A = recv in_ring
+    send out_ring
+  }
+}
+
+test first {
+  input request: 0 34
+  input in_ring: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+  input replacement: 1000
+  expected out_ring: 1000 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+  expected target: 0
+}
+
+test middle {
+  input request: 17 17
+  input in_ring: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+  input replacement: -7
+  expected out_ring: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 -7 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+  expected target: 17
+}
+
+test last {
+  input request: 33 1
+  input in_ring: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+  input replacement: 999
+  expected out_ring: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 999
+  expected target: 33
+}
+
+test persistent {
+  input request: 0 34 17 17 17 17
+  input in_ring: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+  input replacement: 0 -7 -7
+  loopback out_ring: in_ring
+  expected target: 0 17 -7
+}

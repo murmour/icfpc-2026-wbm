@@ -1,0 +1,57 @@
+block packed34_controller
+
+input request auto
+
+output exchange_request auto
+output local_control auto
+
+forever {
+  A = recv request
+  send local_control
+  if sign A {
+    negative {
+      A = 0
+    }
+    zero {
+      A = recv request
+      B = A
+      A = 3
+      swap
+      A /= B
+
+      send exchange_request
+      swap
+      send local_control
+      swap
+      B = A
+      A = 34
+      A -= B
+      send exchange_request
+    }
+    positive {
+      A = recv request
+      B = A
+      A = 3
+      swap
+      A /= B
+
+      send exchange_request
+      swap
+      send local_control
+      swap
+      B = A
+      A = 34
+      A -= B
+      send exchange_request
+
+      A = recv request
+      send local_control
+    }
+  }
+}
+
+test addresses {
+  input request: 0 0 1 1 -7 0 2 1 99 42
+  expected exchange_request: 0 34 0 34 0 34 33 1
+  expected local_control: 0 0 1 1 -7 0 2 1 0 42
+}

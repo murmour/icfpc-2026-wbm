@@ -1,0 +1,52 @@
+{
+  "name": "base71_selector",
+  "size": "14x4",
+  "interior": [
+    "v            <",
+    "      >  >drs^",
+    ">@rb>rX   >rmv",
+    "    ^ <  ^   <"
+  ],
+  "ports": {
+    "rank": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [2, 2],
+      "length_range": [2, 4096]
+    },
+    "map": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [7, 7],
+      "length_range": [2, 4096]
+    },
+    "bytes": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [1, 1],
+      "length_range": [2, 4096]
+    }
+  },
+  "tests": [
+    {
+      "name": "rank_two",
+      "inputs": {
+        "rank": [2],
+        "map": [-1, 32, 97, 101]
+      },
+      "expected": {
+        "bytes": [101]
+      }
+    },
+    {
+      "name": "rank_zero",
+      "inputs": {
+        "rank": [0],
+        "map": [120, 121, -1, 32]
+      },
+      "expected": {
+        "bytes": [32]
+      }
+    }
+  ]
+}

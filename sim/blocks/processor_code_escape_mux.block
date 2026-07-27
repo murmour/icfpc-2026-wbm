@@ -1,0 +1,70 @@
+{
+  "name": "processor_code_escape_mux",
+  "size": "11x12",
+  "interior": [
+    ">@>rMv   >v",
+    "  v  <     ",
+    "  >`175`v  ",
+    "  v     <  ",
+    "  >W-v     ",
+    "  v  <     ",
+    "   >+s v   ",
+    "           ",
+    "  >Xrs > ^ ",
+    "           ",
+    "   >   ^   ",
+    "^         <"
+  ],
+  "ports": {
+    "codes": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [3, 3],
+      "length_range": [2, 4096]
+    },
+    "raw": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [4, 4],
+      "length_range": [2, 4096]
+    },
+    "words": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [5, 5],
+      "length_range": [2, 4096]
+    }
+  },
+  "tests": [
+    {
+      "name": "direct",
+      "inputs": {
+        "codes": [0, 42, 174],
+        "raw": [999]
+      },
+      "expected": {
+        "words": [0, 42, 174]
+      }
+    },
+    {
+      "name": "escape",
+      "inputs": {
+        "codes": [175],
+        "raw": [123456789]
+      },
+      "expected": {
+        "words": [123456789]
+      }
+    },
+    {
+      "name": "padding",
+      "inputs": {
+        "codes": [176],
+        "raw": [999]
+      },
+      "expected": {
+        "words": null
+      }
+    }
+  ]
+}

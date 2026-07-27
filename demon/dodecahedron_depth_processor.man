@@ -1,0 +1,145 @@
++-------------------------------------------+
+| v                                        <|                          +---------+
+|@v>v>v>v>v>v>v>v>v>v>v>v>v>v>v>v>v>v>v>v>v^|                          |   ^ <  v|  +---+
+| 0 1 1 ` 6         ` 3s` 3   0   8 0 8 0   |                          |vsr<    v|>>|U@v|
+| Mssss 1ss Wssssss 1sss1 ssW sss sss sssss |                          |   Xr Wsv|<<|^s<|
+| 37676 500ss10Ws10 4+6s1s``sss06s08ss0s80s |                          |   dm^  v|  +---+
+| sssss 1ssWssss+ss `   `+141W+ssssss+s1ss7 |                          |   ^ <  v|  +---+
+| ` 7`7 ` 3 `8WWs8W sssWss11sss`3 109 `s08s |                          |vsr<    v|>>|U@v|
+| 4+s8sss1ss1sss3sss/s1s8s0` `32s1ssss18ss8 |                          |   Xr Wsv|<<|^s<|
+| 0s09037s`04             `s*4s4*s0s3s3ss0s |                          |   dm^  v|  +---+
+| `  `sss03s`                1``   1  `1ss0 |                          |   ^ <  v|  +---+
+| s3sss0/s31s1W0s1W0sss`   0 `2ss3ssssss7ss |                          |vsr<    v|>>|U@v|
+| 6ss36ss87sWsss2ssssW82s/ssss0-1sW8`00`s18 |                          |   Xr Wsv|<<|^s<|
+| s06ss66s`         `ss11s1s` `ss+ss1ss28ss |                          |   dm^  v|  +---+
+| 3ss03ssss3s`   `s11W2`   110  8   0  3  0 |                          |   ^ <  v|  +---+
+| s63ss0717s00s1s2ss5ssssWss0ss`    2`W4s8s |                          |vsr<    v|>>|U@v|
+| 8ss61ssss8s2ss11+2`0104 88`W15ssW143s40s7 |                          |   Xr Wsv|<<|^s<|
+| s01ss1031ss`   `sssssssssssss12sss`1 2 1  |                          |   dm^  v|  +---+
+| 7ss0sssss1+sW3ss38Ws050+010`8`sW2Ws` `sss |                          |   ^ <  v|  +---+
+| s1ss80s66ss3ss83sss1sssssss3ss1sss1sWs8`0 |                          |vsr<    v|>>|U@v|
+| 1s81ss6ss23s38ss6W0s91` 1  13          7  |                          |   Xr Wsv|<<|^s<|
+| s0ss08ss7ss+ss1+sss8ss11s2s`     3 0   0  |                          |   dm^  v|  +---+
+| 6s/0ss30s32s`   1`ss0s5s0s+ss` `Wssssss7s |                          |   ^ <  v|  +---+
+| s8ss1sss0sss11sss6+1s8`0 3  14 2 8816 05  |                          |vsr<    v|>>|U@v|
+| 7s18s117s+1s0sss81sssssssss2s1s1-ssss3s1s |                          |   Xr Wsv|<<|^s<|
+| ssss0ssssssW`20  `3`  0`W63s0`9`ss13Ws7`  |                          |   dm^  v|  +---+
+| 010ss3s66s8sMssssss2sss4sssWssssWssssssss |                          |   ^ <  v|  +---+
+| sss16s8ss0s`    2 217  1  1  35     7 037 |                          |vsr<    v|>>|U@v|
+| s36ss6s13s35s3WWs3s`   `WsssWss9+0s8sssss |                          |   Xr Wsv|<<|^s<|
+| 6ss30s0ss6s11sss1s1ssssssssWsW0sss0s`   3 |                          |   dm^  v|  +---+
+| s60ssss71s1`     6 380 0 08    207 110 5  |                          |   ^ <  v|  +---+
+| 3ss63/1ss+sss+WWssssssssssssWsssssss5ssss |                          |vsr<    v|>>|U@v|
+| ss3ssss`  0 8   0 8 1     0   3   9``     |                          |   Xr Wsv|<<|^s<|
+| 10ss` 05                           4      |                          |   dm^  v|  +---+
+| ss` 1  7               1           2      |                          |   ^ <  v|  +---+
+| s75007s2sssMsssssss+sW+ssWs0s5s0s0s0s7ssW |                          |vsr<    v|>>|U@v|
+| 8s6s9s6`8  02   7 3 3  0`s1sssss9s010s7ss |                          |   Xr Wsv|<<|^s<|
+| s6`7`6ssssWssss0s0ssssss10s1s9*`   `s0s01 |                          |   dm^  v|  +---+
+| 0sssss0300sW10ss0s1s00880s0s+ss2ssssss3ss |                          |   ^ <  v|  +---+
+| s1/671ssssWsss`  `ssssss`      181  7  78 |                          |vsr<    v|>>|U@v|
+| 1sssss3017s20W11s70W` 21       `sss3sssss |                          |   Xr Wsv|<<|^s<|
+| sW1117ssssssss5ss1ss11sss1s0s1-s28ss81` 3 |                          |   dm^  v|  +---+
+| 0sssss` 0   9``  1 `0s``WsWs3ss0ss97ss10s |                          |   ^ <  v|  +---+
+| s`676 16 0 8 3 3 `W5`310     2`s7Wss080s/ |                          |vsr<    v|>>|U@v|
+| 60sss+5ssssss1ss+ss1ss57-0s8ss2sss8sss0ss |                          |   Xr Wsv|<<|^s<|
+| s57`7 5 6  `0`88   `08``ssWs` 5 0`ss9W010 |                          |   dm^  v|  +---+       >v>v>v
+| 0` 4  `0s1+5sssss+Wsssss`   2 `/s4WWss0ss |                          |   ^ <  v|  +---+       ||||||>v>v>v
+| sss9ssss0ss1W021`    1031   0   92  0 0 7 |                          |vsr<    v|>>|U@v|       ||||||||||||
+| 330`0371 23`ssss1ssMssss58s1`8   0    08  |                          |   Xr Wsv|<<|^s<|       ||||||||||||
+| ssssssssssss`   49 0 `W60s1ssssss1sss``ss |                          |   dm^  v|  +---+       ||||||||||||
+| `     1 382 3   `ssss0ss`   11080`WW72s10 |                          |   ^ <  v|  +---+       ||||||||||||
+| 10s3s0s0ssss7`      90     `ssssss+ss01ss |                          |vsr<    v|>>|U@v|       ||||||||||||
+| 2s6s6s6s` 1 94 2 0   0   1 087 1 3 007    |                          |   Xr Wsv|<<|^s<|       ||||||||||||
+| `    6  3   `1WssssWs0Wssss4sssssssss9s`  |                          |   dm^  v|  +---+       ||||||||||||
+| s6s0sss871sss` 303  80  1`*`1 62  0  987  |                          |   ^ <  v|  +---+ +----+||||||||||||
+| 7s3s307s9s8W0sssss+ss0sss2sss3sss7sss9s7s |                          |vsr<    v|>>|U@v| |>@ v|||||||||||||
+| s0s6ssss``sss+0+`   11  83`3ss33+s91s`38  |                          |   Xr Wsv|<<|^s<| |^sr<|||||||||||||
+| 1s1s1101s01WssMs10s2s`   `1s06ssssss8ss9s |                          |   dm^  v|  +---+ +----+||||||||||||
+| s1s0ssss71ss6sss3s3s2ssWss26ss` 8 08 3195 |                          |   ^ <  v|  +---+    ^v>^>^>^>^>^>^>v
+| 6ssss0s3s` 0 0`0`  8 3  13`s` 2`s0sssss9s |                          |vsr<    v|>>|U@v|    ^>^v-----------<
+| s0818s6s1sssss1ss8ssssssssss1s332ss1s20`3 |                          |   Xr Wsv|<<|^s<| +-----------------+
+| 7ssss8s6s30s385WWs` 0       2 `1sWss0ssss |                          |   dm^  v|  +---+ |@`90`b> 0d  v    |
+| s8000s3s6ss1ss`   3        0`0s`8 ``  7 ` |                          |   ^ <  v|  +---+ |      ^sm<>W bv  |
+| 0ssssssss+Ws`     2`s++Ws+/sss1sss14sss39 |                          |vsr<    v|>>|U@v| | >s          v>v<|
+| ss1811107ss810sssW`5    0   0   0 06`s0s9 |                          |   Xr Wsv|<<|^s<| | r   >r  vs     m|
+| s1ssssssssWs1sW`0  1       6 7   1``10 49 |                          |   dm^  v|  +---+ | drsvdrsv       s|
+| 6s0s03s73ss1`1 5   `Wsssssssssssssss0sss8 |                          |         |        | ^ m<^ m<       r|
+| s3s1ss8ssWsssss1ssssss30Wss0s`8     `5ss7s|                          |s  ^ <   |        |               a^|
+| 3s6s66s6`  212 `s11sWsssss6ss6s0WWW3sss07`|                          |     1   |        |                 |
+| s6s3ss0s4sssssss+ssssW`     `52sssss0s3s`3|                          |     M   |        |                 |
+| 1s0s0ss12W` 8     8   11   31`sW0W`  0 9 4|                          |     r   |        |         r    b  |
+| sss6s01s2s13s8sss2sWss0sWWss3s1sss1+sssss5|                          |   ^ X<  |        |         >^ v  < |
+| sW3s3ss7605s2s+W3s1ssW03ss38`9 8 30 8  31`|                          |>@>rbr^  |        | X>  ^       sW  |
+| 8ssss70s1s`         `s0ssWssssssss2ss3ssss|                          |  ^     <|        | ^rW-`98`Wbr<>^  |
+| s7` `ss`8           1 0   1 8092`94s0sW08+|                          +---------+        +-----------------+
+| 0s701664`    1   8  0 0    `ssss1s`  `ssss|                              ^ v           >--^  v
+| s61s1ss5sss+sssssssW` 0    52 5 1    81 1 |                              ^ v           ^  v--<
+| 1s` 4 02218 1 3`21sss0`8   9    `Wsss4s7s9|           +------------------------------------+ >>>v
+| s/s7`  `sssss6s4ss008ssssss0s7sWMs1Ws68sss|           |>rbdrWr      s0srWs1sWs           @v| | +================================================================+
+| 0s7ss1ss382s9s`11`sss`1    2`s0ss`   1    |           | vm<                                | |>:                                                                :
+| s7s67s33sssss33` 6  05 1 0 `10sW91sss` 2 5|           | > drWr      s0srWs0sr       s1sWs v| ||:                                                                :
+| 6s1ssWss`   `s2ss1Wss1ss+sss2s3ss18``sssWs|           | vm<                                | ||:                                                                :
+| s`  1 `091WW1+`08`s1W`8   89`Ws0s` 21 1   |>--------->| > drWr      s0sr           s0srv   | ||:                                                                :
+| 07s1ss1s0sss1sssssWssss` `ssss4ssss11`    |           | vm<      v    sWs1sW           <   | ||:                                                                :
+| s36s6`5 6 0 9 1 33 80230 30000 1  1``0   0|           | > drWr      s1sWs                 v| ||:                                                                :
+| 3` 7 59 3   `ss/sssssss0s1ssssssWsssM1ssss|           | vm<                                | ||:                                                                :
+| sssss3`60`MWss8s1Ws1`8108`18`8`0s0s0s` 097|           | > drW v >   Ws1sWs                v| ||:                                                                :
+| ` 7`71ss80ss0Ws/ssss1ss0ssss1s1s3s0s3sssss|           | vm<                                | ||:                                                                :
+| 13s8s`7 `2`   1 0   0 003 0 3 58        04|           | > dr        s0sr            v      | ||:                                                                :
+| 6s080ss0s`10       2`+s0s3s0` `ss3s1s0/9ss|           | vm<                                | ||:                                                                :
+| `0 `s31s3s5sssssss+sssW1+s6ss7ss0sWs1sssss|           | > dr        s0sr                 v | ||:                                                                :
+| sssssss1s3`1   8   3   `s8s10s-1s9s3s290s0|           | vm<                                | ||:                                                                :
+| 76s3606ssssssWssWsssWsss0s0sssssssWsssss4s|           | > dr        s0sr                v  | ||:                                                                :
+| ss6ssss0`     0   3   03   2 0838`s88901s9|           | vm<                                | ||:                                                                :
+| 10s0367s3+W3sss/sWs+sssss+ssssMss2ssssss3s|           | > drbr      s0srW0ssrd+    v       | ||:                                                                :
+| ss3ssss84sss60WsWs`        8    21  2     |           | vm<      v  sWs1s0W< >md*  v       | ||:                                                                :
+| 61s610Ws2ss8sss+sW1ss0s+WssssWs+s` 1 1 3  |           | > drWr      s0srv      >md-v       | ||:                                                                :
+| ss1sssss0sss3sWsss6sssssssssWs3sWssssssss0|           |   r          vbWXvv   /am< v       | ||:                                                                :
+| 70s0s1s12W+1s1s3s0`   8   6         1   `s|           |   b               >^     < <     s |>^|:                                                                :
+| ssss8s6s0sss8sss+sss+`                 81 |           | >rv          <     ^&am<           |  |:                                                                :
+| W881s0s3` 32 8 6  1  5       8   2 `s2ss51|           | ^md                ^ >md}^         |  |:                                                                :
+| ssss0s3sNWsssssssssWs1ssWss1ssss+sW40s217s|           |                    ^ ~m<           |  |:                                                                :
+| ss00s8s6ss`31   3 8 3`sssW3s327Ws8s2s8ss03|           |                                 s  |>-^:                                                                :
+| 61ss1s1s402ss1+ss1ssss1Wsss3ssss0s80Ws3M7s|           |                                    |   :                                                                :
+| ss18ssssss0+8sss2s2W`     `s`      1   `` |           |                                    |   :                                                                :
+| 33ss01s031`   3     1     1 7      `s1s0sW|           |       >r^                   s      |   :                                                                :
+| ss0sss8ssssss`      0     9 0    `ssWs`01 |           |                                    |>-v:                                                                :
+| 16s163s7`31 22 0 8  00    `8`    13   20  |           |^  <      <   <  <<          <   <<<|  |:                                                                :
+| ss6sss0s9ssss1ssssss0ssssWsssW+` 1 3  40  |           +------------------------------------+  |:                                                                :
+| sss306s638801```1110024   1 1  2 `sss`40  |                                    +-+>^          |:                                                                :
+| 8/0sss1s9sssss19ssss0ssW+ssssss1ss` 9930  |                                    |I|            |:                                                                :
+| sss63ss1611W03618`0 0 0  0808 ```s18s221ss|                                    +-+            |:                                                                :
+| 073ssW0s9sssss`1 2 1`1sssssssW1s1s1s````81|                                                   |:                                                                :
+| ssss`   3  ``  `s3ssss` 3 2 0 0 1 `s2sssss|                                                   |:                                                                :
+| 16` 1  7`4s41+ss1`73181       `7`   03 3  |                                                   |:                                                                :
+| ss701sssss014s1Mssssss30sssssssssWss3sWsW`|                                                   |:                                                                :
+| 013s976`53 ``    30887`s` 1 1 3 0   06 9 0|                                                   |:                                                                :
+| ss` `ss1sssssss9sssssss`31 7 0 2   0`ssss0|                                                   |:                                                                :
+| 67s7s6093+W0Ws8s0+313sW52sssssssssWsss8ss0|                                                   |:                                                                :
+| ss7s7ss1sssssWs/sssssss1` 9 01 0        00|                                                   |:                                                                :
+| 0+s6s13`0  63 2   021  `s8s8sssssWsWWssss0|                                                   |:                                                                :
+| ss1s1sssssWsssssWssssWss1s2s`   `s`  010`0|                                                   |:                                                                :
+| 33s1s7`360  0 1   830       1  `1W1sssss11|                                                   |:                                                                :
+| ss6s6s1ssss+sWs/sssssss0s1s`2  22 0     0`|                                                   |:                                                                :
+| `  7  7 0   7 0   0   `s8s06`0 1`s`     `s|                                                   |:                                                                :
+| 20sss`00 6            1  `s9ss+`          |                                                   |:                                                                :
+| 9s7`70`sssssssssWWs+W`18 0`008sss`        |                                                   |:                                                                :
+| `  7 3      0 98     1`ss514ss`  2        |                                                   |:                                                                :
+| s6s7s1s6sMsss0ssss+ss1s+010`2110 1        |                                                   |:                                                                :
+| Ws0`0`Ws6`  `s01s`  0`8ss``sss5s-` 0   9 3|                                                   |:                                                                :
+| s0sssss0s5+011sss5ssssss1ss37``sssss/6ssss|                                                   |:                                                                :
+| 1ss3s31s31ss5s` `1`   1   `ss0s/9201ss0009|                                                   |:                                                                :
+| s16s6ss1s`38`31W1`10 0   31 `70ssssss/ssss|                                                   |:                                                                :
+| 6ss0s06s7sssss0s5s4sssssss271`   8 06 `Wss|                                                   |:                                                                :
+| s03s3ss0ss`   `3` `Ws3500M3s2ss8ssssss1sss|                                                   |:                                                                :
+| 7ss6s67s1010W8sssMss9ssss`76`3ss`   3 0290|                                                   |:                                                                :
+| s81s1ss8ss0sss` 8 0   0  2`sss`11  8 1`sss|                                                   |:                                                                :
+| 0ss0s00s8+`10126         1   `1s2/sssss889|                                                   |:                                                                :
+| ssssssssssssss4ss0s` 1 `W` 7 34 `s+s1//sss|                                                   |:                                                                :
+| s18181s12912s28s2s 3sss5ssssW1`2 0 1    20|                                                   |:                                                                :
+| 6sssss6sssss+s`    1   10 3  `sssssssss9ss|                                                   |:                                                                :
+| s3 0 0s3 1 8s3s0sW ` 8 `sss0ss 3 3 3s8ss +|                                                   |:                                                                :
+| >^>^>^>^>^>^>^>^>^>^>^>^>^>^>^>^>^>^>^>^>^|                                                   |:                                                                :
++-------------------------------------------+                                                   |+================================================================+
+                                                                                                >-^

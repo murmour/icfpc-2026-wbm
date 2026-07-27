@@ -1,0 +1,806 @@
+{
+  "name": "25-cell encoded vertical repeater segment",
+  "size": "9x114",
+  "interior": [
+    ">    v  <",
+    "s   @v  s",
+    "0    r   ",
+    "    vXv  ",
+    "    M N  ",
+    "    1 M  ",
+    "    W 1  ",
+    "    - W  ",
+    "    b -  ",
+    "    0 b  ",
+    "      r  ",
+    "      M  ",
+    "      1  ",
+    "    >v<  ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   ",
+    "^  vmd   ",
+    "^sW rX   ",
+    "^    >rs^",
+    "^  > v   "
+  ],
+  "ports": {
+    "cell_00_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        15,
+        15
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_00_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        16,
+        16
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_01_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        19,
+        19
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_01_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        20,
+        20
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_02_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        23,
+        23
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_02_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        24,
+        24
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_03_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        27,
+        27
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_03_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        28,
+        28
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_04_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        31,
+        31
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_04_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        32,
+        32
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_05_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        35,
+        35
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_05_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        36,
+        36
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_06_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        39,
+        39
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_06_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        40,
+        40
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_07_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        43,
+        43
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_07_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        44,
+        44
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_08_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        47,
+        47
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_08_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        48,
+        48
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_09_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        51,
+        51
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_09_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        52,
+        52
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_10_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        55,
+        55
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_10_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        56,
+        56
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_11_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        59,
+        59
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_11_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        60,
+        60
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_12_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        63,
+        63
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_12_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        64,
+        64
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_13_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        67,
+        67
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_13_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        68,
+        68
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_14_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        71,
+        71
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_14_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        72,
+        72
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_15_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        75,
+        75
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_15_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        76,
+        76
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_16_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        79,
+        79
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_16_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        80,
+        80
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_17_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        83,
+        83
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_17_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        84,
+        84
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_18_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        87,
+        87
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_18_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        88,
+        88
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_19_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        91,
+        91
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_19_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        92,
+        92
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_20_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        95,
+        95
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_20_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        96,
+        96
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_21_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        99,
+        99
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_21_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        100,
+        100
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_22_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        103,
+        103
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_22_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        104,
+        104
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_23_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        107,
+        107
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_23_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        108,
+        108
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_24_in": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        111,
+        111
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "cell_24_out": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        112,
+        112
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "completion": {
+      "type": "output",
+      "side": "top",
+      "offset_range": [
+        4,
+        4
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "request": {
+      "type": "input",
+      "side": "left",
+      "offset_range": [
+        10,
+        10
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "read first cell",
+      "inputs": {
+        "cell_00_out": [
+          42
+        ],
+        "request": [
+          1
+        ]
+      },
+      "expected": {
+        "cell_00_in": [
+          42
+        ],
+        "completion": [
+          42
+        ]
+      }
+    },
+    {
+      "name": "read last cell",
+      "inputs": {
+        "cell_24_out": [
+          99
+        ],
+        "request": [
+          25
+        ]
+      },
+      "expected": {
+        "cell_24_in": [
+          99
+        ],
+        "completion": [
+          99
+        ]
+      }
+    },
+    {
+      "name": "write middle cell",
+      "inputs": {
+        "cell_12_out": [
+          123
+        ],
+        "request": [
+          -13,
+          -17
+        ]
+      },
+      "expected": {
+        "cell_12_in": [
+          -17
+        ],
+        "completion": [
+          0
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "name": "packed34_controller",
+  "size": "61x17",
+  "interior": [
+    "                                       >`0`    v             ",
+    "                                                             ",
+    ">@v >v >v >v >M`3`W/v >v >WM`21`*v >v >X       >v >M`34`-v >v",
+    "  >r^      >r^      >s^                                  >s^ ",
+    "                                       >v >v > ^             ",
+    "                                        >r^                  ",
+    "                                                             ",
+    "                                                             ",
+    "                                                             ",
+    "     >s^                         >s^>r^         >r^          ",
+    "                                                             ",
+    "                                           >s^               ",
+    "                                                             ",
+    "                                                             ",
+    "                                                             ",
+    "        >s^            >s^                                   ",
+    "^                                                           <"
+  ],
+  "ports": {
+    "codec_control": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        9,
+        9
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "exchange_request": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        3,
+        3
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "request": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [
+        32,
+        32
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "scratch_in": {
+      "type": "input",
+      "side": "bottom",
+      "offset_range": [
+        38,
+        38
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    },
+    "scratch_out": {
+      "type": "output",
+      "side": "bottom",
+      "offset_range": [
+        57,
+        57
+      ],
+      "length_range": [
+        2,
+        64
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "addresses",
+      "inputs": {
+        "request": [
+          0,
+          0,
+          1,
+          1,
+          -7,
+          0,
+          2,
+          1,
+          99,
+          42
+        ]
+      },
+      "expected": {
+        "codec_control": [
+          0,
+          0,
+          1,
+          21,
+          -7,
+          0,
+          42,
+          1,
+          0,
+          42
+        ],
+        "exchange_request": [
+          0,
+          34,
+          0,
+          34,
+          0,
+          34,
+          33,
+          1
+        ]
+      },
+      "loopbacks": {
+        "scratch_out": "scratch_in"
+      }
+    }
+  ]
+}

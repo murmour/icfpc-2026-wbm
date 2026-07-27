@@ -1,0 +1,10 @@
+program Memory
+memory cells[100] = 0
+
+forever:
+    op = input()
+    address = input()
+    if op == 0:
+        output(cells[address])
+    else:
+        cells[address] = input()

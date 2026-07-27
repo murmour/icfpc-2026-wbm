@@ -1,0 +1,238 @@
+program sort_chain3
+
+block main {
+  forever {
+    A = recv input
+    repeat A {
+      A = recv input
+      B = A
+      A = 10001
+      A -= B
+      send cell0
+    }
+    A = -3
+    send cell0
+    A = 3
+    repeat A {
+      A = 0
+      send cell0
+    }
+  }
+}
+
+block cell0 {
+  forever {
+    A = recv main
+    if sign A {
+      negative {
+        send cell1
+        A = 3
+        repeat A {
+          A = recv main
+          A = -A
+          A += B
+          if sign A {
+            negative {
+              A = -A
+              A += B
+              send cell1
+            }
+            zero {
+              swap
+              B = A
+              send cell1
+            }
+            positive {
+              A = -A
+              A += B
+              swap
+              send cell1
+            }
+          }
+        }
+      }
+      zero {
+        send cell1
+      }
+      positive {
+        swap
+        A = -A
+        A += B
+        if sign A {
+          negative {
+            A = -A
+            A += B
+            swap
+            send cell1
+          }
+          zero {
+            swap
+            B = A
+            send cell1
+          }
+          positive {
+            A = -A
+            A += B
+            send cell1
+          }
+        }
+      }
+    }
+  }
+}
+
+block cell1 {
+  forever {
+    A = recv cell0
+    if sign A {
+      negative {
+        send cell2
+        A = 3
+        repeat A {
+          A = recv cell0
+          A = -A
+          A += B
+          if sign A {
+            negative {
+              A = -A
+              A += B
+              send cell2
+            }
+            zero {
+              swap
+              B = A
+              send cell2
+            }
+            positive {
+              A = -A
+              A += B
+              swap
+              send cell2
+            }
+          }
+        }
+      }
+      zero {
+        send cell2
+      }
+      positive {
+        swap
+        A = -A
+        A += B
+        if sign A {
+          negative {
+            A = -A
+            A += B
+            swap
+            send cell2
+          }
+          zero {
+            swap
+            B = A
+            send cell2
+          }
+          positive {
+            A = -A
+            A += B
+            send cell2
+          }
+        }
+      }
+    }
+  }
+}
+
+block cell2 {
+  forever {
+    A = recv cell1
+    if sign A {
+      negative {
+        send decoder
+        A = 3
+        repeat A {
+          A = recv cell1
+          A = -A
+          A += B
+          if sign A {
+            negative {
+              A = -A
+              A += B
+              send decoder
+            }
+            zero {
+              swap
+              B = A
+              send decoder
+            }
+            positive {
+              A = -A
+              A += B
+              swap
+              send decoder
+            }
+          }
+        }
+      }
+      zero {
+        send decoder
+      }
+      positive {
+        swap
+        A = -A
+        A += B
+        if sign A {
+          negative {
+            A = -A
+            A += B
+            swap
+            send decoder
+          }
+          zero {
+            swap
+            B = A
+            send decoder
+          }
+          positive {
+            A = -A
+            A += B
+            send decoder
+          }
+        }
+      }
+    }
+  }
+}
+
+block decoder {
+  forever {
+    A = recv cell2
+    if sign A {
+      negative {
+        A = 3
+        repeat A {
+          A = recv cell2
+          if sign A {
+            negative {
+              halt
+            }
+            zero {
+              nop
+            }
+            positive {
+              B = A
+              A = 10001
+              A -= B
+              send output
+            }
+          }
+        }
+      }
+      zero {
+        nop
+      }
+      positive {
+        halt
+      }
+    }
+  }
+}

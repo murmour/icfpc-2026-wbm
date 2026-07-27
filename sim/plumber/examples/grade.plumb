@@ -1,0 +1,1292 @@
+program grade
+
+pipe records 80..
+pipe request_state 2..
+pipe id_scratch 2..
+pipe subject_scratch 2..
+pipe key_id_scratch 2..
+pipe reducer_n_scratch 2..
+pipe operator_request_scratch 2..
+pipe normalizer_k 2..
+
+block ingress {
+  forever {
+    A = recv input
+    send roster_header
+    A = recv input
+    send roster_header
+    A = recv roster_total
+    repeat A {
+      A = recv input
+      send roster_normalizer
+    }
+    A = 1
+    while positive A {
+      A = recv input
+      send batch_clock
+      A = recv batch_dispatch
+      while positive A {
+        A = recv input
+        send batch_reply
+        A = recv batch_dispatch
+      }
+      A = 1
+    }
+  }
+}
+
+block roster_header {
+  forever {
+    A = recv ingress
+    send roster_loader
+    send roster_total
+    send roster_clock
+    A = recv ingress
+    send roster_loader
+    send roster_total
+    send roster_clock
+    halt
+  }
+}
+
+block roster_total {
+  forever {
+    A = recv roster_header
+    B = A
+    A = recv roster_header
+    A *= B
+    A += B
+    send ingress
+    halt
+  }
+}
+
+block roster_clock {
+  forever {
+    A = recv roster_header
+    B = A
+    A = recv roster_header
+    swap
+    repeat A {
+      swap
+      send roster_normalizer
+      swap
+    }
+    halt
+  }
+}
+
+block roster_normalizer {
+  forever {
+    A = recv roster_clock
+    send normalizer_k
+    A = recv ingress
+    send roster_loader
+
+    A = recv normalizer_k
+    send normalizer_k
+    repeat A {
+      A = recv ingress
+      send roster_loader
+    }
+
+    A = recv normalizer_k
+    B = A
+    A = 4
+    A -= B
+    repeat A {
+      A = 0
+      send roster_loader
+    }
+  }
+}
+
+block roster_loader {
+  forever {
+    A = recv roster_header
+    B = A
+    A = recv roster_header
+    swap
+    send scan_controller
+    B = A
+    repeat A {
+      A = recv roster_normalizer
+      send scan_controller
+      A = recv roster_normalizer
+      send scan_controller
+      A = recv roster_normalizer
+      send scan_controller
+      A = recv roster_normalizer
+      send scan_controller
+      A = recv roster_normalizer
+      send scan_controller
+    }
+    swap
+    send scan_controller
+    halt
+  }
+}
+
+block batch_clock {
+  forever {
+    A = recv ingress
+    repeat A {
+      A = 1
+      send batch_parser
+    }
+    A = 0
+    send batch_parser
+  }
+}
+
+block batch_parser {
+  forever {
+    A = recv batch_clock
+    if sign A {
+      negative {
+      }
+      zero {
+        A = 0
+        send batch_dispatch
+      }
+      positive {
+        A = 1
+        send batch_dispatch
+        A = recv batch_reply
+        B = A
+        A = -3
+        A += B
+        if sign A {
+          negative {
+            A = -2
+            A += B
+            if sign A {
+              negative {
+                # GET: op, id, subject, zero.
+                A = 2
+                send batch_dispatch
+                A = 1
+                send batch_dispatch
+
+                A = 1
+                send batch_dispatch
+                A = recv batch_reply
+                B = A
+                A = 2
+                send batch_dispatch
+                swap
+                send batch_dispatch
+
+                A = 1
+                send batch_dispatch
+                A = recv batch_reply
+                B = A
+                A = 2
+                send batch_dispatch
+                swap
+                send batch_dispatch
+
+                A = 0
+                B = A
+                A = 2
+                send batch_dispatch
+                swap
+                send batch_dispatch
+              }
+              zero {
+                # SET: op, id, subject, value.
+                A = 2
+                send batch_dispatch
+                A = 2
+                send batch_dispatch
+
+                A = 1
+                send batch_dispatch
+                A = recv batch_reply
+                B = A
+                A = 2
+                send batch_dispatch
+                swap
+                send batch_dispatch
+
+                A = 1
+                send batch_dispatch
+                A = recv batch_reply
+                B = A
+                A = 2
+                send batch_dispatch
+                swap
+                send batch_dispatch
+
+                A = 1
+                send batch_dispatch
+                A = recv batch_reply
+                B = A
+                A = 2
+                send batch_dispatch
+                swap
+                send batch_dispatch
+              }
+              positive {
+              }
+            }
+          }
+          zero {
+            # AVG: op, zero, subject, zero.
+            A = 2
+            send batch_dispatch
+            A = 3
+            send batch_dispatch
+
+            A = 0
+            B = A
+            A = 2
+            send batch_dispatch
+            swap
+            send batch_dispatch
+
+            A = 1
+            send batch_dispatch
+            A = recv batch_reply
+            B = A
+            A = 2
+            send batch_dispatch
+            swap
+            send batch_dispatch
+
+            A = 0
+            B = A
+            A = 2
+            send batch_dispatch
+            swap
+            send batch_dispatch
+          }
+          positive {
+            # TOP: op, zero, subject, zero.
+            A = 2
+            send batch_dispatch
+            A = 4
+            send batch_dispatch
+
+            A = 0
+            B = A
+            A = 2
+            send batch_dispatch
+            swap
+            send batch_dispatch
+
+            A = 1
+            send batch_dispatch
+            A = recv batch_reply
+            B = A
+            A = 2
+            send batch_dispatch
+            swap
+            send batch_dispatch
+
+            A = 0
+            B = A
+            A = 2
+            send batch_dispatch
+            swap
+            send batch_dispatch
+          }
+        }
+      }
+    }
+  }
+}
+
+block batch_dispatch {
+  forever {
+    A = recv batch_parser
+    if sign A {
+      negative {
+      }
+      zero {
+        send ingress
+      }
+      positive {
+        B = A
+        A = -1
+        A += B
+        if sign A {
+          negative {
+          }
+          zero {
+            A = 1
+            send ingress
+          }
+          positive {
+            A = recv batch_parser
+            send request_collector
+          }
+        }
+      }
+    }
+  }
+}
+
+block batch_reply {
+  forever {
+    A = recv ingress
+    send batch_parser
+  }
+}
+
+block request_frontend {
+  forever {
+    A = recv request_collector
+    B = A
+    A = 1
+    send request_bus
+    swap
+    send request_bus
+
+    # Tell the reducer which operation and roster size to expect.
+    B = A
+    A = 101
+    swap
+    A /= B
+    B = A
+    A = 5
+    swap
+    A /= B
+    B = A
+    A = 10000
+    swap
+    A /= B
+    B = A
+    A = 2
+    send request_bus
+    swap
+    send request_bus
+
+    A = 3
+    send request_bus
+    A = recv request_bus
+    B = A
+    A = 2
+    send request_bus
+    swap
+    send request_bus
+    B = A
+    A = 1
+    send request_bus
+    swap
+    send request_bus
+    A = 4
+    send request_bus
+    A = recv request_bus
+
+    A = 3
+    send request_bus
+    A = recv request_bus
+    B = A
+    A = 2
+    send request_bus
+    swap
+    send request_bus
+  }
+}
+
+block request_bus {
+  forever {
+    A = recv request_frontend
+    B = A
+    A = -3
+    A += B
+    if sign A {
+      negative {
+        B = A
+        A = 2
+        A += B
+        if sign A {
+          negative {
+          }
+          zero {
+            A = recv request_frontend
+            send scan_controller
+          }
+          positive {
+            A = recv request_frontend
+            send reducer
+          }
+        }
+      }
+      zero {
+        A = 1
+        send n_keeper
+        A = recv n_keeper
+        send request_frontend
+      }
+      positive {
+        B = A
+        A = -1
+        A += B
+        if sign A {
+          negative {
+          }
+          zero {
+            A = recv scan_controller
+            send request_frontend
+          }
+          positive {
+          }
+        }
+      }
+    }
+  }
+}
+
+block n_keeper {
+  forever {
+    A = recv request_ready
+    B = A
+    A = 1
+    while positive A {
+      A = recv request_bus
+      swap
+      send request_bus
+      swap
+      A = 1
+    }
+  }
+}
+
+block request_collector {
+  forever {
+    A = recv batch_dispatch
+    send request_packer
+    A = recv batch_dispatch
+    send request_packer
+    A = recv batch_dispatch
+    send request_packer
+    A = recv batch_dispatch
+    send request_packer
+    A = recv request_packer
+    send request_frontend
+  }
+}
+
+block request_ready {
+  forever {
+    A = recv scan_controller
+    send n_keeper
+    halt
+  }
+}
+
+block scan_controller {
+  forever {
+    A = recv roster_loader
+    repeat A {
+      A = recv roster_loader
+      B = A
+      A = 4
+      send frontend
+      swap
+      send frontend
+      A = recv frontend
+      A = recv roster_loader
+      B = A
+      A = 4
+      send frontend
+      swap
+      send frontend
+      A = recv frontend
+      A = recv roster_loader
+      B = A
+      A = 4
+      send frontend
+      swap
+      send frontend
+      A = recv frontend
+      A = recv roster_loader
+      B = A
+      A = 4
+      send frontend
+      swap
+      send frontend
+      A = recv frontend
+      A = recv roster_loader
+      B = A
+      A = 4
+      send frontend
+      swap
+      send frontend
+      A = recv frontend
+    }
+    A = recv roster_loader
+    send request_ready
+
+    A = 1
+    while positive A {
+      A = recv request_bus
+      B = A
+      A = 1
+      send frontend
+      swap
+      send frontend
+      A = recv request_bus
+      repeat A {
+        A = 2
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 2
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 3
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 6
+        send frontend
+        A = recv frontend
+        B = A
+        A = 4
+        send frontend
+        swap
+        send frontend
+        A = recv frontend
+
+        A = 2
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 2
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+
+        A = 3
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 6
+        send frontend
+        A = recv frontend
+        B = A
+        A = 4
+        send frontend
+        swap
+        send frontend
+        A = recv frontend
+
+        A = 3
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 6
+        send frontend
+        A = recv frontend
+        B = A
+        A = 4
+        send frontend
+        swap
+        send frontend
+        A = recv frontend
+
+        A = 3
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 6
+        send frontend
+        A = recv frontend
+        B = A
+        A = 4
+        send frontend
+        swap
+        send frontend
+        A = recv frontend
+
+        A = 3
+        send frontend
+        A = recv frontend
+        B = A
+        A = 5
+        send frontend
+        swap
+        send frontend
+        A = 6
+        send frontend
+        A = recv frontend
+        B = A
+        A = 4
+        send frontend
+        swap
+        send frontend
+        A = recv frontend
+      }
+      A = 7
+      send frontend
+      A = recv frontend
+      A = 1
+      send request_bus
+    }
+  }
+}
+
+block frontend {
+  forever {
+    A = recv scan_controller
+    B = A
+    A = -4
+    A += B
+    if sign A {
+      negative {
+        B = A
+        A = 3
+        A += B
+        if sign A {
+          negative {
+          }
+          zero {
+            A = recv scan_controller
+            send request_state
+          }
+          positive {
+            B = A
+            A = -1
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                A = recv request_state
+                send request_state
+                send scan_controller
+              }
+              positive {
+                A = recv records
+                send scan_controller
+              }
+            }
+          }
+        }
+      }
+      zero {
+        A = recv scan_controller
+        send records
+        A = 1
+        send scan_controller
+      }
+      positive {
+        B = A
+        A = -2
+        A += B
+        if sign A {
+          negative {
+            A = recv scan_controller
+            send selector
+          }
+          zero {
+            A = recv selector
+            send scan_controller
+          }
+          positive {
+            B = A
+            A = -1
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                A = recv request_state
+                A = 1
+                send scan_controller
+              }
+              positive {
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+block request_packer {
+  forever {
+    # (((op * 10000 + id) * 5 + subject) * 101 + value)
+    A = recv request_collector
+    B = A
+    A = 10000
+    A *= B
+    B = A
+    A = recv request_collector
+    A += B
+    B = A
+    A = 5
+    A *= B
+    B = A
+    A = recv request_collector
+    A += B
+    B = A
+    A = 101
+    A *= B
+    B = A
+    A = recv request_collector
+    A += B
+    send request_collector
+  }
+}
+
+block selector {
+  forever {
+    # Decode op from the first request copy.
+    A = recv frontend
+    B = A
+    A = 101
+    swap
+    A /= B
+    B = A
+    A = 5
+    swap
+    A /= B
+    B = A
+    A = 10000
+    swap
+    A /= B
+
+    # op >= 3 acts on every record; GET/SET require an id match.
+    B = A
+    A = -3
+    A += B
+    if sign A {
+      negative {
+        # Decode target id.
+        A = recv frontend
+        B = A
+        A = 101
+        swap
+        A /= B
+        B = A
+        A = 5
+        swap
+        A /= B
+        B = A
+        A = 10000
+        swap
+        A %= B
+        B = A
+
+        A = recv frontend
+        A -= B
+        if sign A {
+          negative {
+            A += B
+            send frontend
+            A = recv frontend
+            A = recv frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+          }
+          zero {
+            A += B
+            send frontend
+            send id_scratch
+            A = recv frontend
+            B = A
+            A = 101
+            swap
+            A /= B
+            B = A
+            A = 5
+            swap
+            A %= B
+            send subject_scratch
+            A = recv frontend
+            send operator
+            A = recv id_scratch
+            send operator
+            A = recv subject_scratch
+            B = A
+            A = -1
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                A = recv frontend
+                send operator
+                A = recv operator
+                send frontend
+                A = recv frontend
+                send frontend
+                A = recv frontend
+                send frontend
+                A = recv frontend
+                send frontend
+              }
+              positive {
+                B = A
+                A = recv frontend
+                send frontend
+                swap
+                B = A
+                A = -1
+                A += B
+                if sign A {
+                  negative {
+                  }
+                  zero {
+                    A = recv frontend
+                    send operator
+                    A = recv operator
+                    send frontend
+                    A = recv frontend
+                    send frontend
+                    A = recv frontend
+                    send frontend
+                  }
+                  positive {
+                    B = A
+                    A = recv frontend
+                    send frontend
+                    swap
+                    B = A
+                    A = -1
+                    A += B
+                    if sign A {
+                      negative {
+                      }
+                      zero {
+                        A = recv frontend
+                        send operator
+                        A = recv operator
+                        send frontend
+                        A = recv frontend
+                        send frontend
+                      }
+                      positive {
+                        A = recv frontend
+                        send frontend
+                        A = recv frontend
+                        send operator
+                        A = recv operator
+                        send frontend
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          positive {
+            A += B
+            send frontend
+            A = recv frontend
+            A = recv frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+          }
+        }
+      }
+      zero {
+        # AVG: every record is active.
+        A = recv frontend
+        A = recv frontend
+        send frontend
+        send id_scratch
+        A = recv frontend
+        B = A
+        A = 101
+        swap
+        A /= B
+        B = A
+        A = 5
+        swap
+        A %= B
+        send subject_scratch
+        A = recv frontend
+        send operator
+        A = recv id_scratch
+        send operator
+        A = recv subject_scratch
+        B = A
+        A = -1
+        A += B
+        if sign A {
+          negative {
+          }
+          zero {
+            A = recv frontend
+            send operator
+            A = recv operator
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+          }
+          positive {
+            B = A
+            A = recv frontend
+            send frontend
+            swap
+            B = A
+            A = -1
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                A = recv frontend
+                send operator
+                A = recv operator
+                send frontend
+                A = recv frontend
+                send frontend
+                A = recv frontend
+                send frontend
+              }
+              positive {
+                B = A
+                A = recv frontend
+                send frontend
+                swap
+                B = A
+                A = -1
+                A += B
+                if sign A {
+                  negative {
+                  }
+                  zero {
+                    A = recv frontend
+                    send operator
+                    A = recv operator
+                    send frontend
+                    A = recv frontend
+                    send frontend
+                  }
+                  positive {
+                    A = recv frontend
+                    send frontend
+                    A = recv frontend
+                    send operator
+                    A = recv operator
+                    send frontend
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      positive {
+        # TOP uses the same field selection protocol as AVG.
+        A = recv frontend
+        A = recv frontend
+        send frontend
+        send id_scratch
+        A = recv frontend
+        B = A
+        A = 101
+        swap
+        A /= B
+        B = A
+        A = 5
+        swap
+        A %= B
+        send subject_scratch
+        A = recv frontend
+        send operator
+        A = recv id_scratch
+        send operator
+        A = recv subject_scratch
+        B = A
+        A = -1
+        A += B
+        if sign A {
+          negative {
+          }
+          zero {
+            A = recv frontend
+            send operator
+            A = recv operator
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+            A = recv frontend
+            send frontend
+          }
+          positive {
+            B = A
+            A = recv frontend
+            send frontend
+            swap
+            B = A
+            A = -1
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                A = recv frontend
+                send operator
+                A = recv operator
+                send frontend
+                A = recv frontend
+                send frontend
+                A = recv frontend
+                send frontend
+              }
+              positive {
+                B = A
+                A = recv frontend
+                send frontend
+                swap
+                B = A
+                A = -1
+                A += B
+                if sign A {
+                  negative {
+                  }
+                  zero {
+                    A = recv frontend
+                    send operator
+                    A = recv operator
+                    send frontend
+                    A = recv frontend
+                    send frontend
+                  }
+                  positive {
+                    A = recv frontend
+                    send frontend
+                    A = recv frontend
+                    send operator
+                    A = recv operator
+                    send frontend
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+block operator {
+  forever {
+    A = recv selector
+    send operator_request_scratch
+    B = A
+    A = 101
+    swap
+    A /= B
+    B = A
+    A = 5
+    swap
+    A /= B
+    B = A
+    A = 10000
+    swap
+    A /= B
+
+    if sign A {
+      negative {
+      }
+      zero {
+      }
+      positive {
+        B = A
+        A = -2
+        A += B
+        if sign A {
+          negative {
+            # GET
+            A = recv operator_request_scratch
+            A = recv selector
+            A = recv selector
+            send output
+            send selector
+          }
+          zero {
+            # SET
+            A = recv operator_request_scratch
+            B = A
+            A = 101
+            swap
+            A %= B
+            B = A
+            A = recv selector
+            A = recv selector
+            swap
+            send selector
+          }
+          positive {
+            B = A
+            A = -1
+            A += B
+            if sign A {
+              negative {
+              }
+              zero {
+                # AVG
+                A = recv operator_request_scratch
+                A = recv selector
+                A = recv selector
+                send reducer
+                send selector
+              }
+              positive {
+                # TOP: key_builder receives id, then grade.
+                A = recv operator_request_scratch
+                A = recv selector
+                send key_builder
+                A = recv selector
+                send key_builder
+                send selector
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+block key_builder {
+  forever {
+    A = recv operator
+    send key_id_scratch
+    A = recv operator
+    B = A
+    A = 10000
+    A *= B
+    B = A
+    A = recv key_id_scratch
+    A = -A
+    A += B
+    send reducer
+  }
+}
+
+block reducer {
+  forever {
+    A = recv request_bus
+    B = A
+    A = recv request_bus
+    send reducer_n_scratch
+    swap
+    if sign A {
+      negative {
+      }
+      zero {
+      }
+      positive {
+        B = A
+        A = -3
+        A += B
+        if sign A {
+          negative {
+            # GET/SET have no reduction stream.
+            A = recv reducer_n_scratch
+            A = recv request_bus
+          }
+          zero {
+            # AVG
+            A = 0
+            B = A
+            A = recv reducer_n_scratch
+            repeat A {
+              A = recv operator
+              A += B
+              B = A
+            }
+            A = recv request_bus
+            swap
+            A /= B
+            send output
+          }
+          positive {
+            # TOP
+            A = -20000
+            B = A
+            A = recv reducer_n_scratch
+            repeat A {
+              A = recv key_builder
+              A -= B
+              if sign A {
+                negative {
+                  A += B
+                }
+                zero {
+                  A += B
+                }
+                positive {
+                  A += B
+                  B = A
+                }
+              }
+            }
+            A = recv request_bus
+            swap
+            B = A
+            A = 10000
+            swap
+            A %= B
+            B = A
+            A = 10000
+            A -= B
+            send output
+          }
+        }
+      }
+    }
+  }
+}
