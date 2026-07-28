@@ -4,19 +4,19 @@
   "blocks": [
     {
       "id": "rom",
-      "file": "blocks/history_base75_rom.block",
+      "file": "../blocks/history_base75_rom.block",
       "x": 0,
       "y": 0
     },
     {
       "id": "unpacker",
-      "file": "blocks/base75_unpacker.block",
+      "file": "../blocks/base75_unpacker.block",
       "x": 0,
       "y": 78
     },
     {
       "id": "ascii",
-      "file": "blocks/base75_ascii.block",
+      "file": "../blocks/base75_ascii.block",
       "x": 34,
       "y": 76
     },

@@ -3,10 +3,10 @@
   "grid_height": 60,
   "blocks": [
     {"id": "input", "type": "I", "x": 2, "y": 20},
-    {"id": "encoder", "file": "blocks/sort_chain_encoder.block", "x": 10, "y": 18},
-    {"id": "cell0", "file": "blocks/sort_chain_cell.block", "x": 68, "y": 9},
-    {"id": "cell1", "file": "blocks/sort_chain_cell.block", "x": 112, "y": 9},
-    {"id": "decoder", "file": "blocks/sort_chain_decoder.block", "x": 156, "y": 14},
+    {"id": "encoder", "file": "../blocks/sort_chain_encoder.block", "x": 10, "y": 18},
+    {"id": "cell0", "file": "../blocks/sort_chain_cell.block", "x": 68, "y": 9},
+    {"id": "cell1", "file": "../blocks/sort_chain_cell.block", "x": 112, "y": 9},
+    {"id": "decoder", "file": "../blocks/sort_chain_decoder.block", "x": 156, "y": 14},
     {"id": "output", "type": "O", "x": 202, "y": 20}
   ],
   "connections": [

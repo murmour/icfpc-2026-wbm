@@ -10,25 +10,25 @@
     },
     {
       "id": "frontend",
-      "file": "blocks/frontend10.block",
+      "file": "../blocks/frontend10.block",
       "x": 10,
       "y": 2
     },
     {
       "id": "gate",
-      "file": "blocks/gate0.block",
+      "file": "../blocks/gate0.block",
       "x": 40,
       "y": 2
     },
     {
       "id": "controller",
-      "file": "blocks/controller.block",
+      "file": "../blocks/controller.block",
       "x": 75,
       "y": 2
     },
     {
       "id": "bank",
-      "file": "blocks/bank10.block",
+      "file": "../blocks/bank10.block",
       "x": 90,
       "y": 35
     },

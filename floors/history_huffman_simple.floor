@@ -4,25 +4,25 @@
   "blocks": [
     {
       "id": "rom",
-      "file": "blocks/history_huffman_rom.block",
+      "file": "../blocks/history_huffman_rom.block",
       "x": 0,
       "y": 0
     },
     {
       "id": "reader",
-      "file": "blocks/packed_bit_reader.block",
+      "file": "../blocks/packed_bit_reader.block",
       "x": 41,
       "y": 62
     },
     {
       "id": "state",
-      "file": "blocks/repeater_min.block",
+      "file": "../blocks/repeater_min.block",
       "x": 84,
       "y": 64
     },
     {
       "id": "decoder",
-      "file": "blocks/history_huffman_decoder.block",
+      "file": "../blocks/history_huffman_decoder.block",
       "x": 78,
       "y": 80
     },

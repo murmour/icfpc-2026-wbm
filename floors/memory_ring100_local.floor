@@ -16,13 +16,13 @@
     },
     {
       "id": "engine",
-      "file": "blocks/ring100_engine_local.block",
+      "file": "../blocks/ring100_engine_local.block",
       "x": 0,
       "y": 11
     },
     {
       "id": "ring",
-      "file": "blocks/ring100_repeater.block",
+      "file": "../blocks/ring100_repeater.block",
       "x": 12,
       "y": 2
     }

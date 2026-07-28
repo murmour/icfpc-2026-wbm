@@ -16,607 +16,607 @@
     },
     {
       "id": "bus",
-      "file": "blocks/memory_bus.block",
+      "file": "../blocks/memory_bus.block",
       "x": 5,
       "y": 8
     },
     {
       "id": "cell_00",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 15,
       "y": 21
     },
     {
       "id": "cell_01",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 22,
       "y": 21
     },
     {
       "id": "cell_02",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 29,
       "y": 21
     },
     {
       "id": "cell_03",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 36,
       "y": 21
     },
     {
       "id": "cell_04",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 43,
       "y": 21
     },
     {
       "id": "cell_05",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 50,
       "y": 21
     },
     {
       "id": "cell_06",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 57,
       "y": 21
     },
     {
       "id": "cell_07",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 64,
       "y": 21
     },
     {
       "id": "cell_08",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 71,
       "y": 21
     },
     {
       "id": "cell_09",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 78,
       "y": 21
     },
     {
       "id": "cell_10",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 85,
       "y": 21
     },
     {
       "id": "cell_11",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 92,
       "y": 21
     },
     {
       "id": "cell_12",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 99,
       "y": 21
     },
     {
       "id": "cell_13",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 106,
       "y": 21
     },
     {
       "id": "cell_14",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 113,
       "y": 21
     },
     {
       "id": "cell_15",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 120,
       "y": 21
     },
     {
       "id": "cell_16",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 127,
       "y": 21
     },
     {
       "id": "cell_17",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 134,
       "y": 21
     },
     {
       "id": "cell_18",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 141,
       "y": 21
     },
     {
       "id": "cell_19",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 148,
       "y": 21
     },
     {
       "id": "cell_20",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 155,
       "y": 21
     },
     {
       "id": "cell_21",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 162,
       "y": 21
     },
     {
       "id": "cell_22",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 169,
       "y": 21
     },
     {
       "id": "cell_23",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 176,
       "y": 21
     },
     {
       "id": "cell_24",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 183,
       "y": 21
     },
     {
       "id": "cell_25",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 190,
       "y": 21
     },
     {
       "id": "cell_26",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 197,
       "y": 21
     },
     {
       "id": "cell_27",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 204,
       "y": 21
     },
     {
       "id": "cell_28",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 211,
       "y": 21
     },
     {
       "id": "cell_29",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 218,
       "y": 21
     },
     {
       "id": "cell_30",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 225,
       "y": 21
     },
     {
       "id": "cell_31",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 232,
       "y": 21
     },
     {
       "id": "cell_32",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 239,
       "y": 21
     },
     {
       "id": "cell_33",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 246,
       "y": 21
     },
     {
       "id": "cell_34",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 253,
       "y": 21
     },
     {
       "id": "cell_35",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 260,
       "y": 21
     },
     {
       "id": "cell_36",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 267,
       "y": 21
     },
     {
       "id": "cell_37",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 274,
       "y": 21
     },
     {
       "id": "cell_38",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 281,
       "y": 21
     },
     {
       "id": "cell_39",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 288,
       "y": 21
     },
     {
       "id": "cell_40",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 295,
       "y": 21
     },
     {
       "id": "cell_41",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 302,
       "y": 21
     },
     {
       "id": "cell_42",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 309,
       "y": 21
     },
     {
       "id": "cell_43",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 316,
       "y": 21
     },
     {
       "id": "cell_44",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 323,
       "y": 21
     },
     {
       "id": "cell_45",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 330,
       "y": 21
     },
     {
       "id": "cell_46",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 337,
       "y": 21
     },
     {
       "id": "cell_47",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 344,
       "y": 21
     },
     {
       "id": "cell_48",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 351,
       "y": 21
     },
     {
       "id": "cell_49",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 358,
       "y": 21
     },
     {
       "id": "cell_50",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 365,
       "y": 21
     },
     {
       "id": "cell_51",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 372,
       "y": 21
     },
     {
       "id": "cell_52",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 379,
       "y": 21
     },
     {
       "id": "cell_53",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 386,
       "y": 21
     },
     {
       "id": "cell_54",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 393,
       "y": 21
     },
     {
       "id": "cell_55",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 400,
       "y": 21
     },
     {
       "id": "cell_56",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 407,
       "y": 21
     },
     {
       "id": "cell_57",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 414,
       "y": 21
     },
     {
       "id": "cell_58",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 421,
       "y": 21
     },
     {
       "id": "cell_59",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 428,
       "y": 21
     },
     {
       "id": "cell_60",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 435,
       "y": 21
     },
     {
       "id": "cell_61",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 442,
       "y": 21
     },
     {
       "id": "cell_62",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 449,
       "y": 21
     },
     {
       "id": "cell_63",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 456,
       "y": 21
     },
     {
       "id": "cell_64",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 463,
       "y": 21
     },
     {
       "id": "cell_65",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 470,
       "y": 21
     },
     {
       "id": "cell_66",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 477,
       "y": 21
     },
     {
       "id": "cell_67",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 484,
       "y": 21
     },
     {
       "id": "cell_68",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 491,
       "y": 21
     },
     {
       "id": "cell_69",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 498,
       "y": 21
     },
     {
       "id": "cell_70",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 505,
       "y": 21
     },
     {
       "id": "cell_71",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 512,
       "y": 21
     },
     {
       "id": "cell_72",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 519,
       "y": 21
     },
     {
       "id": "cell_73",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 526,
       "y": 21
     },
     {
       "id": "cell_74",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 533,
       "y": 21
     },
     {
       "id": "cell_75",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 540,
       "y": 21
     },
     {
       "id": "cell_76",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 547,
       "y": 21
     },
     {
       "id": "cell_77",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 554,
       "y": 21
     },
     {
       "id": "cell_78",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 561,
       "y": 21
     },
     {
       "id": "cell_79",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 568,
       "y": 21
     },
     {
       "id": "cell_80",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 575,
       "y": 21
     },
     {
       "id": "cell_81",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 582,
       "y": 21
     },
     {
       "id": "cell_82",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 589,
       "y": 21
     },
     {
       "id": "cell_83",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 596,
       "y": 21
     },
     {
       "id": "cell_84",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 603,
       "y": 21
     },
     {
       "id": "cell_85",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 610,
       "y": 21
     },
     {
       "id": "cell_86",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 617,
       "y": 21
     },
     {
       "id": "cell_87",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 624,
       "y": 21
     },
     {
       "id": "cell_88",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 631,
       "y": 21
     },
     {
       "id": "cell_89",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 638,
       "y": 21
     },
     {
       "id": "cell_90",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 645,
       "y": 21
     },
     {
       "id": "cell_91",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 652,
       "y": 21
     },
     {
       "id": "cell_92",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 659,
       "y": 21
     },
     {
       "id": "cell_93",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 666,
       "y": 21
     },
     {
       "id": "cell_94",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 673,
       "y": 21
     },
     {
       "id": "cell_95",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 680,
       "y": 21
     },
     {
       "id": "cell_96",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 687,
       "y": 21
     },
     {
       "id": "cell_97",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 694,
       "y": 21
     },
     {
       "id": "cell_98",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 701,
       "y": 21
     },
     {
       "id": "cell_99",
-      "file": "blocks/simple_cell.block",
+      "file": "../blocks/simple_cell.block",
       "x": 708,
       "y": 21
     }

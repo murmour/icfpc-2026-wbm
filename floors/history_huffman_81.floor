@@ -4,37 +4,37 @@
   "blocks": [
     {
       "id": "rom",
-      "file": "blocks/history_huffman_rom.block",
+      "file": "../blocks/history_huffman_rom.block",
       "x": 0,
       "y": 0
     },
     {
       "id": "table",
-      "file": "blocks/history_huffman_table.block",
+      "file": "../blocks/history_huffman_table.block",
       "x": 0,
       "y": 61
     },
     {
       "id": "bits",
-      "file": "blocks/history_huffman_bit_unpacker_rotated.block",
+      "file": "../blocks/history_huffman_bit_unpacker_rotated.block",
       "x": 73,
       "y": 0
     },
     {
       "id": "counts",
-      "file": "blocks/history_huffman_counts.block",
+      "file": "../blocks/history_huffman_counts.block",
       "x": 72,
       "y": 25
     },
     {
       "id": "decoder",
-      "file": "blocks/history_huffman_compact_decoder.block",
+      "file": "../blocks/history_huffman_compact_decoder.block",
       "x": 53,
       "y": 62
     },
     {
       "id": "table_unpacker",
-      "file": "blocks/history_huffman_table_unpacker.block",
+      "file": "../blocks/history_huffman_table_unpacker.block",
       "x": 53,
       "y": 76
     },

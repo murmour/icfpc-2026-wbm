@@ -4,13 +4,13 @@
   "blocks": [
     {
       "id": "main",
-      "file": "userMain.block",
+      "file": "../blocks/userMain.block",
       "x": 2,
       "y": 6
     },
     {
       "id": "mem",
-      "file": "userMem.block",
+      "file": "../blocks/userMem.block",
       "x": 11,
       "y": 42
     },

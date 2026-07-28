@@ -4,19 +4,19 @@
   "blocks": [
     {
       "id": "rom",
-      "file": "blocks/history_base99_rom.block",
+      "file": "../blocks/history_base99_rom.block",
       "x": 0,
       "y": 0
     },
     {
       "id": "pairs",
-      "file": "blocks/history_base99_pairs.block",
+      "file": "../blocks/history_base99_pairs.block",
       "x": 6,
       "y": 68
     },
     {
       "id": "unpacker",
-      "file": "blocks/base99_unpacker.block",
+      "file": "../blocks/base99_unpacker.block",
       "x": 57,
       "y": 68
     },
@@ -28,13 +28,13 @@
     },
     {
       "id": "ascii",
-      "file": "blocks/base99_ascii_mirror.block",
+      "file": "../blocks/base99_ascii_mirror.block",
       "x": 1,
       "y": 74
     },
     {
       "id": "decoder",
-      "file": "blocks/base99_digram_decoder_mirror.block",
+      "file": "../blocks/base99_digram_decoder_mirror.block",
       "x": 49,
       "y": 74
     }

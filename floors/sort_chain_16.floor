@@ -3,29 +3,29 @@
   "grid_height": 160,
   "blocks": [
     {"id": "input", "type": "I", "x": 0, "y": 3},
-    {"id": "encoder", "file": "blocks/sort_chain_encoder.block", "x": 5, "y": 2},
+    {"id": "encoder", "file": "../blocks/sort_chain_encoder.block", "x": 5, "y": 2},
 
-    {"id": "cell00", "file": "blocks/sort_chain_cell.block", "x": 5, "y": 15},
-    {"id": "cell01", "file": "blocks/sort_chain_cell.block", "x": 47, "y": 15},
-    {"id": "cell02", "file": "blocks/sort_chain_cell.block", "x": 89, "y": 15},
-    {"id": "cell03", "file": "blocks/sort_chain_cell.block", "x": 131, "y": 15},
+    {"id": "cell00", "file": "../blocks/sort_chain_cell.block", "x": 5, "y": 15},
+    {"id": "cell01", "file": "../blocks/sort_chain_cell.block", "x": 47, "y": 15},
+    {"id": "cell02", "file": "../blocks/sort_chain_cell.block", "x": 89, "y": 15},
+    {"id": "cell03", "file": "../blocks/sort_chain_cell.block", "x": 131, "y": 15},
 
-    {"id": "cell04", "file": "blocks/sort_chain_cell.block", "x": 132, "y": 44},
-    {"id": "cell05", "file": "blocks/sort_chain_cell.block", "x": 90, "y": 44},
-    {"id": "cell06", "file": "blocks/sort_chain_cell.block", "x": 48, "y": 44},
-    {"id": "cell07", "file": "blocks/sort_chain_cell.block", "x": 6, "y": 44},
+    {"id": "cell04", "file": "../blocks/sort_chain_cell.block", "x": 132, "y": 44},
+    {"id": "cell05", "file": "../blocks/sort_chain_cell.block", "x": 90, "y": 44},
+    {"id": "cell06", "file": "../blocks/sort_chain_cell.block", "x": 48, "y": 44},
+    {"id": "cell07", "file": "../blocks/sort_chain_cell.block", "x": 6, "y": 44},
 
-    {"id": "cell08", "file": "blocks/sort_chain_cell.block", "x": 7, "y": 73},
-    {"id": "cell09", "file": "blocks/sort_chain_cell.block", "x": 49, "y": 73},
-    {"id": "cell10", "file": "blocks/sort_chain_cell.block", "x": 91, "y": 73},
-    {"id": "cell11", "file": "blocks/sort_chain_cell.block", "x": 133, "y": 73},
+    {"id": "cell08", "file": "../blocks/sort_chain_cell.block", "x": 7, "y": 73},
+    {"id": "cell09", "file": "../blocks/sort_chain_cell.block", "x": 49, "y": 73},
+    {"id": "cell10", "file": "../blocks/sort_chain_cell.block", "x": 91, "y": 73},
+    {"id": "cell11", "file": "../blocks/sort_chain_cell.block", "x": 133, "y": 73},
 
-    {"id": "cell12", "file": "blocks/sort_chain_cell.block", "x": 137, "y": 102},
-    {"id": "cell13", "file": "blocks/sort_chain_cell.block", "x": 95, "y": 102},
-    {"id": "cell14", "file": "blocks/sort_chain_cell.block", "x": 53, "y": 102},
-    {"id": "cell15", "file": "blocks/sort_chain_cell.block", "x": 11, "y": 102},
+    {"id": "cell12", "file": "../blocks/sort_chain_cell.block", "x": 137, "y": 102},
+    {"id": "cell13", "file": "../blocks/sort_chain_cell.block", "x": 95, "y": 102},
+    {"id": "cell14", "file": "../blocks/sort_chain_cell.block", "x": 53, "y": 102},
+    {"id": "cell15", "file": "../blocks/sort_chain_cell.block", "x": 11, "y": 102},
 
-    {"id": "decoder", "file": "blocks/sort_chain_decoder.block", "x": 20, "y": 136},
+    {"id": "decoder", "file": "../blocks/sort_chain_decoder.block", "x": 20, "y": 136},
     {"id": "output", "type": "O", "x": 65, "y": 141}
   ],
   "connections": [

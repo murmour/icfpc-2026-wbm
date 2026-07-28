@@ -10,13 +10,13 @@
     },
     {
       "id": "unpacker",
-      "file": "blocks/processor_code_unpacker.block",
+      "file": "../blocks/processor_code_unpacker.block",
       "x": 52,
       "y": 34
     },
     {
       "id": "mux",
-      "file": "blocks/processor_code_escape_mux.block",
+      "file": "../blocks/processor_code_escape_mux.block",
       "x": 85,
       "y": 34
     },

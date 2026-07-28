@@ -4,31 +4,31 @@
   "blocks": [
     {
       "id": "rom",
-      "file": "blocks/history_base71_rom.block",
+      "file": "../blocks/history_base71_rom.block",
       "x": 0,
       "y": 0
     },
     {
       "id": "unpacker",
-      "file": "blocks/base71_unpacker.block",
+      "file": "../blocks/base71_unpacker.block",
       "x": 0,
       "y": 75
     },
     {
       "id": "mapper",
-      "file": "blocks/base71_mapper.block",
+      "file": "../blocks/base71_mapper.block",
       "x": 52,
       "y": 74
     },
     {
       "id": "selector",
-      "file": "blocks/base71_selector.block",
+      "file": "../blocks/base71_selector.block",
       "x": 30,
       "y": 91
     },
     {
       "id": "state",
-      "file": "blocks/fifo_relay_mirror.block",
+      "file": "../blocks/fifo_relay_mirror.block",
       "x": 15,
       "y": 90
     },
