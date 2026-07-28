@@ -12,8 +12,8 @@ from verify_matmul_pipeline import _case, _find_go, _go_environment
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT.parent
+SIMULATOR = REPOSITORY / "sim"
 
 
 def main() -> int:

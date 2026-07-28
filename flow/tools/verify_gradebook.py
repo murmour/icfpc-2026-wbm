@@ -14,8 +14,8 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT.parent
+SIMULATOR = REPOSITORY / "sim"
 GENERATED = ROOT / "generated" / "gradebook_flow.man"
 
 sys.path.insert(0, str(ROOT))

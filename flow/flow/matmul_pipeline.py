@@ -34,8 +34,8 @@ from .matmul_parallel import (
 )
 
 
-_REPOSITORY = Path(__file__).resolve().parents[3]
-_MEME_ROOT = _REPOSITORY / "src" / "meme"
+_REPOSITORY = Path(__file__).resolve().parents[2]
+_MEME_ROOT = _REPOSITORY
 if str(_MEME_ROOT) not in sys.path:
     sys.path.insert(0, str(_MEME_ROOT))
 
