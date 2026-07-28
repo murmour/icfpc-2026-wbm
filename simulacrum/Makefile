@@ -52,7 +52,7 @@ simulacrum: simulacrum.c $(MODE_STAMP) $(PROFILE_MODE_STAMP) $(TV_MODE_STAMP)
 	touch $@
 
 benchmark: simulacrum
-	./simulacrum ../demon/rotozoom.man --frames 1
+	./simulacrum ../demon/metaballs.man --frames 1
 
 clean:
 	rm -f simulacrum .fast-mode-0 .fast-mode-1 \
