@@ -1,17 +1,13 @@
 package main
 
 import (
-	"os"
 	"slices"
 	"strconv"
 	"testing"
 )
 
 func TestBase99HistoryRoundTrip(t *testing.T) {
-	input, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
+	input := historyLesson(t)
 	artifact, err := packBase99(input)
 	if err != nil {
 		t.Fatal(err)
@@ -52,10 +48,7 @@ func TestBase99HistoryRoundTrip(t *testing.T) {
 }
 
 func TestBase99PairTableFits(t *testing.T) {
-	input, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
+	input := historyLesson(t)
 	artifact, err := packBase99(input)
 	if err != nil {
 		t.Fatal(err)

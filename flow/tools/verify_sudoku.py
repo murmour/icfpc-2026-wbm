@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from pathlib import Path
 import random
@@ -102,18 +103,24 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(result.text, encoding="utf-8", newline="\n")
 
-    case_text = ""
-    for _, inputs in _cases(stress=arguments.stress):
-        expected = run_sudoku_stream(inputs)
-        case_text += (
-            "in: " + " ".join(map(str, inputs)) + "\n"
-            "out: " + " ".join(map(str, expected)) + "\n"
-        )
+    fixture = {
+        "task": "sudoku",
+        "cases": [
+            {
+                "name": name,
+                "input": inputs,
+                "output": run_sudoku_stream(inputs),
+            }
+            for name, inputs in _cases(stress=arguments.stress)
+        ],
+    }
 
     go = _find_go()
     with tempfile.TemporaryDirectory(prefix="flow-sudoku-") as directory:
-        cases = Path(directory) / "cases.md"
-        cases.write_text(case_text, encoding="utf-8", newline="\n")
+        cases = Path(directory) / "cases.json"
+        cases.write_text(
+            json.dumps(fixture), encoding="utf-8", newline="\n"
+        )
         command = [
             str(go),
             "run",
@@ -124,7 +131,7 @@ def main() -> int:
             "types.go",
             "--program",
             str(output),
-            "--problem",
+            "--tests",
             str(cases),
             "--max-ticks",
             "5000000",

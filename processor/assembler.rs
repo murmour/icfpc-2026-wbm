@@ -3045,26 +3045,20 @@ fn run_screen_vm_until_frames(
     Err("step limit exceeded".to_string())
 }
 
-fn public_bracket_tests() -> Vec<(Vec<i64>, i64)> {
-    vec![
-        (vec![6, 40, 41, 91, 93, 123, 125], 0),
-        (vec![0], 0),
-        (vec![2, 40, 93], 2),
-        (vec![1, 41], 1),
-        (vec![3, 40, 91, 123], 4),
-        (vec![10, 40, 40, 40, 40, 40, 41, 41, 41, 41, 41], 0),
-        (vec![4, 40, 91, 41, 93], 3),
-        (vec![4, 40, 91, 41, 41], 3),
-        (
-            vec![
-                64, 40, 41, 40, 41, 40, 91, 123, 40, 91, 123, 40, 91, 123, 40, 91, 123, 40, 91,
-                123, 40, 91, 123, 40, 91, 123, 40, 91, 123, 40, 91, 123, 40, 91, 123, 125, 93, 41,
-                125, 93, 41, 125, 93, 41, 125, 93, 41, 125, 93, 41, 125, 93, 41, 125, 93, 41, 125,
-                93, 41, 125, 93, 41, 125, 93, 41,
-            ],
-            0,
-        ),
-    ]
+fn append_unique_test<T: PartialEq>(
+    tests: &mut Vec<(Vec<i64>, T)>,
+    input: Vec<i64>,
+    expected: T,
+    suite: &str,
+) -> Result<(), String> {
+    if let Some((_, existing)) = tests.iter().find(|(candidate, _)| candidate == &input) {
+        if existing != &expected {
+            return Err(format!("{suite} has conflicting expectations for one input"));
+        }
+    } else {
+        tests.push((input, expected));
+    }
+    Ok(())
 }
 
 fn matmul_expected(input: &[i64]) -> Result<Vec<i64>, String> {
@@ -3099,13 +3093,6 @@ fn matmul_expected(input: &[i64]) -> Result<Vec<i64>, String> {
 }
 
 fn public_matmul_tests() -> Result<Vec<(Vec<i64>, Vec<i64>)>, String> {
-    let mut tests = Vec::new();
-    tests.push(vec![2, 2, 2, 1, 2, 3, 4, 5, 6, 7, 8]);
-    tests.push(vec![2, 3, 2, 1, 0, -1, 2, 3, 1, 4, 5, 6, 7, 8, 9]);
-    tests.push(vec![
-        4, 4, 4, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1, 0, 0, 0, 0, 1, 0, 0, 0,
-        0, 1, 0, 0, 0, 0, 1,
-    ]);
     let mut full = vec![16, 16, 16];
     for i in 0..256 {
         full.push((i % 17) as i64 - 8);
@@ -3113,11 +3100,16 @@ fn public_matmul_tests() -> Result<Vec<(Vec<i64>, Vec<i64>)>, String> {
     for i in 0..256 {
         full.push(((i * 7) % 19) as i64 - 9);
     }
-    tests.push(full);
-    tests
-        .into_iter()
-        .map(|input| matmul_expected(&input).map(|expected| (input, expected)))
-        .collect()
+    let full_expected = matmul_expected(&full)?;
+    let mut tests = vec![(full, full_expected)];
+    for (input, expected) in public_test_cases(include_str!("../public_tests/matrix.json"))? {
+        let modeled = matmul_expected(&input)?;
+        if modeled != expected {
+            return Err("matrix public test output does not match the reference model".to_string());
+        }
+        append_unique_test(&mut tests, input, expected, "matrix tests")?;
+    }
+    Ok(tests)
 }
 
 fn bresenham_frame(mut x0: i64, mut y0: i64, x1: i64, y1: i64) -> Vec<i64> {
@@ -3145,39 +3137,18 @@ fn bresenham_frame(mut x0: i64, mut y0: i64, x1: i64, y1: i64) -> Vec<i64> {
     frame
 }
 
-fn public_plotter_tests() -> Vec<(Vec<i64>, Vec<Vec<i64>>)> {
-    let cases: Vec<Vec<(i64, i64, i64, i64)>> = vec![
-        vec![(0, 0, 31, 23)],
-        vec![(4, 20, 27, 3), (2, 2, 29, 2), (16, 0, 16, 23)],
-        vec![(9, 5, 9, 5)],
-        vec![(0, 0, 8, 4), (8, 4, 0, 0), (20, 3, 21, 15), (21, 15, 20, 3)],
-        vec![
-            (0, 0, 31, 0),
-            (31, 0, 31, 23),
-            (31, 23, 0, 23),
-            (0, 23, 0, 0),
-        ],
-        vec![
-            (15, 11, 29, 16),
-            (15, 11, 20, 22),
-            (15, 11, 10, 22),
-            (15, 11, 1, 16),
-            (15, 11, 1, 6),
-            (15, 11, 10, 0),
-            (15, 11, 20, 0),
-            (15, 11, 29, 6),
-        ],
-    ];
-    cases
+fn public_plotter_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
+    public_test_inputs(include_str!("../public_tests/plotter.json"))?
         .into_iter()
-        .map(|rounds| {
-            let mut input = Vec::new();
-            let mut frames = Vec::new();
-            for (x0, y0, x1, y1) in rounds {
-                input.extend([x0, y0, x1, y1]);
-                frames.push(bresenham_frame(x0, y0, x1, y1));
+        .map(|input| {
+            if input.len() % 4 != 0 {
+                return Err("plotter public test has an incomplete round".to_string());
             }
-            (input, frames)
+            let frames = input
+                .chunks_exact(4)
+                .map(|round| bresenham_frame(round[0], round[1], round[2], round[3]))
+                .collect();
+            Ok((input, frames))
         })
         .collect()
 }
@@ -3245,18 +3216,24 @@ fn snake_expected_frames(input: &[i64]) -> Result<Vec<Vec<i64>>, String> {
 }
 
 fn public_snake_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
-    let cases = vec![
+    let inputs = vec![
         vec![12, 3, 0, 0],
         vec![2, 2, 1, 3, 2, 0, 0],
         vec![15, 0, 0],
         vec![
-            2, 2, 1, 3, 2, 0, 4, 1, 3, 3, 0, 5, 1, 2, 3, 0, 1, 1, 3, 0, 2, 1, 1, 2, 0, 3, 0, 4, 0,
+            2, 2, 1, 3, 2, 0, 4, 1, 3, 3, 0, 5, 1, 2, 3, 0, 1, 1, 3, 0, 2, 1, 1, 2, 0, 3, 0,
+            4, 0,
         ],
     ];
-    cases
+    let mut tests = inputs
         .into_iter()
         .map(|input| snake_expected_frames(&input).map(|frames| (input, frames)))
-        .collect()
+        .collect::<Result<Vec<_>, _>>()?;
+    for input in public_test_inputs(include_str!("../public_tests/snake.json"))? {
+        let frames = snake_expected_frames(&input)?;
+        append_unique_test(&mut tests, input, frames, "snake tests")?;
+    }
+    Ok(tests)
 }
 
 fn pathfinder_expected_frames(input: &[i64]) -> Result<Vec<Vec<i64>>, String> {
@@ -3362,42 +3339,77 @@ fn pathfinder_expected_frames(input: &[i64]) -> Result<Vec<Vec<i64>>, String> {
     Ok(frames)
 }
 
-fn published_pathfinder_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
-    let markdown = include_str!("../../problems/pathfinder.md");
-    let mut current = Vec::new();
-    let mut tests = Vec::new();
-
-    let finish =
-        |input: &mut Vec<i64>, tests: &mut Vec<(Vec<i64>, Vec<Vec<i64>>)>| -> Result<(), String> {
-            if input.is_empty() {
-                return Ok(());
-            }
-            let expected = pathfinder_expected_frames(input)?;
-            tests.push((std::mem::take(input), expected));
-            Ok(())
-        };
-
-    for raw in markdown.lines() {
-        let line = raw.trim();
-        if line == "Round 1" {
-            finish(&mut current, &mut tests)?;
-        }
-        let Some(values) = line.strip_prefix("in:") else {
-            continue;
-        };
-        current.extend(
-            values
-                .split_whitespace()
-                .map(|value| {
-                    value
-                        .parse::<i64>()
-                        .map_err(|_| format!("bad Pathfinder example value `{value}`"))
-                })
-                .collect::<Result<Vec<_>, _>>()?,
-        );
+fn public_test_arrays(source: &str, field: &str) -> Result<Vec<Vec<i64>>, String> {
+    let marker = format!("\"{field}\"");
+    let mut remaining = source;
+    let mut arrays = Vec::new();
+    while let Some(marker_offset) = remaining.find(&marker) {
+        remaining = &remaining[marker_offset + marker.len()..];
+        let colon = remaining
+            .find(':')
+            .ok_or_else(|| format!("public test {field} has no value"))?;
+        remaining = &remaining[colon + 1..];
+        let open = remaining
+            .find('[')
+            .ok_or_else(|| format!("public test {field} is not an array"))?;
+        remaining = &remaining[open + 1..];
+        let close = remaining
+            .find(']')
+            .ok_or_else(|| format!("public test {field} array is not closed"))?;
+        let values = remaining[..close]
+            .split(',')
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(|value| {
+                value
+                    .parse::<i64>()
+                    .map_err(|_| format!("bad public test value `{value}`"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        arrays.push(values);
+        remaining = &remaining[close + 1..];
     }
-    finish(&mut current, &mut tests)?;
-    Ok(tests)
+    if arrays.is_empty() {
+        return Err(format!("public test JSON contains no {field} arrays"));
+    }
+    Ok(arrays)
+}
+
+fn public_test_inputs(source: &str) -> Result<Vec<Vec<i64>>, String> {
+    public_test_arrays(source, "input")
+}
+
+fn public_test_cases(source: &str) -> Result<Vec<(Vec<i64>, Vec<i64>)>, String> {
+    let inputs = public_test_inputs(source)?;
+    let outputs = public_test_arrays(source, "output")?;
+    if inputs.len() != outputs.len() {
+        return Err(format!(
+            "public test JSON contains {} inputs and {} outputs",
+            inputs.len(),
+            outputs.len()
+        ));
+    }
+    Ok(inputs.into_iter().zip(outputs).collect())
+}
+
+fn public_bracket_tests() -> Result<Vec<(Vec<i64>, i64)>, String> {
+    public_test_cases(include_str!("../public_tests/brackets.json"))?
+        .into_iter()
+        .map(|(input, output)| match output.as_slice() {
+            [expected] => Ok((input, *expected)),
+            _ => Err("brackets public test must have exactly one output".to_string()),
+        })
+        .collect()
+}
+
+fn published_pathfinder_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
+    public_test_inputs(include_str!("../public_tests/pathfinder.json"))?
+        .into_iter()
+        .map(|input| {
+            let expected = pathfinder_expected_frames(&input)?;
+            Ok((input, expected))
+        })
+        .collect()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -3941,47 +3953,13 @@ fn lllm_case(rows: &[&str], commands: &[i64]) -> Result<(Vec<i64>, Vec<Vec<i64>>
 }
 
 fn published_lllm_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
-    let markdown = include_str!("../../data/problems/lllm.md");
-    let mut wanted_rounds = 0usize;
-    let mut rounds: Vec<Vec<i64>> = Vec::new();
-    let mut tests = Vec::new();
-
-    for raw in markdown.lines() {
-        let line = raw.trim();
-        if let Some(raw_count) = line.strip_suffix(" rounds") {
-            wanted_rounds = raw_count
-                .parse::<usize>()
-                .map_err(|_| format!("bad LLLM example round count `{raw_count}`"))?;
-            rounds.clear();
-            continue;
-        }
-        if wanted_rounds == 0
-            || !line
-                .as_bytes()
-                .first()
-                .is_some_and(|byte| byte.is_ascii_digit())
-        {
-            continue;
-        }
-
-        let values = line
-            .split_whitespace()
-            .map(|value| {
-                value
-                    .parse::<i64>()
-                    .map_err(|_| format!("bad LLLM example value `{value}`"))
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        rounds.push(values);
-        if rounds.len() == wanted_rounds {
-            let input = rounds.iter().flatten().copied().collect::<Vec<_>>();
+    public_test_inputs(include_str!("../public_tests/lllm.json"))?
+        .into_iter()
+        .map(|input| {
             let expected = lllm_expected_frames(&input)?;
-            tests.push((input, expected));
-            wanted_rounds = 0;
-            rounds.clear();
-        }
-    }
-    Ok(tests)
+            Ok((input, expected))
+        })
+        .collect()
 }
 
 fn public_lllm_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
@@ -4044,47 +4022,13 @@ fn public_lllm_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
 }
 
 fn published_llm_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
-    let markdown = include_str!("../../data/problems/llm.md");
-    let mut wanted_rounds = 0usize;
-    let mut rounds: Vec<Vec<i64>> = Vec::new();
-    let mut tests = Vec::new();
-
-    for raw in markdown.lines() {
-        let line = raw.trim();
-        if let Some(raw_count) = line.strip_suffix(" rounds") {
-            wanted_rounds = raw_count
-                .parse::<usize>()
-                .map_err(|_| format!("bad LLM example round count `{raw_count}`"))?;
-            rounds.clear();
-            continue;
-        }
-        if wanted_rounds == 0
-            || !line
-                .as_bytes()
-                .first()
-                .is_some_and(|byte| byte.is_ascii_digit())
-        {
-            continue;
-        }
-
-        let values = line
-            .split_whitespace()
-            .map(|value| {
-                value
-                    .parse::<i64>()
-                    .map_err(|_| format!("bad LLM example value `{value}`"))
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        rounds.push(values);
-        if rounds.len() == wanted_rounds {
-            let input = rounds.iter().flatten().copied().collect::<Vec<_>>();
+    public_test_inputs(include_str!("../public_tests/llm.json"))?
+        .into_iter()
+        .map(|input| {
             let expected = llm_expected_frames(&input)?;
-            tests.push((input, expected));
-            wanted_rounds = 0;
-            rounds.clear();
-        }
-    }
-    Ok(tests)
+            Ok((input, expected))
+        })
+        .collect()
 }
 
 fn llm_case(rows: &[&str], commands: &[i64]) -> Result<(Vec<i64>, Vec<Vec<i64>>), String> {
@@ -4229,7 +4173,11 @@ fn main() -> io::Result<()> {
         if let Some(screen) = build.screen {
             match build.program_kind {
                 ProgramKind::Plotter => {
-                    for (idx, (input, expected)) in public_plotter_tests().into_iter().enumerate() {
+                    for (idx, (input, expected)) in public_plotter_tests()
+                        .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?
+                        .into_iter()
+                        .enumerate()
+                    {
                         let got = run_screen_vm_until_frames(
                             &build.program,
                             screen,
@@ -4425,7 +4373,11 @@ fn main() -> io::Result<()> {
             }
             println!("public matmul-style tests: ok");
         } else {
-            for (idx, (input, expected)) in public_bracket_tests().into_iter().enumerate() {
+            for (idx, (input, expected)) in public_bracket_tests()
+                .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?
+                .into_iter()
+                .enumerate()
+            {
                 let got = run_vm(&build.program, &input, 100_000)
                     .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
                 if got.first().copied() != Some(expected) {

@@ -1,16 +1,12 @@
 package main
 
 import (
-	"os"
 	"strconv"
 	"testing"
 )
 
 func TestBase71HistoryRoundTrip(t *testing.T) {
-	input, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
+	input := historyLesson(t)
 	artifact, err := packBase71(input)
 	if err != nil {
 		t.Fatal(err)

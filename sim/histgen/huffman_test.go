@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -55,19 +54,9 @@ func TestCanonicalCodesArePrefixFree(t *testing.T) {
 	}
 }
 
-func TestGeneratedHistoryArtifact(t *testing.T) {
-	input, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatalf("read history: %v", err)
-	}
-	encoded, err := os.ReadFile("../generated/5_history_huffman.json")
-	if err != nil {
-		t.Fatalf("read artifact: %v", err)
-	}
-	var artifact huffmanArtifact
-	if err := json.Unmarshal(encoded, &artifact); err != nil {
-		t.Fatalf("parse artifact: %v", err)
-	}
+func TestHistoryArtifact(t *testing.T) {
+	input := historyLesson(t)
+	artifact := compressHuffman(input, 1024, 36, 32)
 	output, err := decompressHuffman(artifact)
 	if err != nil {
 		t.Fatalf("decompress artifact: %v", err)
@@ -81,10 +70,7 @@ func TestGeneratedHistoryArtifact(t *testing.T) {
 }
 
 func TestHuffmanROMLiteralsFitSignedRegisterInBothDirections(t *testing.T) {
-	input, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatalf("read history: %v", err)
-	}
+	input := historyLesson(t)
 	artifact := compressHuffman(input, 1024, 36, 32)
 	if !huffmanROMWordsFitFixed(artifact.Words) {
 		t.Fatal("selected canonical ordering does not fit the compact Huffman ROM")

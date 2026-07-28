@@ -1,16 +1,12 @@
 package main
 
 import (
-	"os"
 	"slices"
 	"testing"
 )
 
 func TestHuffmanTableRoundTrip(t *testing.T) {
-	data, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
+	data := historyLesson(t)
 	artifact := compressHuffman(data, 1024, 36, 32)
 	table, err := huffmanTable(artifact)
 	if err != nil {

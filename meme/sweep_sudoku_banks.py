@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import json
 import os
 from pathlib import Path
 import re
@@ -172,17 +173,21 @@ def _benchmark(
     with tempfile.TemporaryDirectory(prefix="meme-sudoku-") as directory:
         temporary = Path(directory)
         program = temporary / f"{variant}.man"
-        cases = temporary / "cases.md"
+        cases = temporary / "cases.json"
         program.write_text(result.man.text, encoding="utf-8", newline="\n")
-        case_text = ""
-        for inputs in _benchmark_cases():
-            expected = run_sudoku_stream(inputs)
-            case_text += (
-                "in: " + " ".join(map(str, inputs)) + "\n"
-                "out: " + " ".join(map(str, expected)) + "\n"
-            )
+        fixture = {
+            "task": "sudoku",
+            "cases": [
+                {
+                    "name": f"generated-{index}",
+                    "input": inputs,
+                    "output": run_sudoku_stream(inputs),
+                }
+                for index, inputs in enumerate(_benchmark_cases(), 1)
+            ],
+        }
         cases.write_text(
-            case_text,
+            json.dumps(fixture),
             encoding="utf-8",
             newline="\n",
         )
@@ -198,7 +203,7 @@ def _benchmark(
                 "types.go",
                 "--program",
                 str(program),
-                "--problem",
+                "--tests",
                 str(cases),
             ],
             cwd=SIMULATOR,

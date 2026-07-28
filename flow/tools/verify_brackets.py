@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from pathlib import Path
 import re
@@ -75,20 +76,28 @@ def main() -> int:
         "(" * 32 + ")" * 32,
         "([{" * 10 + "([" + "])" + "}])" * 10,
     )
-    case_text = ""
-    for text in cases:
-        inputs = [len(text), *map(ord, text)]
-        case_text += "in: " + " ".join(map(str, inputs)) + "\n"
-        case_text += "out: " + str(_answer(text)) + "\n"
+    fixture = {
+        "task": "brackets",
+        "cases": [
+            {
+                "name": f"generated-{index}",
+                "input": [len(text), *map(ord, text)],
+                "output": [_answer(text)],
+            }
+            for index, text in enumerate(cases, 1)
+        ],
+    }
 
     go = _find_go()
     with tempfile.TemporaryDirectory(prefix="flow-brackets-") as directory:
-        cases_path = Path(directory) / "cases.md"
-        cases_path.write_text(case_text, encoding="utf-8", newline="\n")
+        cases_path = Path(directory) / "cases.json"
+        cases_path.write_text(
+            json.dumps(fixture), encoding="utf-8", newline="\n"
+        )
         command = [
             str(go), "run", "benchmark.go", "parser.go", "simulator.go",
             "literals.go", "types.go", "--program", str(output),
-            "--problem", str(cases_path), "--max-ticks", "5000000",
+            "--tests", str(cases_path), "--max-ticks", "5000000",
         ]
         completed = subprocess.run(
             command, cwd=SIMULATOR, env=_go_environment(go), text=True,

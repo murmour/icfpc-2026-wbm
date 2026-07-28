@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bufio"
+	"encoding/json"
 	"math/rand"
 	"os"
 	"reflect"
 	"slices"
-	"strconv"
-	"strings"
 	"testing"
 )
 
@@ -58,82 +56,44 @@ func TestGradePublicCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	problem, err := os.Open("../../../problems/grade.md")
+	data, err := os.ReadFile("../../public_tests/grade.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer problem.Close()
 
 	type testCase struct {
-		input    []int64
-		expected []int64
+		Name   string  `json:"name"`
+		Input  []int64 `json:"input"`
+		Output []int64 `json:"output"`
 	}
-	var cases []testCase
-	var current testCase
-	inPublicCases := false
-	scanner := bufio.NewScanner(problem)
-	scanner.Buffer(make([]byte, 64*1024), 4*1024*1024)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(line, "Public test cases") {
-			inPublicCases = true
-			continue
-		}
-		if !inPublicCases {
-			continue
-		}
-		if line == "Round 1" && len(current.input) != 0 {
-			cases = append(cases, current)
-			current = testCase{}
-			continue
-		}
-		switch {
-		case strings.HasPrefix(line, "in:"):
-			current.input = append(
-				current.input,
-				parseTestIntegers(t, strings.TrimSpace(strings.TrimPrefix(line, "in:")))...,
-			)
-		case strings.HasPrefix(line, "out:"):
-			raw := strings.TrimSpace(strings.TrimPrefix(line, "out:"))
-			if raw != "(none)" {
-				current.expected = append(
-					current.expected,
-					parseTestIntegers(t, raw)...,
-				)
-			}
-		}
+	var fixture struct {
+		Cases []testCase `json:"cases"`
 	}
-	if err := scanner.Err(); err != nil {
+	if err := json.Unmarshal(data, &fixture); err != nil {
 		t.Fatal(err)
 	}
-	if len(current.input) != 0 {
-		cases = append(cases, current)
-	}
-	if len(cases) != 7 {
-		t.Fatalf("parsed %d public cases, want 7", len(cases))
+	if len(fixture.Cases) != 7 {
+		t.Fatalf("loaded %d public cases, want 7", len(fixture.Cases))
 	}
 
-	for index, test := range cases {
-		machine, machineErr := NewMachine(program, test.input, 1)
-		if machineErr != nil {
-			t.Fatal(machineErr)
-		}
-		result, runErr := machine.Run(5_000_000)
-		if runErr != nil {
-			t.Fatalf("case %d: %v", index+1, runErr)
-		}
-		if !reflect.DeepEqual(result.Output, test.expected) {
-			t.Fatalf(
-				"case %d output = %v, want %v",
-				index+1,
-				result.Output,
-				test.expected,
-			)
-		}
+	for _, test := range fixture.Cases {
+		t.Run(test.Name, func(t *testing.T) {
+			machine, machineErr := NewMachine(program, test.Input, 1)
+			if machineErr != nil {
+				t.Fatal(machineErr)
+			}
+			result, runErr := machine.Run(5_000_000)
+			if runErr != nil {
+				t.Fatal(runErr)
+			}
+			if !reflect.DeepEqual(result.Output, test.Output) {
+				t.Fatalf("output = %v, want %v", result.Output, test.Output)
+			}
+		})
 	}
 }
 
-func TestReassemblyCoreCases(t *testing.T) {
+func TestReassemblyPublicCases(t *testing.T) {
 	source, err := os.ReadFile("examples/reassembly.plumb")
 	if err != nil {
 		t.Fatal(err)
@@ -142,69 +102,24 @@ func TestReassemblyCoreCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	tests := []struct {
-		name     string
-		input    []int64
-		expected []int64
-	}{
-		{
-			name: "in order",
-			input: []int64{
-				6, 0, 100, 1, 101, 2, 102, 3, 103, 4, 104, 5, 105,
-			},
-			expected: []int64{100, 101, 102, 103, 104, 105},
-		},
-		{
-			name:     "shortest",
-			input:    []int64{1, 0, 42},
-			expected: []int64{42},
-		},
-		{
-			name: "maximum legal displacement",
-			input: []int64{
-				17,
-				15, 900,
-				0, 100, 1, 101, 2, 102, 3, 103, 4, 104,
-				5, 105, 6, 106, 7, 107, 8, 108, 9, 109,
-				10, 110, 11, 111, 12, 112, 13, 113, 14, 114,
-				16, 999,
-			},
-			expected: []int64{
-				100, 101, 102, 103, 104, 105, 106, 107, 108,
-				109, 110, 111, 112, 113, 114, 900, 999,
-			},
-		},
-		{
-			name: "drain burst",
-			input: []int64{
-				16,
-				15, 215, 14, 214, 13, 213, 12, 212,
-				11, 211, 10, 210, 9, 209, 8, 208,
-				7, 207, 6, 206, 5, 205, 4, 204,
-				3, 203, 2, 202, 1, 201, 0, 200,
-			},
-			expected: []int64{
-				200, 201, 202, 203, 204, 205, 206, 207,
-				208, 209, 210, 211, 212, 213, 214, 215,
-			},
-		},
-		{
-			name: "loss",
-			input: []int64{
-				20,
-				1, 301, 2, 302, 3, 303, 4, 304,
-				5, 305, 6, 306, 7, 307, 8, 308,
-				9, 309, 10, 310, 11, 311, 12, 312,
-				13, 313, 14, 314, 15, 315, 16, 316,
-			},
-			expected: []int64{-1},
-		},
+	data, err := os.ReadFile("../../public_tests/reassembly.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Cases []struct {
+			Name   string  `json:"name"`
+			Input  []int64 `json:"input"`
+			Output []int64 `json:"output"`
+		} `json:"cases"`
+	}
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatal(err)
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			machine, machineErr := NewMachine(program, test.input, 1)
+	for _, test := range fixture.Cases {
+		t.Run(test.Name, func(t *testing.T) {
+			machine, machineErr := NewMachine(program, test.Input, 1)
 			if machineErr != nil {
 				t.Fatal(machineErr)
 			}
@@ -212,25 +127,11 @@ func TestReassemblyCoreCases(t *testing.T) {
 			if runErr != nil {
 				t.Fatal(runErr)
 			}
-			if !reflect.DeepEqual(result.Output, test.expected) {
-				t.Fatalf("output = %v, want %v", result.Output, test.expected)
+			if !reflect.DeepEqual(result.Output, test.Output) {
+				t.Fatalf("output = %v, want %v", result.Output, test.Output)
 			}
 		})
 	}
-}
-
-func parseTestIntegers(t *testing.T, raw string) []int64 {
-	t.Helper()
-	fields := strings.Fields(raw)
-	values := make([]int64, len(fields))
-	for index, field := range fields {
-		value, err := strconv.ParseInt(field, 10, 64)
-		if err != nil {
-			t.Fatalf("parse %q: %v", field, err)
-		}
-		values[index] = value
-	}
-	return values
 }
 
 func TestInterpreterPipelineAndBackpressure(t *testing.T) {

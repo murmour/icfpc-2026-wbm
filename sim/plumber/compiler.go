@@ -993,16 +993,14 @@ func runCommand(directory, name string, args ...string) error {
 }
 
 func validateGeneratedMan(simRoot, path string) error {
-	// benchmark.go parses before reading cases, but requires a problem file.
-	// The Sort problem is available in the repository and provides that parse
-	// check without executing the generated program here.
-	repository := filepath.Dir(filepath.Dir(simRoot))
-	problem := filepath.Join(repository, "problems", "4_sort.md")
+	// benchmark.go parses before executing cases. A one-tick Sort run is enough
+	// to validate the generated program without maintaining a separate fixture.
+	tests := filepath.Join(filepath.Dir(simRoot), "public_tests", "sort.json")
 	command := exec.Command(
 		"go", "run",
 		"benchmark.go", "parser.go", "simulator.go", "types.go", "literals.go",
 		"-program", path,
-		"-problem", problem,
+		"-tests", tests,
 		"-max-ticks", "1",
 	)
 	command.Dir = simRoot

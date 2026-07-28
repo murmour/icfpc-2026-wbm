@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"os"
 	"strconv"
 	"testing"
 )
@@ -27,11 +26,7 @@ func unpackASCII(words []packedWord) []byte {
 }
 
 func TestPackASCIIHistoryRoundTrip(t *testing.T) {
-	input, err := os.ReadFile("../../../problems/history_lesson.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	input := historyLesson(t)
 	words := packASCII(input)
 	if got, want := len(words), 315; got != want {
 		t.Fatalf("packed word count = %d, want %d", got, want)

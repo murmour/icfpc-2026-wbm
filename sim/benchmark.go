@@ -1,74 +1,46 @@
 package main
 
 import (
-	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
 type benchmarkCase struct {
+	Name     string
 	Input    []int64
 	Expected []int64
 }
 
-func parseIntList(raw string) ([]int64, error) {
-	if strings.TrimSpace(raw) == "(none)" {
-		return []int64{}, nil
-	}
-	fields := strings.Fields(raw)
-	values := make([]int64, 0, len(fields))
-	for _, field := range fields {
-		value, err := strconv.ParseInt(field, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parse integer %q: %w", field, err)
-		}
-		values = append(values, value)
-	}
-	return values, nil
-}
-
 func readBenchmarkCases(path string) ([]benchmarkCase, error) {
-	file, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-
-	var cases []benchmarkCase
-	var pendingInput []int64
-	scanner := bufio.NewScanner(file)
-	scanner.Buffer(make([]byte, 64*1024), 4*1024*1024)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		switch {
-		case strings.HasPrefix(line, "in:"):
-			if pendingInput != nil {
-				return nil, fmt.Errorf("input without matching output")
-			}
-			pendingInput, err = parseIntList(strings.TrimSpace(strings.TrimPrefix(line, "in:")))
-			if err != nil {
-				return nil, err
-			}
-		case strings.HasPrefix(line, "out:") && pendingInput != nil:
-			expected, parseErr := parseIntList(strings.TrimSpace(strings.TrimPrefix(line, "out:")))
-			if parseErr != nil {
-				return nil, parseErr
-			}
-			cases = append(cases, benchmarkCase{Input: pendingInput, Expected: expected})
-			pendingInput = nil
-		}
+	var fixture struct {
+		Cases []struct {
+			Name   string  `json:"name"`
+			Input  []int64 `json:"input"`
+			Output []int64 `json:"output"`
+		} `json:"cases"`
 	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		return nil, fmt.Errorf("parse public test JSON: %w", err)
 	}
-	if pendingInput != nil {
-		return nil, fmt.Errorf("input without matching output")
-	}
-	if len(cases) == 0 {
+	if len(fixture.Cases) == 0 {
 		return nil, fmt.Errorf("no public cases found in %s", path)
+	}
+	cases := make([]benchmarkCase, len(fixture.Cases))
+	for index, test := range fixture.Cases {
+		if test.Name == "" {
+			return nil, fmt.Errorf("public case %d has no name", index+1)
+		}
+		cases[index] = benchmarkCase{
+			Name:     test.Name,
+			Input:    test.Input,
+			Expected: test.Output,
+		}
 	}
 	return cases, nil
 }
@@ -124,11 +96,11 @@ func runBenchmarkCase(code string, test benchmarkCase, maxTicks int) (int, error
 
 func main() {
 	programPath := flag.String("program", "", "Little Man program to benchmark")
-	problemPath := flag.String("problem", "", "problem Markdown containing public in:/out: cases")
+	testPath := flag.String("tests", "", "public test JSON")
 	maxTicks := flag.Int("max-ticks", 5_000_000, "maximum ticks per case")
 	flag.Parse()
 
-	if *programPath == "" || *problemPath == "" {
+	if *programPath == "" || *testPath == "" {
 		flag.Usage()
 		os.Exit(2)
 	}
@@ -138,7 +110,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "read program: %v\n", err)
 		os.Exit(1)
 	}
-	cases, err := readBenchmarkCases(*problemPath)
+	cases, err := readBenchmarkCases(*testPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "read cases: %v\n", err)
 		os.Exit(1)
@@ -153,15 +125,15 @@ func main() {
 	footprint := side * side
 
 	totalTicks := 0
-	for index, test := range cases {
+	for _, test := range cases {
 		ticks, runErr := runBenchmarkCase(string(codeBytes), test, *maxTicks)
 		if runErr != nil {
-			fmt.Printf("case %d: FAIL at tick %d: %v\n", index+1, ticks, runErr)
+			fmt.Printf("%s: FAIL at tick %d: %v\n", test.Name, ticks, runErr)
 			os.Exit(1)
 		}
 		totalTicks += ticks
-		fmt.Printf("case %d: PASS tick=%d inputs=%d outputs=%d\n",
-			index+1,
+		fmt.Printf("%s: PASS tick=%d inputs=%d outputs=%d\n",
+			test.Name,
 			ticks,
 			len(test.Input),
 			len(test.Expected),
