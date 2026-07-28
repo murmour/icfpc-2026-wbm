@@ -15,7 +15,7 @@ from meme.reference import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 EXAMPLE = ROOT / "examples" / "memory.meme"
 SUDOKU = ROOT / "examples" / "sudoku.meme"
 SUDOKU_SPLIT = ROOT / "examples" / "sudoku_split.meme"

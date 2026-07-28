@@ -12,13 +12,13 @@ import subprocess
 import sys
 
 
-ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT
+ROOT = Path(__file__).resolve().parent
+REPOSITORY = ROOT.parent
 SIMULATOR = REPOSITORY / "sim"
 SOURCE = ROOT / "examples" / "memory.meme"
 OUTPUT = ROOT / "generated" / "memory.man"
 
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(REPOSITORY))
 
 from meme import compile_file  # noqa: E402
 from meme.reference import run_memory_stream  # noqa: E402

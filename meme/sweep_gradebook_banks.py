@@ -20,8 +20,9 @@ import tempfile
 from typing import TypeAlias
 
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parent
+REPOSITORY = ROOT.parent
+sys.path.insert(0, str(REPOSITORY))
 
 from meme import compile_file  # noqa: E402
 from meme import gradebook_backend  # noqa: E402
@@ -323,7 +324,7 @@ def _simulate(
     )
 
     go = _find_go()
-    simulator = ROOT / "sim"
+    simulator = REPOSITORY / "sim"
     case_ticks: list[tuple[str, int]] = []
     with tempfile.TemporaryDirectory(prefix="meme-gradebook-") as directory:
         program = Path(directory) / f"gradebook-{variant}.man"
