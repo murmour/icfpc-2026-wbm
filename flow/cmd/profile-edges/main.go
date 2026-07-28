@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	lmsim "sim"
 )
 
 type Probe struct {
@@ -38,7 +40,7 @@ func matchesProbe(man Snapshot, probe Probe) bool {
 		man.DY == probe.DY
 }
 
-func matchesDestination(man *LittleMan, probe Probe) bool {
+func matchesDestination(man *lmsim.LittleMan, probe Probe) bool {
 	return man.X == probe.NextX &&
 		man.Y == probe.NextY &&
 		man.DX == probe.NextDX &&
@@ -74,7 +76,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	program, err := ParseProgram(string(code))
+	program, err := lmsim.ParseProgram(string(code))
 	if err != nil {
 		panic(err)
 	}
@@ -121,8 +123,8 @@ func main() {
 		}
 
 		program.Step()
-		after := make(map[int]*LittleMan)
-		var born []*LittleMan
+		after := make(map[int]*lmsim.LittleMan)
+		var born []*lmsim.LittleMan
 		for _, man := range program.Men {
 			after[man.ID] = man
 			if man.BornTick == program.TickCount {

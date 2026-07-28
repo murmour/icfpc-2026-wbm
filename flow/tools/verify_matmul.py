@@ -113,15 +113,6 @@ def _build_simulator(
     directory: Path,
     environment: dict[str, str],
 ) -> tuple[Path, Path]:
-    sources = (
-        ROOT / "tools" / "sim_until_outputs.go",
-        SIMULATOR / "parser.go",
-        SIMULATOR / "simulator.go",
-        SIMULATOR / "literals.go",
-        SIMULATOR / "types.go",
-    )
-    for source in sources:
-        shutil.copy2(source, directory / source.name)
     executable = directory / "flow-matmul-sim.exe"
     completed = subprocess.run(
         [
@@ -129,9 +120,9 @@ def _build_simulator(
             "build",
             "-o",
             str(executable),
-            *(source.name for source in sources),
+            "./cmd/sim-until-outputs",
         ],
-        cwd=directory,
+        cwd=ROOT,
         env=environment,
         text=True,
         stdout=subprocess.PIPE,
@@ -142,8 +133,6 @@ def _build_simulator(
     if completed.returncode != 0:
         raise RuntimeError(completed.stdout)
 
-    round_source = ROOT / "tools" / "sim_rounds.go"
-    shutil.copy2(round_source, directory / round_source.name)
     round_executable = directory / "flow-matmul-round-sim.exe"
     completed = subprocess.run(
         [
@@ -151,10 +140,9 @@ def _build_simulator(
             "build",
             "-o",
             str(round_executable),
-            round_source.name,
-            *(source.name for source in sources[1:]),
+            "./cmd/sim-rounds",
         ],
-        cwd=directory,
+        cwd=ROOT,
         env=environment,
         text=True,
         stdout=subprocess.PIPE,

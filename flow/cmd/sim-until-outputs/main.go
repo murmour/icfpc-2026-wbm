@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	lmsim "sim"
 )
 
 func main() {
@@ -16,7 +18,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	program, err := ParseProgram(string(code))
+	program, err := lmsim.ParseProgram(string(code))
 	if err != nil {
 		panic(err)
 	}

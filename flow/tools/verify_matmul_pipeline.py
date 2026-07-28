@@ -122,15 +122,6 @@ def main() -> int:
     timings: list[tuple[str, int]] = []
     with tempfile.TemporaryDirectory(prefix="flow-matmul-pipeline-") as raw:
         directory = Path(raw)
-        sources = (
-            ROOT / "tools" / "sim_until_outputs.go",
-            SIMULATOR / "parser.go",
-            SIMULATOR / "simulator.go",
-            SIMULATOR / "literals.go",
-            SIMULATOR / "types.go",
-        )
-        for source in sources:
-            shutil.copy2(source, directory / source.name)
         executable = directory / "flow-matmul-pipeline-sim.exe"
         completed = subprocess.run(
             [
@@ -138,9 +129,9 @@ def main() -> int:
                 "build",
                 "-o",
                 str(executable),
-                *(source.name for source in sources),
+                "./cmd/sim-until-outputs",
             ],
-            cwd=directory,
+            cwd=ROOT,
             env=environment,
             text=True,
             stdout=subprocess.PIPE,

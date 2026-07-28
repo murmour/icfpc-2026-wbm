@@ -226,9 +226,6 @@ def _model(values: list[int]) -> list[int]:
 
 
 def _build_runner(go: Path, directory: Path) -> Path:
-    shutil.copy2(ROOT / "tools" / "sim_until_outputs.go", directory / "main.go")
-    for name in ("simulator.go", "parser.go", "types.go", "literals.go"):
-        shutil.copy2(SIMULATOR / name, directory / name)
     runner = directory / "flow-gradebook-sim.exe"
     completed = subprocess.run(
         [
@@ -236,13 +233,9 @@ def _build_runner(go: Path, directory: Path) -> Path:
             "build",
             "-o",
             str(runner),
-            "main.go",
-            "simulator.go",
-            "parser.go",
-            "types.go",
-            "literals.go",
+            "./cmd/sim-until-outputs",
         ],
-        cwd=directory,
+        cwd=ROOT,
         env=_go_environment(go),
         text=True,
         stdout=subprocess.PIPE,

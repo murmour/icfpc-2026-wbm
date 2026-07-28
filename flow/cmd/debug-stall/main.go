@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	lmsim "sim"
 )
 
 type eventKey struct {
@@ -18,8 +20,7 @@ type eventSummary struct {
 }
 
 // debug_stall runs a Little Man program for a fixed number of ticks and dumps
-// the final men and pipe state.  It is intentionally built beside, rather than
-// into, src/sim so the contest emulator remains untouched.
+// the final men and pipe state.
 func main() {
 	if len(os.Args) < 3 {
 		fmt.Fprintln(os.Stderr, "usage: debug_stall PROGRAM TICKS [INPUT...]")
@@ -29,7 +30,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	program, err := ParseProgram(string(code))
+	program, err := lmsim.ParseProgram(string(code))
 	if err != nil {
 		panic(err)
 	}
@@ -48,11 +49,11 @@ func main() {
 	eventOrder := make([]eventKey, 0)
 	events := make(map[eventKey]*eventSummary)
 	for !program.Halted {
-		oldPositions := make(map[int]Point)
+		oldPositions := make(map[int]lmsim.Point)
 		oldInstructions := make(map[int]byte)
 		for _, man := range program.Men {
-			oldPositions[man.ID] = Point{X: man.X, Y: man.Y}
-			oldInstructions[man.ID] = program.GetAt(Point{X: man.X, Y: man.Y})
+			oldPositions[man.ID] = lmsim.Point{X: man.X, Y: man.Y}
+			oldInstructions[man.ID] = program.GetAt(lmsim.Point{X: man.X, Y: man.Y})
 		}
 		program.Step()
 		for _, man := range program.Men {
@@ -108,7 +109,7 @@ func main() {
 			man.Y,
 			man.DX,
 			man.DY,
-			program.GetAt(Point{X: man.X, Y: man.Y}),
+			program.GetAt(lmsim.Point{X: man.X, Y: man.Y}),
 			man.A,
 			man.B,
 			man.BP,

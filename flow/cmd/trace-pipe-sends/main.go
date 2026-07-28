@@ -5,6 +5,8 @@ import (
 	"os"
 	"sort"
 	"strconv"
+
+	lmsim "sim"
 )
 
 func main() {
@@ -16,7 +18,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	program, err := ParseProgram(string(code))
+	program, err := lmsim.ParseProgram(string(code))
 	if err != nil {
 		panic(err)
 	}
@@ -31,11 +33,11 @@ func main() {
 		program.InputQueue = append(program.InputQueue, value)
 	}
 
-	var collector *Room
+	var collector *lmsim.Room
 	for _, room := range program.Rooms {
 		for y := room.MinY + 1; y < room.MaxY; y++ {
 			for x := room.MinX + 1; x < room.MaxX; x++ {
-				if program.GetAt(Point{X: x, Y: y}) == 'R' {
+				if program.GetAt(lmsim.Point{X: x, Y: y}) == 'R' {
 					collector = room
 				}
 			}
@@ -44,7 +46,7 @@ func main() {
 	if collector == nil {
 		panic("collector room with R not found")
 	}
-	var resultPipes []*Pipe
+	var resultPipes []*lmsim.Pipe
 	for _, pipe := range program.Pipes {
 		if pipe.DestRoom == collector {
 			resultPipes = append(resultPipes, pipe)

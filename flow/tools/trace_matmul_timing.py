@@ -37,15 +37,6 @@ def main() -> int:
     environment = _go_environment(go)
     with tempfile.TemporaryDirectory(prefix="flow-matmul-trace-") as raw:
         directory = Path(raw)
-        sources = (
-            ROOT / "tools" / "trace_pipe_sends.go",
-            SIMULATOR / "parser.go",
-            SIMULATOR / "simulator.go",
-            SIMULATOR / "literals.go",
-            SIMULATOR / "types.go",
-        )
-        for source in sources:
-            shutil.copy2(source, directory / source.name)
         executable = directory / "trace.exe"
         completed = subprocess.run(
             [
@@ -53,9 +44,9 @@ def main() -> int:
                 "build",
                 "-o",
                 str(executable),
-                *(source.name for source in sources),
+                "./cmd/trace-pipe-sends",
             ],
-            cwd=directory,
+            cwd=ROOT,
             env=environment,
             text=True,
             stdout=subprocess.PIPE,

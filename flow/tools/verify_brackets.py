@@ -95,8 +95,7 @@ def main() -> int:
             json.dumps(fixture), encoding="utf-8", newline="\n"
         )
         command = [
-            str(go), "run", "benchmark.go", "parser.go", "simulator.go",
-            "literals.go", "types.go", "--program", str(output),
+            str(go), "run", "./cmd/benchmark", "--program", str(output),
             "--tests", str(cases_path), "--max-ticks", "5000000",
         ]
         completed = subprocess.run(

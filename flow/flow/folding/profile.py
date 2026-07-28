@@ -130,16 +130,7 @@ def profile_edge_weights(
         raise ProfileError("extracted graph produced no edge probes")
     go = _find_go()
     environment = _go_environment(go)
-    repository = Path(__file__).resolve().parents[4]
-    simulator = repository / "src" / "sim"
     flow_root = Path(__file__).resolve().parents[2]
-    sources = (
-        flow_root / "tools" / "profile_edges.go",
-        simulator / "parser.go",
-        simulator / "simulator.go",
-        simulator / "literals.go",
-        simulator / "types.go",
-    )
 
     case_results: list[CaseEdgeCounts] = []
     weighted_totals = {
@@ -148,8 +139,6 @@ def profile_edge_weights(
     total_case_weight = sum(case.weight for case in case_list)
     with tempfile.TemporaryDirectory(prefix="flow-edge-profile-") as raw:
         directory = Path(raw)
-        for source in sources:
-            shutil.copy2(source, directory / source.name)
         executable = directory / "flow-edge-profile.exe"
         completed = subprocess.run(
             [
@@ -157,9 +146,9 @@ def profile_edge_weights(
                 "build",
                 "-o",
                 str(executable),
-                *(source.name for source in sources),
+                "./cmd/profile-edges",
             ],
-            cwd=directory,
+            cwd=flow_root,
             env=environment,
             text=True,
             stdout=subprocess.PIPE,
@@ -432,7 +421,7 @@ def _find_go() -> Path:
 
 def _go_environment(go: Path) -> dict[str, str]:
     environment = os.environ.copy()
-    repository = Path(__file__).resolve().parents[4]
+    repository = Path(__file__).resolve().parents[3]
     environment.setdefault("GOCACHE", str(repository / ".gocache"))
     inferred = go.parent.parent / "lib" / "go"
     if "GOROOT" not in environment and inferred.is_dir():

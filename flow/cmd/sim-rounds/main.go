@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	lmsim "sim"
 )
 
 type stagedRound struct {
@@ -23,7 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	program, err := ParseProgram(string(code))
+	program, err := lmsim.ParseProgram(string(code))
 	if err != nil {
 		panic(err)
 	}
