@@ -1,6 +1,6 @@
-# Blocklang
+# Blang
 
-Blocklang is a small structured language that compiles one-man programs into the
+Blang is a small structured language that compiles one-man programs into the
 JSON `.block` format consumed by `tester.go` and `floorplan.go`. It exposes the
 little man's `A` and `B` registers while reserving the backpack for generated
 loop control.
@@ -8,11 +8,13 @@ loop control.
 Compile a source file:
 
 ```sh
-cd src/sim
-go run ./blocklang \
-  -input blocklang/examples/ring34_exchange.bl \
+cd blang
+go run . \
+  -input examples/ring34_exchange.bl \
   -output /tmp/ring34_exchange.block
-go run tester.go /tmp/ring34_exchange.block
+cd ../sim
+go run tester.go parser.go simulator.go types.go literals.go \
+  /tmp/ring34_exchange.block
 ```
 
 ## Structure

@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	input := flag.String("input", "", "Blocklang source file")
+	input := flag.String("input", "", "Blang source file")
 	output := flag.String("output", "", "Generated .block file; stdout when omitted")
 	flag.Parse()
 
@@ -43,6 +43,6 @@ func main() {
 }
 
 func fatal(err error) {
-	fmt.Fprintln(os.Stderr, "blocklang:", err)
+	fmt.Fprintln(os.Stderr, "blang:", err)
 	os.Exit(1)
 }

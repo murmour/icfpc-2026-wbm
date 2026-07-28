@@ -123,7 +123,7 @@ func compileGeometry(
 	if err != nil {
 		return box{}, nil, err
 	}
-	if os.Getenv("BLOCKLANG_DEBUG_GEOMETRY") != "" {
+	if os.Getenv("BLANG_DEBUG_GEOMETRY") != "" {
 		fmt.Fprintf(os.Stderr, "room=%dx%d\n", room.Width, room.Height)
 		for _, ref := range room.Refs {
 			fmt.Fprintf(
