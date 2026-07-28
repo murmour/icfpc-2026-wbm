@@ -42,7 +42,7 @@ subi r8 r8 3600
 jmp wave1_upper
 wave1_lower:
 imm r0 -1800
-sub r0 r0 r8
+sub0 r8
 jc r0 wave1_add_turn
 jmp wave1_sine
 wave1_add_turn:
@@ -55,9 +55,10 @@ jc r9 wave1_abs_ready
 neg r9
 wave1_abs_ready:
 imm r10 1800
-sub r10 r10 r9
-mul r10 r10 r8
-divi r10 r10 791
+sub r0 r10 r9
+mul0 r8
+divi0 791
+mov r10 r0
 add r7 r7 r10
 
 ; sin(y*0.5 - frame*1.5)
@@ -74,7 +75,7 @@ subi r8 r8 3600
 jmp wave2_upper
 wave2_lower:
 imm r0 -1800
-sub r0 r0 r8
+sub0 r8
 jc r0 wave2_add_turn
 jmp wave2_sine
 wave2_add_turn:
@@ -87,14 +88,16 @@ jc r9 wave2_abs_ready
 neg r9
 wave2_abs_ready:
 imm r10 1800
-sub r10 r10 r9
-mul r10 r10 r8
-divi r10 r10 791
+sub r0 r10 r9
+mul0 r8
+divi0 791
+mov r10 r0
 add r7 r7 r10
 
 ; sin((x+y)*0.4 + frame*1.0)
-add r8 r3 r4
-muli r8 r8 4
+add r0 r3 r4
+muli0 4
+mov r8 r0
 muli r9 r2 2
 add r8 r8 r9
 
@@ -107,7 +110,7 @@ subi r8 r8 3600
 jmp wave3_upper
 wave3_lower:
 imm r0 -1800
-sub r0 r0 r8
+sub0 r8
 jc r0 wave3_add_turn
 jmp wave3_sine
 wave3_add_turn:
@@ -120,9 +123,10 @@ jc r9 wave3_abs_ready
 neg r9
 wave3_abs_ready:
 imm r10 1800
-sub r10 r10 r9
-mul r10 r10 r8
-divi r10 r10 791
+sub r0 r10 r9
+mul0 r8
+divi0 791
+mov r10 r0
 add r7 r7 r10
 
 ; Approximate hypot(x-32, y-32).
@@ -139,20 +143,23 @@ sub r0 r11 r12
 jc r0 distance_dx_larger
 
 ; abs(dy) >= abs(dx)
-muli r13 r11 3
-divi r13 r13 8
+muli r0 r11 3
+divi0 8
+mov r13 r0
 add r13 r12 r13
 jmp distance_ready
 
 distance_dx_larger:
-muli r13 r12 3
-divi r13 r13 8
+muli r0 r12 3
+divi0 8
+mov r13 r0
 add r13 r11 r13
 
 distance_ready:
 ; sin(distance*0.3 - frame*0.5)
-muli r8 r13 3
-sub r8 r8 r2
+muli r0 r13 3
+sub0 r2
+mov r8 r0
 
 wave4_upper:
 subi r0 r8 1799
@@ -163,7 +170,7 @@ subi r8 r8 3600
 jmp wave4_upper
 wave4_lower:
 imm r0 -1800
-sub r0 r0 r8
+sub0 r8
 jc r0 wave4_add_turn
 jmp wave4_sine
 wave4_add_turn:
@@ -176,14 +183,16 @@ jc r9 wave4_abs_ready
 neg r9
 wave4_abs_ready:
 imm r10 1800
-sub r10 r10 r9
-mul r10 r10 r8
-divi r10 r10 791
+sub r0 r10 r9
+mul0 r8
+divi0 791
+mov r10 r0
 add r7 r7 r10
 
 ; Original mapping: ((value + 4.0) * 2.0) % 16.
-addi r15 r7 4096
-divi r15 r15 512
+addi r0 r7 4096
+divi0 512
+mov r15 r0
 subi r14 r15 15
 jc r14 color_wrap
 jmp emit

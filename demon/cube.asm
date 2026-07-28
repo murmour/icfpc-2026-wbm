@@ -50,7 +50,7 @@ imm r7 -15
 jmp vertex_x_ready
 vertex_x_middle:
 imm r0 3
-sub r0 r0 r14
+sub0 r14
 jc r0 vertex_x_positive
 imm r7 -15
 jmp vertex_x_ready
@@ -63,26 +63,30 @@ vertex_x_ready:
 ;   z1 = z*cos_y - x*sin_y
 mul r10 r7 r3
 mul r15 r9 r2
-add r10 r10 r15
-divi r10 r10 1000000
+add r0 r10 r15
+divi0 1000000
+mov r10 r0
 
 mul r11 r9 r3
 mul r15 r7 r2
-sub r11 r11 r15
-divi r11 r11 1000000
+sub r0 r11 r15
+divi0 1000000
+mov r11 r0
 
 ; Rotate around X:
 ;   y2 = y*cos_x - z1*sin_x
 ;   z2 = y*sin_x + z1*cos_x
 mul r12 r8 r5
 mul r15 r11 r4
-sub r12 r12 r15
-divi r12 r12 1000000
+sub r0 r12 r15
+divi0 1000000
+mov r12 r0
 
 mul r13 r8 r4
 mul r15 r11 r5
-add r13 r13 r15
-divi r13 r13 1000000
+add r0 r13 r15
+divi0 1000000
+mov r13 r0
 
 ; Preserve camera-space depth for dynamic edge shading.
 addi r14 r6 16
@@ -90,13 +94,15 @@ store r14 r13
 
 ; Perspective projection with camera distance 90.
 addi r13 r13 90
-muli r10 r10 90
-div r10 r10 r13
-addi r10 r10 32
+muli r0 r10 90
+div0 r13
+addi0 32
+mov r10 r0
 
-muli r12 r12 90
-div r12 r12 r13
-addi r12 r12 32
+muli r0 r12 90
+div0 r13
+addi0 32
+mov r12 r0
 
 ; Store projected x and y.
 muli r14 r6 2
@@ -216,16 +222,19 @@ edge_steps_nonzero:
 
 muli r7 r7 1024
 muli r8 r8 1024
-muli r9 r9 1024
-div r9 r9 r11
-muli r10 r10 1024
-div r10 r10 r11
+muli r0 r9 1024
+div0 r11
+mov r9 r0
+muli r0 r10 1024
+div0 r11
+mov r10 r0
 inc r11
 
 draw_edge_pixel:
 ; Convert the 10-bit fixed-point point to a display address.
-divi r12 r8 1024
-muli r12 r12 64
+divi r0 r8 1024
+muli0 64
+mov r12 r0
 divi r13 r7 1024
 add r12 r12 r13
 screen_addr r12
@@ -248,13 +257,15 @@ screen_swap r0
 ; Advance Y by 2 degrees.
 muli r7 r2 999391
 muli r8 r3 34899
-add r7 r7 r8
-divi r7 r7 1000000
+add r0 r7 r8
+divi0 1000000
+mov r7 r0
 
 muli r9 r3 999391
 muli r10 r2 34899
-sub r9 r9 r10
-divi r9 r9 1000000
+sub r0 r9 r10
+divi0 1000000
+mov r9 r0
 
 mov r2 r7
 mov r3 r9
@@ -262,13 +273,15 @@ mov r3 r9
 ; Advance X by 1.3 degrees.
 muli r7 r4 999743
 muli r8 r5 22687
-add r7 r7 r8
-divi r7 r7 1000000
+add r0 r7 r8
+divi0 1000000
+mov r7 r0
 
 muli r9 r5 999743
 muli r10 r4 22687
-sub r9 r9 r10
-divi r9 r9 1000000
+sub r0 r9 r10
+divi0 1000000
+mov r9 r0
 
 mov r4 r7
 mov r5 r9

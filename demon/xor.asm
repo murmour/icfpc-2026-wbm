@@ -49,23 +49,27 @@ frame:
 ; (64/3) / 1,000,000 = 1 / 46,875.
 imm r7 1
 load r3 r7
-divi r3 r3 46875
-addi r3 r3 32
+divi r0 r3 46875
+addi0 32
+mov r3 r0
 
 imm r7 3
 load r4 r7
-divi r4 r4 46875
-addi r4 r4 32
+divi r0 r4 46875
+addi0 32
+mov r4 r0
 
 imm r7 5
 load r5 r7
-divi r5 r5 46875
-addi r5 r5 32
+divi r0 r5 46875
+addi0 32
+mov r5 r0
 
 imm r7 7
 load r6 r7
-divi r6 r6 46875
-addi r6 r6 32
+divi r0 r6 46875
+addi0 32
+mov r6 r0
 
 imm r8 0
 imm r10 64
@@ -91,13 +95,15 @@ add r11 r11 r12
 imm r14 64
 imm r15 6
 d1_sqrt:
-div r13 r11 r14
-add r13 r13 r14
+div r0 r11 r14
+add0 r14
+mov r13 r0
 divi r14 r13 2
 dec r15
 jc r15 d1_sqrt
-mul r13 r14 r14
-sub r13 r13 r11
+mul r0 r14 r14
+sub0 r11
+mov r13 r0
 jc r13 d1_adjust
 jmp d1_ready
 d1_adjust:
@@ -121,13 +127,15 @@ add r12 r12 r13
 imm r14 64
 imm r15 6
 d2_sqrt:
-div r13 r12 r14
-add r13 r13 r14
+div r0 r12 r14
+add0 r14
+mov r13 r0
 divi r14 r13 2
 dec r15
 jc r15 d2_sqrt
-mul r13 r14 r14
-sub r13 r13 r12
+mul r0 r14 r14
+sub0 r12
+mov r13 r0
 jc r13 d2_adjust
 jmp d2_ready
 d2_adjust:
@@ -137,10 +145,12 @@ divi r12 r14 8
 
 ; Bit 3 of d1 XOR d2 selects cyan or black.
 add r13 r11 r12
-divi r14 r13 2
-muli r14 r14 2
-sub r13 r13 r14
-muli r13 r13 3
+divi r0 r13 2
+muli0 2
+mov r14 r0
+sub r0 r13 r14
+muli0 3
+mov r13 r0
 imm r15 3
 sub r15 r15 r13
 screen_data r15
@@ -161,9 +171,10 @@ imm r7 0
 load r8 r7
 imm r7 1
 load r9 r7
-muli r10 r9 1999375
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999375
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r7 0
 store r7 r9
 imm r7 1
@@ -174,9 +185,10 @@ imm r7 2
 load r8 r7
 imm r7 3
 load r9 r7
-muli r10 r9 1999844
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999844
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r7 2
 store r7 r9
 imm r7 3
@@ -187,9 +199,10 @@ imm r7 4
 load r8 r7
 imm r7 5
 load r9 r7
-muli r10 r9 1999722
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999722
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r7 4
 store r7 r9
 imm r7 5
@@ -200,9 +213,10 @@ imm r7 6
 load r8 r7
 imm r7 7
 load r9 r7
-muli r10 r9 1997501
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1997501
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r7 6
 store r7 r9
 imm r7 7

@@ -25,19 +25,22 @@ imm r7 5
 
 frame:
 ; rr = 25 + 5*cos(frame), with the source's negative frame direction.
-muli r15 r3 5
-divi r15 r15 1000000
-addi r15 r15 25
+muli r0 r3 5
+divi0 1000000
+addi0 25
+mov r15 r0
 
 ; center_x = 32 + rr*cos(frame)
-mul r4 r15 r3
-divi r4 r4 1000000
-addi r4 r4 32
+mul r0 r15 r3
+divi0 1000000
+addi0 32
+mov r4 r0
 
 ; center_y = 32 + rr*sin(frame)
-mul r5 r15 r2
-divi r5 r5 1000000
-addi r5 r5 32
+mul r0 r15 r2
+divi0 1000000
+addi0 32
+mov r5 r0
 
 imm r9 0
 imm r10 64
@@ -65,8 +68,9 @@ jc r15 quadrant_2
 neg r13
 muli r14 r13 10
 add r15 r12 r13
-div r14 r14 r15
-addi r14 r14 20
+div r0 r14 r15
+addi0 20
+mov r14 r0
 jmp angle_ready
 
 quadrant_2:
@@ -103,8 +107,9 @@ jc r15 quadrant_1_nonzero
 imm r14 0
 jmp angle_ready
 quadrant_1_nonzero:
-muli r14 r13 10
-div r14 r14 r15
+muli r0 r13 10
+div0 r15
+mov r14 r0
 
 angle_ready:
 ; Approximate hypot(dx,dy) and scale it by 100 for radial boundaries.
@@ -112,14 +117,16 @@ sub r15 r12 r13
 jc r15 dx_is_larger
 
 ; dy >= dx
-muli r15 r12 3
-divi r15 r15 8
+muli r0 r12 3
+divi0 8
+mov r15 r0
 add r12 r13 r15
 jmp distance_ready
 
 dx_is_larger:
-muli r15 r13 3
-divi r15 r15 8
+muli r0 r13 3
+divi0 8
+mov r15 r0
 add r12 r12 r15
 
 distance_ready:
@@ -135,8 +142,9 @@ jmp radial_ready
 
 radial_advance:
 add r13 r13 r15
-muli r15 r15 108
-divi r15 r15 100
+muli r0 r15 108
+divi0 100
+mov r15 r0
 inc r14
 jmp radial_loop
 
@@ -179,13 +187,15 @@ screen_swap r0
 ; Rotate the moving center by -1 degree.
 muli r12 r2 999848
 muli r13 r3 17452
-sub r12 r12 r13
-divi r12 r12 1000000
+sub r0 r12 r13
+divi0 1000000
+mov r12 r0
 
 muli r13 r3 999848
 muli r15 r2 17452
-add r13 r13 r15
-divi r13 r13 1000000
+add r0 r13 r15
+divi0 1000000
+mov r13 r0
 
 mov r2 r12
 mov r3 r13

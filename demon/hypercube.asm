@@ -81,12 +81,14 @@ inc r12
 load r14 r12
 mul r7 r2 r14
 mul r8 r5 r13
-sub r7 r7 r8
-divi r7 r7 1000000
+sub r0 r7 r8
+divi0 1000000
+mov r7 r0
 mul r8 r2 r13
 mul r9 r5 r14
-add r8 r8 r9
-divi r8 r8 1000000
+add r0 r8 r9
+divi0 1000000
+mov r8 r0
 mov r2 r7
 mov r5 r8
 
@@ -97,12 +99,14 @@ inc r12
 load r14 r12
 mul r7 r3 r14
 mul r8 r4 r13
-sub r7 r7 r8
-divi r7 r7 1000000
+sub r0 r7 r8
+divi0 1000000
+mov r7 r0
 mul r8 r3 r13
 mul r9 r4 r14
-add r8 r8 r9
-divi r8 r8 1000000
+add r0 r8 r9
+divi0 1000000
+mov r8 r0
 mov r3 r7
 mov r4 r8
 
@@ -113,12 +117,14 @@ inc r12
 load r14 r12
 mul r7 r4 r14
 mul r8 r5 r13
-sub r7 r7 r8
-divi r7 r7 1000000
+sub r0 r7 r8
+divi0 1000000
+mov r7 r0
 mul r8 r4 r13
 mul r9 r5 r14
-add r8 r8 r9
-divi r8 r8 1000000
+add r0 r8 r9
+divi0 1000000
+mov r8 r0
 mov r4 r7
 mov r5 r8
 
@@ -129,34 +135,41 @@ inc r12
 load r14 r12
 mul r7 r2 r14
 mul r8 r3 r13
-sub r7 r7 r8
-divi r7 r7 1000000
+sub r0 r7 r8
+divi0 1000000
+mov r7 r0
 mul r8 r2 r13
 mul r9 r3 r14
-add r8 r8 r9
-divi r8 r8 1000000
+add r0 r8 r9
+divi0 1000000
+mov r8 r0
 mov r2 r7
 mov r3 r8
 
 ; 4D perspective. r7-r9 retain x,y,z at a scale of 1024.
 imm r13 32
 sub r13 r13 r5
-muli r7 r2 21504
-div r7 r7 r13
-muli r8 r3 21504
-div r8 r8 r13
-muli r9 r4 21504
-div r9 r9 r13
+muli r0 r2 21504
+div0 r13
+mov r7 r0
+muli r0 r3 21504
+div0 r13
+mov r8 r0
+muli r0 r4 21504
+div0 r13
+mov r9 r0
 
 ; 3D perspective.
 imm r13 46080
 sub r13 r13 r9
-muli r10 r7 55
-div r10 r10 r13
-addi r10 r10 32
-muli r11 r8 55
-div r11 r11 r13
-addi r11 r11 32
+muli r0 r7 55
+div0 r13
+addi0 32
+mov r10 r0
+muli r0 r8 55
+div0 r13
+addi0 32
+mov r11 r0
 
 ; Clamp projected endpoints because the physical screen-address port does
 ; not clip lines for us.
@@ -188,8 +201,9 @@ store r12 r10
 inc r12
 store r12 r11
 addi r12 r6 32
-muli r13 r5 358
-add r13 r13 r9
+muli r0 r5 358
+add0 r9
+mov r13 r0
 store r12 r13
 
 inc r6
@@ -228,9 +242,10 @@ jc r0 edge_dimension_2_or_3
 mov r0 r13
 andi0 1
 mov r14 r0
-divi r13 r13 2
-muli r13 r13 4
-add r13 r13 r14
+divi r0 r13 2
+muli0 4
+add0 r14
+mov r13 r0
 addi r14 r13 2
 jmp edge_ready
 
@@ -242,9 +257,10 @@ jc r0 edge_dimension_3
 mov r0 r13
 andi0 3
 mov r14 r0
-divi r13 r13 4
-muli r13 r13 8
-add r13 r13 r14
+divi r0 r13 4
+muli0 8
+add0 r14
+mov r13 r0
 addi r14 r13 4
 jmp edge_ready
 
@@ -349,15 +365,18 @@ edge_steps_nonzero:
 
 muli r7 r7 1024
 muli r8 r8 1024
-muli r9 r9 1024
-div r9 r9 r11
-muli r10 r10 1024
-div r10 r10 r11
+muli r0 r9 1024
+div0 r11
+mov r9 r0
+muli r0 r10 1024
+div0 r11
+mov r10 r0
 inc r11
 
 draw_edge_pixel:
-divi r12 r8 1024
-muli r12 r12 64
+divi r0 r8 1024
+muli0 64
+mov r12 r0
 divi r13 r7 1024
 add r12 r12 r13
 screen_addr r12
@@ -383,12 +402,14 @@ inc r12
 load r8 r12
 muli r9 r7 999856
 muli r10 r8 16999
-add r9 r9 r10
-divi r9 r9 1000000
+add r0 r9 r10
+divi0 1000000
+mov r9 r0
 muli r10 r8 999856
 muli r11 r7 16999
-sub r10 r10 r11
-divi r10 r10 1000000
+sub r0 r10 r11
+divi0 1000000
+mov r10 r0
 imm r12 48
 store r12 r9
 inc r12
@@ -401,12 +422,14 @@ inc r12
 load r8 r12
 muli r9 r7 999916
 muli r10 r8 13000
-add r9 r9 r10
-divi r9 r9 1000000
+add r0 r9 r10
+divi0 1000000
+mov r9 r0
 muli r10 r8 999916
 muli r11 r7 13000
-sub r10 r10 r11
-divi r10 r10 1000000
+sub r0 r10 r11
+divi0 1000000
+mov r10 r0
 imm r12 50
 store r12 r9
 inc r12
@@ -419,12 +442,14 @@ inc r12
 load r8 r12
 muli r9 r7 999960
 muli r10 r8 9000
-add r9 r9 r10
-divi r9 r9 1000000
+add r0 r9 r10
+divi0 1000000
+mov r9 r0
 muli r10 r8 999960
 muli r11 r7 9000
-sub r10 r10 r11
-divi r10 r10 1000000
+sub r0 r10 r11
+divi0 1000000
+mov r10 r0
 imm r12 52
 store r12 r9
 inc r12
@@ -437,12 +462,14 @@ inc r12
 load r8 r12
 muli r9 r7 999982
 muli r10 r8 6000
-add r9 r9 r10
-divi r9 r9 1000000
+add r0 r9 r10
+divi0 1000000
+mov r9 r0
 muli r10 r8 999982
 muli r11 r7 6000
-sub r10 r10 r11
-divi r10 r10 1000000
+sub r0 r10 r11
+divi0 1000000
+mov r10 r0
 imm r12 54
 store r12 r9
 inc r12

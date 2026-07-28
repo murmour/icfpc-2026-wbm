@@ -62,39 +62,45 @@ frame:
 ; Convert oscillator values into 1/64-pixel coordinates.
 imm r13 1
 load r2 r13
-muli r2 r2 1024
-divi r2 r2 1000000
-addi r2 r2 2048
+muli r0 r2 1024
+divi0 1000000
+addi0 2048
+mov r2 r0
 
 imm r13 3
 load r3 r13
-muli r3 r3 1024
-divi r3 r3 1000000
-addi r3 r3 2048
+muli r0 r3 1024
+divi0 1000000
+addi0 2048
+mov r3 r0
 
 imm r13 5
 load r4 r13
-muli r4 r4 1024
-divi r4 r4 1000000
-addi r4 r4 2048
+muli r0 r4 1024
+divi0 1000000
+addi0 2048
+mov r4 r0
 
 imm r13 7
 load r5 r13
-muli r5 r5 1024
-divi r5 r5 1000000
-addi r5 r5 2048
+muli r0 r5 1024
+divi0 1000000
+addi0 2048
+mov r5 r0
 
 imm r13 9
 load r6 r13
-muli r6 r6 1024
-divi r6 r6 1000000
-addi r6 r6 2048
+muli r0 r6 1024
+divi0 1000000
+addi0 2048
+mov r6 r0
 
 imm r13 11
 load r7 r13
-muli r7 r7 1024
-divi r7 r7 1000000
-addi r7 r7 2048
+muli r0 r7 1024
+divi0 1000000
+addi0 2048
+mov r7 r0
 
 imm r9 0
 imm r10 64
@@ -107,10 +113,12 @@ pixel:
 imm r12 0
 
 ; Radius 6.4 field.
-sub r13 r8 r2
-mul r13 r13 r13
-sub r14 r9 r3
-mul r14 r14 r14
+sub r0 r8 r2
+mul0 r0
+mov r13 r0
+sub r0 r9 r3
+mul0 r0
+mov r14 r0
 add r13 r13 r14
 jc r13 ball0_nonzero
 jmp ball0_done
@@ -121,10 +129,12 @@ add r12 r12 r15
 ball0_done:
 
 ; Radius 9.6 field.
-sub r13 r8 r4
-mul r13 r13 r13
-sub r14 r9 r5
-mul r14 r14 r14
+sub r0 r8 r4
+mul0 r0
+mov r13 r0
+sub r0 r9 r5
+mul0 r0
+mov r14 r0
 add r13 r13 r14
 jc r13 ball1_nonzero
 jmp ball1_done
@@ -135,10 +145,12 @@ add r12 r12 r15
 ball1_done:
 
 ; Radius 12.8 field.
-sub r13 r8 r6
-mul r13 r13 r13
-sub r14 r9 r7
-mul r14 r14 r14
+sub r0 r8 r6
+mul0 r0
+mov r13 r0
+sub r0 r9 r7
+mul0 r0
+mov r14 r0
 add r13 r13 r14
 jc r13 ball2_nonzero
 jmp ball2_done
@@ -184,9 +196,10 @@ imm r13 0
 load r8 r13
 imm r13 1
 load r9 r13
-muli r10 r9 1999744
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999744
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r13 0
 store r13 r9
 imm r13 1
@@ -197,9 +210,10 @@ imm r13 2
 load r8 r13
 imm r13 3
 load r9 r13
-muli r10 r9 1999900
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999900
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r13 2
 store r13 r9
 imm r13 3
@@ -210,9 +224,10 @@ imm r13 4
 load r8 r13
 imm r13 5
 load r9 r13
-muli r10 r9 1998976
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1998976
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r13 4
 store r13 r9
 imm r13 5
@@ -223,9 +238,10 @@ imm r13 6
 load r8 r13
 imm r13 7
 load r9 r13
-muli r10 r9 1999600
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999600
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r13 6
 store r13 r9
 imm r13 7
@@ -236,9 +252,10 @@ imm r13 8
 load r8 r13
 imm r13 9
 load r9 r13
-muli r10 r9 1997696
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1997696
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r13 8
 store r13 r9
 imm r13 9
@@ -249,9 +266,10 @@ imm r13 10
 load r8 r13
 imm r13 11
 load r9 r13
-muli r10 r9 1999100
-divi r10 r10 1000000
-sub r10 r10 r8
+muli r0 r9 1999100
+divi0 1000000
+sub0 r8
+mov r10 r0
 imm r13 10
 store r13 r9
 imm r13 11

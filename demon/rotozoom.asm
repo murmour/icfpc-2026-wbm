@@ -81,9 +81,7 @@ sub0 r1
 mov r4 r0
 sin_lookup:
 load r11 r4
-mov r0 r3
-imm r1 1
-sub0 r1
+subi r0 r3 1
 jc r0 sin_negate
 jmp sin_done
 sin_negate:
@@ -92,9 +90,7 @@ sin_done:
 
 ; r12 = cos(phase) = sin(phase + 16).
 addi r6 r2 16
-mov r0 r6
-imm r1 63
-sub0 r1
+subi r0 r6 63
 jc r0 wrap_cos
 jmp cos_phase_ready
 wrap_cos:
@@ -113,9 +109,7 @@ sub0 r1
 mov r4 r0
 cos_lookup:
 load r12 r4
-mov r0 r3
-imm r1 1
-sub0 r1
+subi r0 r3 1
 jc r0 cos_negate
 jmp cos_done
 cos_negate:
@@ -123,8 +117,9 @@ neg r12
 cos_done:
 
 ; Apply a small sinusoidal zoom and build the affine increments.
-divi r13 r11 4
-addi r13 r13 1024
+divi r0 r11 4
+addi0 1024
+mov r13 r0
 mul r14 r12 r13
 divi r3 r14 1024
 mul r14 r11 r13
@@ -154,19 +149,13 @@ muli r12 r11 16384
 sub r14 r8 r12
 
 ; XOR the high half-period bits to form the checkerboard.
-mov r0 r13
-imm r1 8191
-sub0 r1
+subi r0 r13 8191
 jc r0 u_high
-mov r0 r14
-imm r1 8191
-sub0 r1
+subi r0 r14 8191
 jc r0 light
 jmp dark
 u_high:
-mov r0 r14
-imm r1 8191
-sub0 r1
+subi r0 r14 8191
 jc r0 dark
 jmp light
 
@@ -191,9 +180,7 @@ jc r10 row
 imm r15 0
 screen_swap r15
 inc r2
-mov r0 r2
-imm r1 63
-sub0 r1
+subi r0 r2 63
 jc r0 wrap_phase
 jmp frame
 wrap_phase:

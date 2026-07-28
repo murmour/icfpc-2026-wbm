@@ -127,25 +127,30 @@ jc r0 non_cube_vertex
 
 ; Vertices 0..7: each index bit selects one sign.
 mov r15 r6
-divi r15 r15 4
-muli r15 r15 20
+divi r0 r15 4
+muli0 20
+mov r15 r0
 subi r7 r15 10
 
 mov r15 r6
 divi r15 r15 2
 mov r14 r15
-divi r14 r14 2
-muli r14 r14 2
-sub r15 r15 r14
-muli r15 r15 20
+divi r0 r14 2
+muli0 2
+mov r14 r0
+sub r0 r15 r14
+muli0 20
+mov r15 r0
 subi r8 r15 10
 
 mov r15 r6
 mov r14 r15
-divi r14 r14 2
-muli r14 r14 2
-sub r15 r15 r14
-muli r15 r15 20
+divi r0 r14 2
+muli0 2
+mov r14 r0
+sub r0 r15 r14
+muli0 20
+mov r15 r0
 subi r9 r15 10
 jmp vertex_ready
 
@@ -158,16 +163,19 @@ subi r14 r6 8
 imm r7 0
 
 mov r15 r14
-divi r15 r15 2
-muli r15 r15 12
+divi r0 r15 2
+muli0 12
+mov r15 r0
 subi r8 r15 6
 
 mov r15 r14
 mov r13 r15
-divi r13 r13 2
-muli r13 r13 2
-sub r15 r15 r13
-muli r15 r15 32
+divi r0 r13 2
+muli0 2
+mov r13 r0
+sub r0 r15 r13
+muli0 32
+mov r15 r0
 subi r9 r15 16
 jmp vertex_ready
 
@@ -178,16 +186,19 @@ jc r0 fourth_family
 ; Vertices 12..15: (+-6, +-16, 0).
 subi r14 r6 12
 mov r15 r14
-divi r15 r15 2
-muli r15 r15 12
+divi r0 r15 2
+muli0 12
+mov r15 r0
 subi r7 r15 6
 
 mov r15 r14
 mov r13 r15
-divi r13 r13 2
-muli r13 r13 2
-sub r15 r15 r13
-muli r15 r15 32
+divi r0 r13 2
+muli0 2
+mov r13 r0
+sub r0 r15 r13
+muli0 32
+mov r15 r0
 subi r8 r15 16
 imm r9 0
 jmp vertex_ready
@@ -196,17 +207,20 @@ fourth_family:
 ; Vertices 16..19: (+-16, 0, +-6).
 subi r14 r6 16
 mov r15 r14
-divi r15 r15 2
-muli r15 r15 32
+divi r0 r15 2
+muli0 32
+mov r15 r0
 subi r7 r15 16
 imm r8 0
 
 mov r15 r14
 mov r13 r15
-divi r13 r13 2
-muli r13 r13 2
-sub r15 r15 r13
-muli r15 r15 12
+divi r0 r13 2
+muli0 2
+mov r13 r0
+sub r0 r15 r13
+muli0 12
+mov r15 r0
 subi r9 r15 6
 
 vertex_ready:
@@ -215,26 +229,30 @@ vertex_ready:
 ;   z1 = z*cos_y - x*sin_y
 mul r10 r7 r3
 mul r15 r9 r2
-add r10 r10 r15
-divi r10 r10 1000000
+add r0 r10 r15
+divi0 1000000
+mov r10 r0
 
 mul r11 r9 r3
 mul r15 r7 r2
-sub r11 r11 r15
-divi r11 r11 1000000
+sub r0 r11 r15
+divi0 1000000
+mov r11 r0
 
 ; Rotate around X:
 ;   y2 = y*cos_x - z1*sin_x
 ;   z2 = y*sin_x + z1*cos_x
 mul r12 r8 r5
 mul r15 r11 r4
-sub r12 r12 r15
-divi r12 r12 1000000
+sub r0 r12 r15
+divi0 1000000
+mov r12 r0
 
 mul r13 r8 r4
 mul r15 r11 r5
-add r13 r13 r15
-divi r13 r13 1000000
+add r0 r13 r15
+divi0 1000000
+mov r13 r0
 
 ; Preserve camera-space depth for dynamic edge shading.
 addi r14 r6 70
@@ -242,13 +260,15 @@ store r14 r13
 
 ; Perspective projection with camera distance 110 and focal length 150.
 addi r13 r13 110
-muli r10 r10 150
-div r10 r10 r13
-addi r10 r10 32
+muli r0 r10 150
+div0 r13
+addi0 32
+mov r10 r0
 
-muli r12 r12 150
-div r12 r12 r13
-addi r12 r12 32
+muli r0 r12 150
+div0 r13
+addi0 32
+mov r12 r0
 
 muli r14 r6 2
 store r14 r10
@@ -346,15 +366,18 @@ edge_steps_nonzero:
 
 muli r7 r7 1024
 muli r8 r8 1024
-muli r9 r9 1024
-div r9 r9 r11
-muli r10 r10 1024
-div r10 r10 r11
+muli r0 r9 1024
+div0 r11
+mov r9 r0
+muli r0 r10 1024
+div0 r11
+mov r10 r0
 inc r11
 
 draw_edge_pixel:
-divi r12 r8 1024
-muli r12 r12 64
+divi r0 r8 1024
+muli0 64
+mov r12 r0
 divi r13 r7 1024
 add r12 r12 r13
 screen_addr r12
@@ -377,13 +400,15 @@ screen_swap r0
 ; Advance Y by 1.4 degrees.
 muli r7 r2 999702
 muli r8 r3 24432
-add r7 r7 r8
-divi r7 r7 1000000
+add r0 r7 r8
+divi0 1000000
+mov r7 r0
 
 muli r9 r3 999702
 muli r10 r2 24432
-sub r9 r9 r10
-divi r9 r9 1000000
+sub r0 r9 r10
+divi0 1000000
+mov r9 r0
 
 mov r2 r7
 mov r3 r9
@@ -391,13 +416,15 @@ mov r3 r9
 ; Advance X by 0.9 degrees.
 muli r7 r4 999877
 muli r8 r5 15707
-add r7 r7 r8
-divi r7 r7 1000000
+add r0 r7 r8
+divi0 1000000
+mov r7 r0
 
 muli r9 r5 999877
 muli r10 r4 15707
-sub r9 r9 r10
-divi r9 r9 1000000
+sub r0 r9 r10
+divi0 1000000
+mov r9 r0
 
 mov r4 r7
 mov r5 r9
