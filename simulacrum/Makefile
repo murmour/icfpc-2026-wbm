@@ -1,7 +1,7 @@
 CC ?= cc
 CFLAGS ?= -O3 -march=native -DNDEBUG -std=c11 -Wall -Wextra -Wpedantic
 CPPFLAGS ?=
-FAST_MODE ?= 0
+FAST_MODE ?= 1
 PROFILE_MODE ?= 0
 TV_MODE ?= 0
 
