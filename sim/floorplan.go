@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -313,6 +314,16 @@ func main() {
 	var layout Layout
 	if err := json.Unmarshal(b, &layout); err != nil {
 		panic(err)
+	}
+	layoutDir, err := filepath.Abs(filepath.Dir(*layoutPath))
+	if err != nil {
+		panic(err)
+	}
+	for index := range layout.Blocks {
+		blockPath := layout.Blocks[index].File
+		if blockPath != "" && !filepath.IsAbs(blockPath) {
+			layout.Blocks[index].File = filepath.Join(layoutDir, blockPath)
+		}
 	}
 
 	grid := buildGrid(layout.GridWidth, layout.GridHeight)

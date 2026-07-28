@@ -14,7 +14,7 @@ go run . \
   -input ../public_tests/history_lesson.txt \
   -output ./history_packed.man \
   -encoding packed \
-  -decoder-block ../sim/blocks/packed_ascii_decoder_v3.block
+  -decoder-block ../blocks/packed_ascii_decoder_v3.block
 ```
 
 Run the codec tests:
