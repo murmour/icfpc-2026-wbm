@@ -55,7 +55,7 @@ close:
 fail:
   mov r0 r6
   mov r1 r4
-  alu sub
+  sub0 r1
   write r0
   jmp halt
 

@@ -77,13 +77,13 @@ jmp sin_lookup
 sin_mirror:
 imm r0 16
 mov r1 r4
-alu sub
+sub0 r1
 mov r4 r0
 sin_lookup:
 load r11 r4
 mov r0 r3
 imm r1 1
-alu sub
+sub0 r1
 jc r0 sin_negate
 jmp sin_done
 sin_negate:
@@ -94,7 +94,7 @@ sin_done:
 addi r6 r2 16
 mov r0 r6
 imm r1 63
-alu sub
+sub0 r1
 jc r0 wrap_cos
 jmp cos_phase_ready
 wrap_cos:
@@ -109,13 +109,13 @@ jmp cos_lookup
 cos_mirror:
 imm r0 16
 mov r1 r4
-alu sub
+sub0 r1
 mov r4 r0
 cos_lookup:
 load r12 r4
 mov r0 r3
 imm r1 1
-alu sub
+sub0 r1
 jc r0 cos_negate
 jmp cos_done
 cos_negate:
@@ -156,17 +156,17 @@ sub r14 r8 r12
 ; XOR the high half-period bits to form the checkerboard.
 mov r0 r13
 imm r1 8191
-alu sub
+sub0 r1
 jc r0 u_high
 mov r0 r14
 imm r1 8191
-alu sub
+sub0 r1
 jc r0 light
 jmp dark
 u_high:
 mov r0 r14
 imm r1 8191
-alu sub
+sub0 r1
 jc r0 dark
 jmp light
 
@@ -193,7 +193,7 @@ screen_swap r15
 inc r2
 mov r0 r2
 imm r1 63
-alu sub
+sub0 r1
 jc r0 wrap_phase
 jmp frame
 wrap_phase:
