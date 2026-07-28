@@ -2999,10 +2999,9 @@ static void usage(const char *argv0) {
         "  --display-gated N  release N inputs initially, then one more"
         " after each display swap\n"
 #ifdef PROFILE_MODE
-        "  --profile   print per-man and per-pipe execution counters"
-        "\n"
+        "  --profile   print per-man and per-pipe execution counters\n"
 #endif
-        "  --visual    show display 0; default to unlimited frames"
+        "  --display    show display 0; default to unlimited frames"
         " (requires TV_MODE)\n"
         "  --swap      show only completed frames (requires --visual)\n",
         argv0);
