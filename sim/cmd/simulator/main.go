@@ -5,6 +5,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	lmsim "sim"
 )
 
 func main() {
@@ -19,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	prog, err := ParseProgram(string(content))
+	prog, err := lmsim.ParseProgram(string(content))
 	if err != nil {
 		fmt.Printf("Error parsing program: %v\n", err)
 		os.Exit(1)
@@ -53,7 +55,7 @@ func main() {
 	} else {
 		fmt.Printf("Run halted successfully at tick %d.\n", prog.TickCount)
 	}
-	
+
 	fmt.Printf("Final Output: %v\n", prog.OutputQueue)
 }
 

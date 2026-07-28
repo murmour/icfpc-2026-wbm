@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	lmsim "sim"
 )
 
 type PortDef struct {
@@ -73,7 +75,7 @@ func gridToStr(grid [][]byte) string {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run tester.go <file.block>")
+		fmt.Println("Usage: go run ./cmd/tester <file.block>")
 		os.Exit(1)
 	}
 
@@ -132,7 +134,7 @@ func main() {
 			" ^<",
 		})
 
-		portRooms := make(map[string]Point)
+		portRooms := make(map[string]lmsim.Point)
 		sidePortIdx := make(map[string]int)
 
 		type namedPort struct {
@@ -226,23 +228,23 @@ func main() {
 			grid[ry][rx-1] = '+'
 			grid[ry][rx] = '+'
 
-			portRooms[name] = Point{X: rx - 1, Y: ry - 1}
+			portRooms[name] = lmsim.Point{X: rx - 1, Y: ry - 1}
 		}
 
 		progStr := gridToStr(grid)
 
-		prog, err := ParseProgram(progStr)
+		prog, err := lmsim.ParseProgram(progStr)
 		if err != nil {
 			fmt.Printf("Parse error in test %d: %v\n", testIdx+1, err)
 			allSuccess = false
 			continue
 		}
 
-		inPipes := make(map[string]*Pipe)
-		outPipes := make(map[string]*Pipe)
+		inPipes := make(map[string]*lmsim.Pipe)
+		outPipes := make(map[string]*lmsim.Pipe)
 
 		for name, pt := range portRooms {
-			var dummy *Room
+			var dummy *lmsim.Room
 			for _, r := range prog.Rooms {
 				if r.MinX == pt.X && r.MinY == pt.Y {
 					dummy = r

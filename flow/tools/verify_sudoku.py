@@ -15,9 +15,9 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
-MEME = REPOSITORY / "src" / "meme"
+REPOSITORY = ROOT.parent
+SIMULATOR = REPOSITORY / "sim"
+MEME = REPOSITORY
 
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(MEME))
@@ -124,11 +124,7 @@ def main() -> int:
         command = [
             str(go),
             "run",
-            "benchmark.go",
-            "parser.go",
-            "simulator.go",
-            "literals.go",
-            "types.go",
+            "./cmd/benchmark",
             "--program",
             str(output),
             "--tests",

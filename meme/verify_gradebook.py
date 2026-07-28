@@ -13,8 +13,8 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT
+SIMULATOR = REPOSITORY / "sim"
 
 sys.path.insert(0, str(ROOT))
 
@@ -160,7 +160,7 @@ def _simulate(
         [
             str(go),
             "run",
-            ".",
+            "./cmd/simulator",
             str(variant.output),
             *(str(value) for value in inputs),
         ],

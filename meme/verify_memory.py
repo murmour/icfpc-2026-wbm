@@ -13,8 +13,8 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT
+SIMULATOR = REPOSITORY / "sim"
 SOURCE = ROOT / "examples" / "memory.meme"
 OUTPUT = ROOT / "generated" / "memory.man"
 
@@ -53,7 +53,13 @@ class Simulation:
 
 
 def _simulate(go: Path, inputs: list[int]) -> Simulation:
-    command = [str(go), "run", ".", str(OUTPUT), *(str(value) for value in inputs)]
+    command = [
+        str(go),
+        "run",
+        "./cmd/simulator",
+        str(OUTPUT),
+        *(str(value) for value in inputs),
+    ]
     completed = subprocess.run(
         command,
         cwd=SIMULATOR,

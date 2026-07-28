@@ -999,12 +999,12 @@ func runCommand(directory, name string, args ...string) error {
 }
 
 func validateGeneratedMan(simRoot, path string) error {
-	// benchmark.go parses before executing cases. A one-tick Sort run is enough
+	// The benchmark command parses before executing cases. A one-tick Sort run is enough
 	// to validate the generated program without maintaining a separate fixture.
 	tests := filepath.Join(filepath.Dir(simRoot), "public_tests", "sort.json")
 	command := exec.Command(
 		"go", "run",
-		"benchmark.go", "parser.go", "simulator.go", "types.go", "literals.go",
+		"./cmd/benchmark",
 		"-program", path,
 		"-tests", tests,
 		"-max-ticks", "1",

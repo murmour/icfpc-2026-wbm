@@ -15,8 +15,8 @@ import tempfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT
+SIMULATOR = REPOSITORY / "sim"
 
 sys.path.insert(0, str(ROOT))
 
@@ -196,11 +196,7 @@ def _benchmark(
             [
                 str(go),
                 "run",
-                "benchmark.go",
-                "parser.go",
-                "simulator.go",
-                "literals.go",
-                "types.go",
+                "./cmd/benchmark",
                 "--program",
                 str(program),
                 "--tests",

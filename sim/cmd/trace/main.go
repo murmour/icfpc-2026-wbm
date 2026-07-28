@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	lmsim "sim"
 )
 
 func main() {
@@ -25,7 +27,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "read program: %v\n", err)
 		os.Exit(1)
 	}
-	program, err := ParseProgram(string(code))
+	program, err := lmsim.ParseProgram(string(code))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "parse program: %v\n", err)
 		os.Exit(1)
@@ -76,7 +78,7 @@ func main() {
 			if *manID >= 0 && man.ID != *manID {
 				continue
 			}
-			instruction := program.GetAt(Point{X: man.X, Y: man.Y})
+			instruction := program.GetAt(lmsim.Point{X: man.X, Y: man.Y})
 			if *activeOnly && instruction == ' ' {
 				continue
 			}

@@ -13,8 +13,8 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT
+SIMULATOR = REPOSITORY / "sim"
 SOURCE = ROOT / "examples" / "packet_reassembly.meme"
 OUTPUT = ROOT / "generated" / "packet_reassembly.man"
 
@@ -76,11 +76,7 @@ def _run(
         [
             str(go),
             "run",
-            "main.go",
-            "parser.go",
-            "simulator.go",
-            "literals.go",
-            "types.go",
+            "./cmd/simulator",
             str(program),
             *(str(value) for value in inputs),
         ],

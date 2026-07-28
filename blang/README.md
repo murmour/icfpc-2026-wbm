@@ -13,8 +13,7 @@ go run . \
   -input examples/ring34_exchange.bl \
   -output /tmp/ring34_exchange.block
 cd ../sim
-go run tester.go parser.go simulator.go types.go literals.go \
-  /tmp/ring34_exchange.block
+go run ./cmd/tester /tmp/ring34_exchange.block
 ```
 
 ## Structure

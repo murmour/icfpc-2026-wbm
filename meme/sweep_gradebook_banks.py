@@ -323,7 +323,7 @@ def _simulate(
     )
 
     go = _find_go()
-    simulator = ROOT.parents[1] / "src" / "sim"
+    simulator = ROOT / "sim"
     case_ticks: list[tuple[str, int]] = []
     with tempfile.TemporaryDirectory(prefix="meme-gradebook-") as directory:
         program = Path(directory) / f"gradebook-{variant}.man"
@@ -334,7 +334,7 @@ def _simulate(
                 [
                     str(go),
                     "run",
-                    ".",
+                    "./cmd/simulator",
                     str(program),
                     *(str(value) for value in inputs),
                 ],

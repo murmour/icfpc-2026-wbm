@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	lmsim "sim"
 )
 
 type benchmarkCase struct {
@@ -50,7 +52,7 @@ func runBenchmarkCase(code string, test benchmarkCase, maxTicks int) (int, error
 		return 0, nil
 	}
 
-	program, err := ParseProgram(code)
+	program, err := lmsim.ParseProgram(code)
 	if err != nil {
 		return 0, err
 	}
@@ -116,7 +118,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	parsed, err := ParseProgram(string(codeBytes))
+	parsed, err := lmsim.ParseProgram(string(codeBytes))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "parse program: %v\n", err)
 		os.Exit(1)

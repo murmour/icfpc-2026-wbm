@@ -12,8 +12,8 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = ROOT.parents[1]
-SIMULATOR = REPOSITORY / "src" / "sim"
+REPOSITORY = ROOT
+SIMULATOR = REPOSITORY / "sim"
 SOURCE = ROOT / "examples" / "sort.meme"
 OUTPUT = ROOT / "generated" / "sort.man"
 
@@ -72,7 +72,7 @@ def main() -> int:
         [
             str(go),
             "run",
-            ".",
+            "./cmd/simulator",
             str(OUTPUT),
             *(str(value) for value in inputs),
         ],
