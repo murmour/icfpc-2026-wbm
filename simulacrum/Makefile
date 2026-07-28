@@ -27,9 +27,9 @@ COMPUTED_GOTO_STAMP := .computed-goto-$(COMPUTED_GOTO)
 PROFILE_MODE_STAMP := .profile-mode-$(PROFILE_MODE)
 TV_MODE_STAMP := .visual-mode-$(TV_MODE)
 
-all: fast_sim
+all: simulacrum
 
-fast_sim: fast_sim.c $(MODE_STAMP) $(COMPUTED_GOTO_STAMP) \
+simulacrum: simulacrum.c $(MODE_STAMP) $(COMPUTED_GOTO_STAMP) \
 		$(PROFILE_MODE_STAMP) $(TV_MODE_STAMP)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $< $(LDLIBS)
 
@@ -65,11 +65,11 @@ fast_sim: fast_sim.c $(MODE_STAMP) $(COMPUTED_GOTO_STAMP) \
 	rm -f .visual-mode-0
 	touch $@
 
-benchmark: fast_sim
-	./fast_sim ../../little_demo/processor/rotozoom_processor.man --frames 1
+benchmark: simulacrum
+	./simulacrum ../../little_demo/processor/rotozoom_processor.man --frames 1
 
 clean:
-	rm -f fast_sim .fast-mode-0 .fast-mode-1 \
+	rm -f simulacrum .fast-mode-0 .fast-mode-1 \
 		.computed-goto-0 .computed-goto-1 \
 		.profile-mode-0 .profile-mode-1 \
 		.visual-mode-0 .visual-mode-1
