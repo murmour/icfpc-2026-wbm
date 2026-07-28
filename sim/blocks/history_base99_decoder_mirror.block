@@ -1,0 +1,81 @@
+{
+  "name": "base99_digram_decoder_mirror",
+  "size": "31x5",
+  "interior": [
+    ">                             v",
+    "^               > v           v",
+    "^      >  v     Xr<b<         v",
+    "^ sWsW/dmr<M`47`< vWX-W`47`Mr@<",
+    "^sWs4s`41`s1sM`56`< >+s       ^"
+  ],
+  "ports": {
+    "codes": {
+      "type": "input",
+      "side": "right",
+      "offset_range": [
+        1,
+        1
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "literals": {
+      "type": "output",
+      "side": "left",
+      "offset_range": [
+        1,
+        1
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "pairs": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [
+        8,
+        8
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "literal_phrase_and_first_pair",
+      "inputs": {
+        "codes": [
+          1,
+          74,
+          75,
+          73,
+          0
+        ],
+        "pairs": [
+          -1,
+          4880
+        ]
+      },
+      "expected": {
+        "literals": [
+          1,
+          65,
+          1,
+          14,
+          4,
+          65,
+          70,
+          65,
+          73,
+          0
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "name": "history_huffman_bit_unpacker",
+  "size": "22x4",
+  "interior": [
+    "                      ",
+    "\u003e@rM`63`bW\u003eM2W/WsWmd v",
+    "          ^        \u003c v",
+    "^                    \u003c"
+  ],
+  "ports": {
+    "bits": {
+      "type": "output",
+      "side": "right",
+      "offset_range": [
+        1,
+        1
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    },
+    "words": {
+      "type": "input",
+      "side": "top",
+      "offset_range": [
+        3,
+        3
+      ],
+      "length_range": [
+        2,
+        4096
+      ]
+    }
+  },
+  "tests": [
+    {
+      "name": "one_word",
+      "inputs": {
+        "words": [
+          6148914691236517205
+        ]
+      },
+      "expected": {
+        "bits": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ]
+      }
+    }
+  ]
+}
