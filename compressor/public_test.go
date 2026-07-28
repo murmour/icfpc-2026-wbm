@@ -7,7 +7,7 @@ import (
 
 func historyLesson(t *testing.T) []byte {
 	t.Helper()
-	data, err := os.ReadFile("../../public_tests/history_lesson.txt")
+	data, err := os.ReadFile("../public_tests/history_lesson.txt")
 	if err != nil {
 		t.Fatal(err)
 	}

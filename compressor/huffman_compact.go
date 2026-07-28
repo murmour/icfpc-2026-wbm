@@ -80,20 +80,6 @@ func huffmanTable(artifact huffmanArtifact) (huffmanTableArtifact, error) {
 	return huffmanTableArtifact{Words: words, Codes: codes}, nil
 }
 
-func huffmanTableWordsFitSigned(artifact huffmanArtifact) bool {
-	table, err := huffmanTable(artifact)
-	if err != nil {
-		return false
-	}
-	for _, word := range table.Words {
-		digits := strconv.FormatInt(word, 10)
-		if _, err := strconv.ParseInt(reverse(digits), 10, 64); err != nil {
-			return false
-		}
-	}
-	return true
-}
-
 func huffmanTableBlock(table huffmanTableArtifact) ([]byte, error) {
 	rows := (len(table.Words) + huffmanTableWordsPerRow - 1) / huffmanTableWordsPerRow
 	width := huffmanTableWordsPerRow*huffmanTablePitch + 4
