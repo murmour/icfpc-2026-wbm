@@ -1,7 +1,7 @@
 # Blang
 
 Blang is a small structured language that compiles one-man programs into the
-JSON `.block` format consumed by `tester.go` and `floorplan.go`. It exposes the
+JSON `.block` format consumed by the block tester and `floorplan`. It exposes the
 little man's `A` and `B` registers while reserving the backpack for generated
 loop control.
 

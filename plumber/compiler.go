@@ -90,6 +90,7 @@ func compileMan(program *Program, outputPath, floorplanMode string) error {
 	}
 	simRoot := filepath.Join(repositoryRoot, "sim")
 	blangRoot := filepath.Join(repositoryRoot, "blang")
+	floorplanRoot := filepath.Join(repositoryRoot, "floorplan")
 	tempDir, err := os.MkdirTemp("", "plumber-man-*")
 	if err != nil {
 		return err
@@ -152,9 +153,17 @@ func compileMan(program *Program, outputPath, floorplanMode string) error {
 	var side int
 	switch floorplanMode {
 	case "shelf":
-		code, side, err = searchFloorplan(simRoot, tempDir, blocks, edges, 100)
+		code, side, err = searchFloorplan(
+			floorplanRoot,
+			simRoot,
+			tempDir,
+			blocks,
+			edges,
+			100,
+		)
 	case "anneal":
 		code, side, err = searchAnnealedFloorplan(
+			floorplanRoot,
 			simRoot,
 			tempDir,
 			blocks,
@@ -175,6 +184,7 @@ func compileMan(program *Program, outputPath, floorplanMode string) error {
 }
 
 func searchFloorplan(
+	floorplanRoot string,
 	simRoot string,
 	tempDir string,
 	blocks []compiledBlock,
@@ -234,9 +244,9 @@ func searchFloorplan(
 				if err := os.WriteFile(floorPath, floorData, 0644); err != nil {
 					return nil, 0, err
 				}
-				if err := runGoFile(
-					simRoot,
-					"floorplan.go",
+				if err := runGoTool(
+					floorplanRoot,
+					".",
 					"-layout", floorPath,
 					"-output", manPath,
 				); err != nil {
@@ -971,12 +981,6 @@ func findRepositoryRoot() (string, error) {
 
 func runGoTool(directory, packagePath string, args ...string) error {
 	commandArgs := []string{"run", packagePath}
-	commandArgs = append(commandArgs, args...)
-	return runCommand(directory, "go", commandArgs...)
-}
-
-func runGoFile(directory, file string, args ...string) error {
-	commandArgs := []string{"run", file}
 	commandArgs = append(commandArgs, args...)
 	return runCommand(directory, "go", commandArgs...)
 }

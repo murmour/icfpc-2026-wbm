@@ -26,6 +26,7 @@ type annealCandidate struct {
 }
 
 func searchAnnealedFloorplan(
+	floorplanRoot string,
 	simRoot string,
 	tempDir string,
 	blocks []compiledBlock,
@@ -43,6 +44,7 @@ func searchAnnealedFloorplan(
 	side := startSide
 	for side >= minSide {
 		code, measuredSide, placement, ok := annealAtSide(
+			floorplanRoot,
 			simRoot,
 			tempDir,
 			blocks,
@@ -70,6 +72,7 @@ func searchAnnealedFloorplan(
 }
 
 func annealAtSide(
+	floorplanRoot string,
 	simRoot string,
 	tempDir string,
 	blocks []compiledBlock,
@@ -200,9 +203,9 @@ func annealAtSide(
 			if os.WriteFile(floorPath, data, 0644) != nil {
 				continue
 			}
-			if runGoFile(
-				simRoot,
-				"floorplan.go",
+			if runGoTool(
+				floorplanRoot,
+				".",
 				"-layout", floorPath,
 				"-output", manPath,
 			) != nil {
