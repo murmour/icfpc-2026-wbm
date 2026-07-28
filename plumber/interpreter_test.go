@@ -56,7 +56,7 @@ func TestGradePublicCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := os.ReadFile("../../public_tests/grade.json")
+	data, err := os.ReadFile("../public_tests/grade.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +102,7 @@ func TestReassemblyPublicCases(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := os.ReadFile("../../public_tests/reassembly.json")
+	data, err := os.ReadFile("../public_tests/reassembly.json")
 	if err != nil {
 		t.Fatal(err)
 	}

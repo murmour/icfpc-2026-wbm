@@ -84,10 +84,12 @@ func compileMan(program *Program, outputPath, floorplanMode string) error {
 	if err != nil {
 		return err
 	}
-	simRoot, err := simulatorRoot()
+	repositoryRoot, err := findRepositoryRoot()
 	if err != nil {
 		return err
 	}
+	simRoot := filepath.Join(repositoryRoot, "sim")
+	blangRoot := filepath.Join(repositoryRoot, "blang")
 	tempDir, err := os.MkdirTemp("", "plumber-man-*")
 	if err != nil {
 		return err
@@ -106,7 +108,7 @@ func compileMan(program *Program, outputPath, floorplanMode string) error {
 				return writeErr
 			}
 		} else {
-			source, translateErr := renderBlocklang(actor, edges)
+			source, translateErr := renderBlang(actor, edges)
 			if translateErr != nil {
 				return translateErr
 			}
@@ -115,8 +117,8 @@ func compileMan(program *Program, outputPath, floorplanMode string) error {
 				return writeErr
 			}
 			if runErr := runGoTool(
-				simRoot,
-				"./blocklang",
+				blangRoot,
+				".",
 				"-input", sourcePath,
 				"-output", blockPath,
 			); runErr != nil {
@@ -341,7 +343,7 @@ func writePipeRelay(actor *Block, edges []directedEdge, path string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
-func renderBlocklang(actor *Block, edges []directedEdge) (string, error) {
+func renderBlang(actor *Block, edges []directedEdge) (string, error) {
 	inputs := make(map[string]bool)
 	outputs := make(map[string]bool)
 	collectEndpoints(actor.Body, inputs, outputs)
@@ -959,10 +961,10 @@ func parseSize(raw string) (int, int, error) {
 	return width, height, nil
 }
 
-func simulatorRoot() (string, error) {
+func findRepositoryRoot() (string, error) {
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {
-		return "", fmt.Errorf("cannot locate Plumber source directory")
+		return "", fmt.Errorf("cannot locate repository root")
 	}
 	return filepath.Dir(filepath.Dir(file)), nil
 }

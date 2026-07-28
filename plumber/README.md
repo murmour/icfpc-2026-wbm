@@ -1,6 +1,6 @@
 # Plumber
 
-Plumber is an interpreted, concurrent extension of Blocklang for prototyping
+Plumber is an interpreted, concurrent extension of Blang for prototyping
 multi-room protocols before assigning 2D geometry.
 
 ```text
@@ -112,11 +112,11 @@ useful for sentinel-terminated streams whose payload values are positive.
 
 ## Run
 
-From `src/sim`:
+From the `plumber` directory:
 
 ```sh
-go run ./plumber \
-  -program plumber/examples/pipeline.plumb \
+go run . \
+  -program examples/pipeline.plumb \
   -input "1 -3 42"
 ```
 
@@ -130,7 +130,7 @@ Useful flags:
 -actors
 ```
 
-`-man` compiles every Plumber actor through Blocklang, places the generated
+`-man` compiles every Plumber actor through Blang, places the generated
 rooms on a spacious floor, routes peer channels with the existing floorplanner,
 and validates that the resulting Little Man program parses.
 
@@ -141,10 +141,10 @@ scores overlap, clearance, cross-room literal conflicts, connectivity, and
 estimated wire length before passing its best candidates to the real router:
 
 ```sh
-go run ./plumber \
-  -program plumber/examples/bubble_sort.plumb \
+go run . \
+  -program examples/bubble_sort.plumb \
   -floorplan-mode anneal \
-  -man ../../data/solutions/sort_bubble_plumber_0.man
+  -man /tmp/sort_bubble_plumber.man
 ```
 
 Normal persistent programs finish in `waiting-input` after consuming the
@@ -159,7 +159,7 @@ and a zero boundary in a named 17-cell pipe, performs 15 complete bubble passes,
 then drains the sorted values:
 
 ```sh
-go run ./plumber \
-  -program plumber/examples/bubble_sort.plumb \
+go run . \
+  -program examples/bubble_sort.plumb \
   -input "5 7 2 9 -3 1"
 ```
