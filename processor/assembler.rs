@@ -16,6 +16,41 @@ struct Program {
     uses_memory: bool,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct RegisterProfile {
+    reads: Vec<u64>,
+    writes: Vec<u64>,
+    instructions: u64,
+}
+
+impl RegisterProfile {
+    fn new(register_count: usize) -> Self {
+        Self {
+            reads: vec![0; register_count],
+            writes: vec![0; register_count],
+            instructions: 0,
+        }
+    }
+
+    fn read(&mut self, register: usize) {
+        self.reads[register] += 1;
+    }
+
+    fn write(&mut self, register: usize) {
+        self.writes[register] += 1;
+    }
+
+    fn accesses(&self, register: usize) -> u64 {
+        self.reads[register] + self.writes[register]
+    }
+}
+
+#[derive(Clone, Debug)]
+struct PgoReport {
+    profile: RegisterProfile,
+    logical_to_physical: Vec<usize>,
+}
+
 #[derive(Clone, Debug)]
 struct Build {
     program: Program,
@@ -2897,12 +2932,13 @@ fn run_vm(program: &Program, input: &[i64], max_steps: usize) -> Result<Vec<i64>
     run_vm_until_outputs(program, input, 1, max_steps)
 }
 
-fn run_screen_vm_until_frames(
+fn run_screen_vm_until_frames_inner(
     program: &Program,
     screen: ScreenSpec,
     input: &[i64],
     expected_frames: usize,
     max_steps: usize,
+    mut profile: Option<&mut RegisterProfile>,
 ) -> Result<Vec<Vec<i64>>, String> {
     let mut regs = vec![0i64; 512];
     let mut mem = vec![0i64; 4096];
@@ -2921,16 +2957,27 @@ fn run_screen_vm_until_frames(
     };
 
     for _ in 0..max_steps {
+        if let Some(profile) = profile.as_deref_mut() {
+            profile.instructions += 1;
+        }
         let op = fetch(&mut pc);
         match op {
             0 => {
                 let dst = fetch(&mut pc) as usize;
                 let src = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(src);
+                    profile.write(dst);
+                }
                 regs[dst] = regs[src];
             }
             1 => {
                 let addr = fetch(&mut pc) as usize;
                 let src = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(addr);
+                    profile.read(src);
+                }
                 let idx = regs[addr] as usize;
                 if idx >= mem.len() {
                     return Err(format!("memory write out of range: {idx}"));
@@ -2940,6 +2987,10 @@ fn run_screen_vm_until_frames(
             2 => {
                 let dst = fetch(&mut pc) as usize;
                 let addr = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(addr);
+                    profile.write(dst);
+                }
                 let idx = regs[addr] as usize;
                 if idx >= mem.len() {
                     return Err(format!("memory read out of range: {idx}"));
@@ -2949,6 +3000,9 @@ fn run_screen_vm_until_frames(
             3 => {
                 let value = fetch(&mut pc);
                 let dst = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.write(dst);
+                }
                 regs[dst] = value;
             }
             4 => {
@@ -2956,11 +3010,17 @@ fn run_screen_vm_until_frames(
                 if ip >= input.len() {
                     return Err("input exhausted".to_string());
                 }
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.write(dst);
+                }
                 regs[dst] = input[ip];
                 ip += 1;
             }
             5 => {
                 let src = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(src);
+                }
                 let preserve = regs[src];
                 if preserve != 0 && preserve != 1 {
                     return Err(format!("bad screen swap value {preserve}"));
@@ -2976,6 +3036,9 @@ fn run_screen_vm_until_frames(
             }
             6 => {
                 let src = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(src);
+                }
                 let addr = regs[src];
                 if !(0..screen_size as i64).contains(&addr) {
                     return Err(format!("bad screen address {addr}"));
@@ -2984,6 +3047,9 @@ fn run_screen_vm_until_frames(
             }
             7 => {
                 let src = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(src);
+                }
                 let color = regs[src];
                 if !(0..=15).contains(&color) {
                     return Err(format!("bad screen color {color}"));
@@ -2994,6 +3060,11 @@ fn run_screen_vm_until_frames(
             8 => {
                 let subop = fetch(&mut pc);
                 let src = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(0);
+                    profile.read(src);
+                    profile.write(0);
+                }
                 let a = regs[0];
                 let b = regs[src];
                 regs[0] = match subop {
@@ -3026,6 +3097,9 @@ fn run_screen_vm_until_frames(
             9 => {
                 let offset = fetch(&mut pc);
                 let cond = fetch(&mut pc) as usize;
+                if let Some(profile) = profile.as_deref_mut() {
+                    profile.read(cond);
+                }
                 if regs[cond] > 0 {
                     pc = (pc + offset as usize) % words.len();
                 }
@@ -3043,6 +3117,123 @@ fn run_screen_vm_until_frames(
         }
     }
     Err("step limit exceeded".to_string())
+}
+
+fn run_screen_vm_until_frames(
+    program: &Program,
+    screen: ScreenSpec,
+    input: &[i64],
+    expected_frames: usize,
+    max_steps: usize,
+) -> Result<Vec<Vec<i64>>, String> {
+    run_screen_vm_until_frames_inner(program, screen, input, expected_frames, max_steps, None)
+}
+
+fn profile_screen_program(
+    program: &Program,
+    screen: ScreenSpec,
+    expected_frames: usize,
+    max_steps: usize,
+) -> Result<(Vec<Vec<i64>>, RegisterProfile), String> {
+    let mut profile = RegisterProfile::new(program.register_count);
+    let frames = run_screen_vm_until_frames_inner(
+        program,
+        screen,
+        &[],
+        expected_frames,
+        max_steps,
+        Some(&mut profile),
+    )?;
+    Ok((frames, profile))
+}
+
+fn two_lane_pgo_mapping(profile: &RegisterProfile) -> Vec<usize> {
+    let register_count = profile.reads.len();
+    let mut logical_to_physical = vec![0; register_count];
+    let mut logical_registers = (1..register_count).collect::<Vec<_>>();
+    logical_registers.sort_by(|&left, &right| {
+        profile
+            .accesses(right)
+            .cmp(&profile.accesses(left))
+            .then_with(|| left.cmp(&right))
+    });
+    for (physical, logical) in (1..register_count).zip(logical_registers) {
+        logical_to_physical[logical] = physical;
+    }
+    logical_to_physical
+}
+
+fn remap_register_operand(
+    words: &mut [i64],
+    operand: usize,
+    logical_to_physical: &[usize],
+) -> Result<(), String> {
+    let logical = usize::try_from(words[operand])
+        .map_err(|_| format!("negative register operand {}", words[operand]))?;
+    let physical = logical_to_physical
+        .get(logical)
+        .ok_or_else(|| format!("register operand r{logical} is out of range"))?;
+    words[operand] = *physical as i64;
+    Ok(())
+}
+
+fn remap_screen_program_registers(
+    program: &mut Program,
+    logical_to_physical: &[usize],
+) -> Result<(), String> {
+    let mut pc = 0;
+    while pc < program.words.len() {
+        match program.words[pc] {
+            0..=2 => {
+                remap_register_operand(&mut program.words, pc + 1, logical_to_physical)?;
+                remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
+                pc += 3;
+            }
+            3 => {
+                remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
+                pc += 3;
+            }
+            4..=7 => {
+                remap_register_operand(&mut program.words, pc + 1, logical_to_physical)?;
+                pc += 2;
+            }
+            8 => {
+                remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
+                pc += 3;
+            }
+            9 => {
+                remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
+                pc += 3;
+            }
+            10 => pc += 2,
+            opcode => return Err(format!("bad screen opcode {opcode} at word {pc}")),
+        }
+    }
+    Ok(())
+}
+
+fn apply_two_lane_pgo(build: &mut Build) -> Result<PgoReport, String> {
+    const PROFILE_FRAMES: usize = 10;
+    const MAX_STEPS: usize = 200_000_000;
+
+    let screen = build
+        .screen
+        .ok_or_else(|| "--pgo requires a `.screen` program".to_string())?;
+    let (expected_frames, profile) =
+        profile_screen_program(&build.program, screen, PROFILE_FRAMES, MAX_STEPS)?;
+    let logical_to_physical = two_lane_pgo_mapping(&profile);
+    let mut optimized = build.program.clone();
+    remap_screen_program_registers(&mut optimized, &logical_to_physical)?;
+    let actual_frames =
+        run_screen_vm_until_frames(&optimized, screen, &[], PROFILE_FRAMES, MAX_STEPS)?;
+    if actual_frames != expected_frames {
+        return Err("PGO register renumbering changed the rendered frames".to_string());
+    }
+    build.program = optimized;
+    Ok(PgoReport {
+        profile,
+        logical_to_physical,
+    })
 }
 
 fn append_unique_test<T: PartialEq>(
@@ -4090,7 +4281,8 @@ fn program_room_output_path(output: &str) -> String {
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
-    let register_mode = if args.iter().any(|arg| arg == "--two-lane-registers") {
+    let pgo_requested = args.iter().any(|arg| arg == "--pgo");
+    let register_mode = if pgo_requested || args.iter().any(|arg| arg == "--two-lane-registers") {
         RegisterBankMode::TwoLane
     } else {
         RegisterBankMode::SingleLane
@@ -4110,7 +4302,16 @@ fn main() -> io::Result<()> {
         .unwrap_or("brackets_processor.man");
 
     let source = fs::read_to_string(input)?;
-    let build = build(&source).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?;
+    let mut build =
+        build(&source).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?;
+    let pgo_report = if pgo_requested {
+        Some(
+            apply_two_lane_pgo(&mut build)
+                .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?,
+        )
+    } else {
+        None
+    };
     let template_path = "meta_template.mod";
     let meta = fs::read_to_string(template_path)?;
     let cpu = fs::read_to_string("cpu.mod")?;
@@ -4140,6 +4341,21 @@ fn main() -> io::Result<()> {
     );
     if register_mode == RegisterBankMode::TwoLane && build.register_count % 2 != 0 {
         println!("physical register cells: {}", build.register_count + 1);
+    }
+    if let Some(report) = &pgo_report {
+        println!(
+            "PGO profile: {} instructions, 10 frames",
+            report.profile.instructions
+        );
+        for logical in 0..report.logical_to_physical.len() {
+            println!(
+                "  r{} -> r{}: {} reads, {} writes",
+                logical,
+                report.logical_to_physical[logical],
+                report.profile.reads[logical],
+                report.profile.writes[logical],
+            );
+        }
     }
     println!("memory slots: {}", build.memory_size);
     if build.memory_size > 0 {
@@ -4397,4 +4613,39 @@ fn main() -> io::Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn two_lane_pgo_pins_r0_and_orders_by_access_count() {
+        let profile = RegisterProfile {
+            reads: vec![100, 1, 50, 10],
+            writes: vec![100, 0, 0, 100],
+            instructions: 0,
+        };
+        assert_eq!(two_lane_pgo_mapping(&profile), vec![0, 3, 2, 1]);
+    }
+
+    #[test]
+    fn two_lane_pgo_preserves_rendered_frames() {
+        let source = r#"
+            .screen 1 1
+        loop:
+            imm r3 1
+            screen_data r3
+            screen_data r3
+            screen_data r3
+            imm r2 0
+            screen_swap r2
+            jmp loop
+        "#;
+        let mut build = build(source).expect("assemble test effect");
+        let report = apply_two_lane_pgo(&mut build).expect("optimize test effect");
+        assert_eq!(report.logical_to_physical, vec![0, 3, 2, 1]);
+        assert_eq!(report.profile.reads[3], 30);
+        assert_eq!(report.profile.writes[3], 10);
+    }
 }
