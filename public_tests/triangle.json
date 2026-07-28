@@ -1,0 +1,59 @@
+{
+  "task": "triangle",
+  "cases": [
+    {
+      "name": "zero",
+      "input": [
+        0
+      ],
+      "output": [
+        0
+      ]
+    },
+    {
+      "name": "one",
+      "input": [
+        1
+      ],
+      "output": [
+        1
+      ]
+    },
+    {
+      "name": "four",
+      "input": [
+        4
+      ],
+      "output": [
+        10
+      ]
+    },
+    {
+      "name": "ten",
+      "input": [
+        10
+      ],
+      "output": [
+        55
+      ]
+    },
+    {
+      "name": "sixty-three",
+      "input": [
+        63
+      ],
+      "output": [
+        2016
+      ]
+    },
+    {
+      "name": "nine hundred eighty-seven",
+      "input": [
+        987
+      ],
+      "output": [
+        487578
+      ]
+    }
+  ]
+}
