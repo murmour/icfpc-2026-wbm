@@ -21,6 +21,14 @@
 #include <SDL3/SDL.h>
 #endif
 
+#ifdef __GNUC__
+#define LIKELY(expr) (__builtin_expect((expr), 1))
+#define UNLIKELY(expr) (__builtin_expect((expr), 0))
+#else
+#define LIKELY(expr) (expr)
+#define UNLIKELY(expr) (expr)
+#endif
+
 #ifndef FAST_MODE
 #define MAX_LIVE_MEN 65536
 #else
@@ -315,8 +323,8 @@ static SDL_FRect visual_draw_rect(
             renderer, &output_width, &output_height)) {
         visual_fail("SDL_GetCurrentRenderOutputSize failed");
     }
-    float source_aspect = (float)source_width / (float)source_height;
-    float output_aspect = (float)output_width / (float)output_height;
+    const float source_aspect = (float)source_width / (float)source_height;
+    const float output_aspect = (float)output_width / (float)output_height;
     SDL_FRect result;
     if (output_aspect > source_aspect) {
         result.h = (float)output_height;
@@ -341,11 +349,11 @@ static void visual_present(
         visual_fail("SDL_LockTexture failed");
     }
     for (int y = 0; y < display->height; y++) {
-        uint32_t *row =
+        uint32_t *const row =
             (uint32_t *)((uint8_t *)pixels + (size_t)y * (size_t)pitch);
         for (int x = 0; x < display->width; x++) {
-            int index = y * display->width + x;
-            int64_t color =
+            const int index = y * display->width + x;
+            const int64_t color =
                 !visual->swap_only && display->painted[index]
                     ? display->next[index]
                     : display->current[index];
@@ -354,7 +362,7 @@ static void visual_present(
     }
     SDL_UnlockTexture(visual->texture);
 
-    SDL_FRect destination = visual_draw_rect(
+    const SDL_FRect destination = visual_draw_rect(
         visual->renderer, display->width, display->height);
     if (!SDL_SetRenderDrawColor(visual->renderer, 0, 0, 0, 255) ||
         !SDL_RenderClear(visual->renderer) ||
@@ -374,9 +382,9 @@ static void visual_init(
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         visual_fail("SDL_Init failed");
     }
-    int scale = 8;
-    int window_width = display->width * scale;
-    int window_height = display->height * scale;
+    const int scale = 8;
+    const int window_width = display->width * scale;
+    const int window_height = display->height * scale;
     if (!SDL_CreateWindowAndRenderer(
             "Little Man TV", window_width, window_height,
             SDL_WINDOW_RESIZABLE, &visual->window, &visual->renderer)) {
@@ -417,8 +425,8 @@ static bool visual_update(
         }
     }
 
-    uint64_t now = SDL_GetTicks();
-    bool swapped = display->swaps != visual->last_swaps;
+    const uint64_t now = SDL_GetTicks();
+    const bool swapped = display->swaps != visual->last_swaps;
     if (!force && !swapped && now - visual->last_present_ms < 16) {
         return true;
     }
@@ -438,7 +446,7 @@ static void visual_destroy(VisualDisplay *visual) {
 #endif
 
 static void *xmalloc(size_t size) {
-    void *ptr = malloc(size ? size : 1);
+    void *const ptr = malloc(size ? size : 1);
     if (!ptr) {
         die("out of memory");
     }
@@ -446,7 +454,7 @@ static void *xmalloc(size_t size) {
 }
 
 static void *xcalloc(size_t count, size_t size) {
-    void *ptr = calloc(count ? count : 1, size ? size : 1);
+    void *const ptr = calloc(count ? count : 1, size ? size : 1);
     if (!ptr) {
         die("out of memory");
     }
@@ -454,7 +462,7 @@ static void *xcalloc(size_t count, size_t size) {
 }
 
 static void *xrealloc(void *ptr, size_t size) {
-    void *result = realloc(ptr, size ? size : 1);
+    void *const result = realloc(ptr, size ? size : 1);
     if (!result) {
         die("out of memory");
     }
@@ -553,7 +561,7 @@ static int add_display(Program *p, Display display) {
 }
 
 static char *read_file(const char *path, size_t *size_out) {
-    FILE *file = fopen(path, "rb");
+    FILE *const file = fopen(path, "rb");
     if (!file) {
         fprintf(stderr, "cannot open %s: %s\n", path, strerror(errno));
         exit(1);
@@ -561,12 +569,12 @@ static char *read_file(const char *path, size_t *size_out) {
     if (fseek(file, 0, SEEK_END) != 0) {
         die("fseek failed");
     }
-    long length = ftell(file);
+    const long length = ftell(file);
     if (length < 0 || fseek(file, 0, SEEK_SET) != 0) {
         die("ftell/fseek failed");
     }
-    char *data = xmalloc((size_t)length + 1);
-    size_t got = fread(data, 1, (size_t)length, file);
+    char *const data = xmalloc((size_t)length + 1);
+    const size_t got = fread(data, 1, (size_t)length, file);
     if (got != (size_t)length && ferror(file)) {
         die("file read failed");
     }
@@ -578,7 +586,7 @@ static char *read_file(const char *path, size_t *size_out) {
 
 static void parse_grid(Program *p, const char *path) {
     size_t size;
-    char *source = read_file(path, &size);
+    char *const source = read_file(path, &size);
     while (size && (source[size - 1] == ' ' || source[size - 1] == '\t' ||
                     source[size - 1] == '\r' || source[size - 1] == '\n')) {
         size--;
@@ -612,7 +620,7 @@ static void parse_grid(Program *p, const char *path) {
 
     int x = 0, y = 0;
     for (size_t i = 0; i < size; i++) {
-        char ch = source[i];
+        const char ch = source[i];
         if (ch == '\n') {
             x = 0;
             y++;
@@ -624,7 +632,7 @@ static void parse_grid(Program *p, const char *path) {
 }
 
 static void parse_rooms(Program *p) {
-    uint8_t *visited = xcalloc((size_t)p->cells, 1);
+    uint8_t *const visited = xcalloc((size_t)p->cells, 1);
     for (int y = 0; y < p->height; y++) {
         for (int x = 0; x < p->width; x++) {
             if (grid_at(p, x, y) != '+' || visited[cell_index(p, x, y)]) {
@@ -668,7 +676,7 @@ static void parse_rooms(Program *p) {
             };
             for (int ry = y + 1; ry < y + h; ry++) {
                 for (int rx = x + 1; rx < x + w; rx++) {
-                    char ch = grid_at(p, rx, ry);
+                    const char ch = grid_at(p, rx, ry);
                     if (ch == 'I') {
                         room.type = ROOM_INPUT;
                     } else if (ch == 'O') {
@@ -701,14 +709,14 @@ static void parse_displays(Program *p) {
                 grid_at(p, right, y) != '+' || grid_at(p, x, bottom) != '+') {
                 die("malformed display");
             }
-            int width = right - x - 1;
-            int height = bottom - y - 1;
-            Room room = {
+            const int width = right - x - 1;
+            const int height = bottom - y - 1;
+            const Room room = {
                 .min_x = x, .min_y = y, .max_x = right, .max_y = bottom,
                 .type = ROOM_DISPLAY,
             };
-            int room_id = add_room(p, room);
-            Display display = {
+            const int room_id = add_room(p, room);
+            const Display display = {
                 .room = room_id,
                 .width = width,
                 .height = height,
@@ -746,12 +754,12 @@ static int trace_pipe(
     path[0] = start;
     Point current = start;
     for (int steps = 0; steps < p->cells; steps++) {
-        Point next = {current.x + dx, current.y + dy};
+        const Point next = {current.x + dx, current.y + dy};
         if (!in_bounds(p, next.x, next.y)) {
             free(path);
             return 0;
         }
-        int destination = p->room_at[cell_index(p, next.x, next.y)];
+        const int destination = p->room_at[cell_index(p, next.x, next.y)];
         if (destination >= 0) {
             if (destination == source_room) {
                 free(path);
@@ -776,7 +784,7 @@ static int trace_pipe(
             return 1;
         }
         current = next;
-        char ch = grid_at(p, current.x, current.y);
+        const char ch = grid_at(p, current.x, current.y);
         int ndx, ndy;
         if (arrow_dir(ch, &ndx, &ndy)) {
             if (ndx == -dx && ndy == -dy) {
@@ -807,10 +815,10 @@ static void build_room_map(Program *p) {
         p->room_at[i] = -1;
     }
     for (int room_id = 0; room_id < p->room_count; room_id++) {
-        Room *room = &p->rooms[room_id];
+        const Room *const room = &p->rooms[room_id];
         for (int y = room->min_y; y <= room->max_y; y++) {
             for (int x = room->min_x; x <= room->max_x; x++) {
-                int index = cell_index(p, x, y);
+                const int index = cell_index(p, x, y);
                 if (p->room_at[index] < 0) {
                     p->room_at[index] = room_id;
                 }
@@ -822,15 +830,15 @@ static void build_room_map(Program *p) {
 static void parse_pipes(Program *p) {
     const int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
     for (int room_id = 0; room_id < p->room_count; room_id++) {
-        Room *room = &p->rooms[room_id];
+        const Room *const room = &p->rooms[room_id];
         for (int y = room->min_y; y <= room->max_y; y++) {
             for (int x = room->min_x; x <= room->max_x; x++) {
                 if (!room_border(room, x, y)) {
                     continue;
                 }
                 for (int d = 0; d < 4; d++) {
-                    int dx = directions[d][0], dy = directions[d][1];
-                    int px = x + dx, py = y + dy;
+                    const int dx = directions[d][0], dy = directions[d][1];
+                    const int px = x + dx, py = y + dy;
                     if (!in_bounds(p, px, py) || room_contains(room, px, py)) {
                         continue;
                     }
@@ -840,7 +848,7 @@ static void parse_pipes(Program *p) {
                         continue;
                     }
                     Pipe pipe;
-                    int traced = trace_pipe(
+                    const int traced = trace_pipe(
                         p, room_id, (Point){x, y}, (Point){px, py}, dx, dy, &pipe);
                     if (traced > 0) {
                         add_pipe(p, pipe);
@@ -850,7 +858,7 @@ static void parse_pipes(Program *p) {
         }
     }
 
-    uint8_t *ghost = xcalloc((size_t)p->pipe_count, 1);
+    uint8_t *const ghost = xcalloc((size_t)p->pipe_count, 1);
     for (int b = 0; b < p->pipe_count; b++) {
         for (int a = 0; a < p->pipe_count && !ghost[b]; a++) {
             if (a == b) {
@@ -880,12 +888,12 @@ static void parse_pipes(Program *p) {
     p->pipe_value = xcalloc((size_t)p->cells, sizeof(*p->pipe_value));
     p->pipe_full = xcalloc((size_t)p->cells, 1);
     p->pipe_order = xmalloc((size_t)p->cells * sizeof(*p->pipe_order));
-    uint8_t *visited = xcalloc((size_t)p->cells, 1);
+    uint8_t *const visited = xcalloc((size_t)p->cells, 1);
     for (int i = 0; i < p->cells; i++) {
         p->pipe_next[i] = -1;
     }
     for (int pipe_id = 0; pipe_id < p->pipe_count; pipe_id++) {
-        Pipe *pipe = &p->pipes[pipe_id];
+        Pipe *const pipe = &p->pipes[pipe_id];
 #ifdef FAST_MODE
         pipe->queued_values =
             xmalloc((size_t)pipe->length * sizeof(*pipe->queued_values));
@@ -903,7 +911,7 @@ static void parse_pipes(Program *p) {
             &p->rooms[pipe->dest_room].incoming_cap,
             pipe_id);
         for (int i = pipe->length - 1; i >= 0; i--) {
-            int index = cell_index(p, pipe->path[i].x, pipe->path[i].y);
+            const int index = cell_index(p, pipe->path[i].x, pipe->path[i].y);
             if (i + 1 < pipe->length) {
                 p->pipe_next[index] = cell_index(
                     p, pipe->path[i + 1].x, pipe->path[i + 1].y);
@@ -923,12 +931,12 @@ static int64_t parse_literal_value(
 ) {
     char digits[128];
     int count = 0;
-    int length = horizontal ? max.x - min.x - 1 : max.y - min.y - 1;
+    const int length = horizontal ? max.x - min.x - 1 : max.y - min.y - 1;
     for (int step = 0; step < length; step++) {
-        int offset = backward ? length - 1 - step : step;
-        int x = min.x + (horizontal ? offset + 1 : 0);
-        int y = min.y + (horizontal ? 0 : offset + 1);
-        char ch = grid_at(p, x, y);
+        const int offset = backward ? length - 1 - step : step;
+        const int x = min.x + (horizontal ? offset + 1 : 0);
+        const int y = min.y + (horizontal ? 0 : offset + 1);
+        const char ch = grid_at(p, x, y);
         if (ch == ' ') {
             continue;
         }
@@ -940,7 +948,7 @@ static int64_t parse_literal_value(
     digits[count] = '\0';
     errno = 0;
     char *end;
-    int64_t value = strtoll(digits, &end, 10);
+    const int64_t value = strtoll(digits, &end, 10);
     if (errno || end == digits || *end) {
         *valid = false;
         return 0;
@@ -975,7 +983,7 @@ static void parse_literals(Program *p) {
                 literal.backward = parse_literal_value(
                     p, (Point){start, y}, (Point){x, y}, true, true,
                     &literal.backward_valid);
-                int id = add_literal(p, literal);
+                const int id = add_literal(p, literal);
                 for (int px = start; px <= x; px++) {
                     p->literal_h[cell_index(p, px, y)] = id;
                 }
@@ -1002,7 +1010,7 @@ static void parse_literals(Program *p) {
                 literal.backward = parse_literal_value(
                     p, (Point){x, start}, (Point){x, y}, false, true,
                     &literal.backward_valid);
-                int id = add_literal(p, literal);
+                const int id = add_literal(p, literal);
                 for (int py = start; py <= y; py++) {
                     p->literal_v[cell_index(p, x, py)] = id;
                 }
@@ -1013,8 +1021,8 @@ static void parse_literals(Program *p) {
 }
 
 static int point_distance(Point a, Point b) {
-    int dx = a.x - b.x;
-    int dy = a.y - b.y;
+    const int dx = a.x - b.x;
+    const int dy = a.y - b.y;
     return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
 }
 
@@ -1023,15 +1031,15 @@ static bool reading_order_before(Point a, Point b) {
 }
 
 static int nearest_pipe(const Program *p, int room_id, Point point, bool incoming) {
-    const Room *room = &p->rooms[room_id];
-    int *ids = incoming ? room->incoming : room->outgoing;
-    int count = incoming ? room->incoming_count : room->outgoing_count;
+    const Room *const room = &p->rooms[room_id];
+    const int *const ids = incoming ? room->incoming : room->outgoing;
+    const int count = incoming ? room->incoming_count : room->outgoing_count;
     int best = -1;
     Point best_segment = {0, 0};
     for (int i = 0; i < count; i++) {
-        int id = ids[i];
-        const Pipe *pipe = &p->pipes[id];
-        Point segment = incoming ? pipe->path[pipe->length - 1] : pipe->path[0];
+        const int id = ids[i];
+        const Pipe *const pipe = &p->pipes[id];
+        const Point segment = incoming ? pipe->path[pipe->length - 1] : pipe->path[0];
         if (best < 0 ||
             point_distance(point, segment) < point_distance(point, best_segment) ||
             (point_distance(point, segment) == point_distance(point, best_segment) &&
@@ -1049,9 +1057,9 @@ static void precompute_nearest(Program *p) {
     for (int i = 0; i < p->cells; i++) {
         p->nearest_in[i] = -1;
         p->nearest_out[i] = -1;
-        int room_id = p->room_at[i];
+        const int room_id = p->room_at[i];
         if (room_id >= 0) {
-            Point point = {i % p->width, i / p->width};
+            const Point point = {i % p->width, i / p->width};
             p->nearest_in[i] = nearest_pipe(p, room_id, point, true);
             p->nearest_out[i] = nearest_pipe(p, room_id, point, false);
         }
@@ -1068,14 +1076,14 @@ static void configure_displays(Program *p) {
     p->dirty_displays = xcalloc((size_t)p->display_count, 1);
 #endif
     for (int i = 0; i < p->display_count; i++) {
-        Display *display = &p->displays[i];
+        Display *const display = &p->displays[i];
 #ifdef FAST_MODE
         p->display_by_room[display->room] = i;
 #endif
-        Room *room = &p->rooms[display->room];
+        const Room *const room = &p->rooms[display->room];
         for (int j = 0; j < room->incoming_count; j++) {
-            int pipe_id = room->incoming[j];
-            Point segment = p->pipes[pipe_id].dest_segment;
+            const int pipe_id = room->incoming[j];
+            const Point segment = p->pipes[pipe_id].dest_segment;
             if (segment.y == room->min_y) {
                 display->addr_pipe = pipe_id;
             } else if (segment.x == room->min_x) {
@@ -1089,7 +1097,7 @@ static void configure_displays(Program *p) {
 
 static void spawn_men(Program *p) {
     for (int room_id = 0; room_id < p->room_count; room_id++) {
-        Room *room = &p->rooms[room_id];
+        const Room *const room = &p->rooms[room_id];
         for (int y = room->min_y + 1; y < room->max_y; y++) {
             for (int x = room->min_x + 1; x < room->max_x; x++) {
                 if (grid_at(p, x, y) == '@') {
@@ -1114,9 +1122,9 @@ static void spawn_men(Program *p) {
         }
     }
     for (int i = 0; i < p->man_count; i++) {
-        int room = p->room_at[cell_index(p, p->men[i].x, p->men[i].y)];
+        const int room = p->room_at[cell_index(p, p->men[i].x, p->men[i].y)];
         for (int j = 0; j < i; j++) {
-            int other_room =
+            const int other_room =
                 p->room_at[cell_index(p, p->men[j].x, p->men[j].y)];
             if (room == other_room) {
                 die("FAST_MODE requires at most one little man per room");
@@ -1205,8 +1213,8 @@ static int add_trace_read(Program *p, TraceReadInfo read) {
 static int intern_trace_state(
     TraceCompiler *compiler, int cell, Direction direction
 ) {
-    Program *p = compiler->program;
-    int state = cell * 4 + direction;
+    Program *const p = compiler->program;
+    const int state = cell * 4 + direction;
     if (compiler->state_to_pc[state] >= 0) {
         return compiler->state_to_pc[state];
     }
@@ -1223,7 +1231,7 @@ static int intern_trace_state(
             compiler->pc_states,
             (size_t)compiler->pc_state_cap * sizeof(*compiler->pc_states));
     }
-    int pc = p->trace_op_count++;
+    const int pc = p->trace_op_count++;
     compiler->state_to_pc[state] = pc;
     compiler->pc_states[pc] = state;
     return pc;
@@ -1232,14 +1240,14 @@ static int intern_trace_state(
 static int trace_target(
     TraceCompiler *compiler, int cell, Direction direction
 ) {
-    Program *p = compiler->program;
-    int x = cell % p->width + direction_dx[direction];
-    int y = cell / p->width + direction_dy[direction];
+    const Program *const p = compiler->program;
+    const int x = cell % p->width + direction_dx[direction];
+    const int y = cell / p->width + direction_dy[direction];
     if (!in_bounds(p, x, y)) {
         return -(cell * 4 + (int)direction) - 1;
     }
-    int target_cell = cell_index(p, x, y);
-    int room_id = p->room_at[target_cell];
+    const int target_cell = cell_index(p, x, y);
+    const int room_id = p->room_at[target_cell];
     if (room_id < 0 || room_border(&p->rooms[room_id], x, y)) {
         return -(cell * 4 + (int)direction) - 1;
     }
@@ -1249,9 +1257,10 @@ static int trace_target(
 static bool compile_trace_literal(
     TraceCompiler *compiler, TraceOp *op, int cell, Direction direction
 ) {
-    Program *p = compiler->program;
-    bool horizontal = direction == DIR_EAST || direction == DIR_WEST;
-    int literal_id = horizontal ? p->literal_h[cell] : p->literal_v[cell];
+    Program *const p = compiler->program;
+    const bool horizontal =
+        direction == DIR_EAST || direction == DIR_WEST;
+    const int literal_id = horizontal ? p->literal_h[cell] : p->literal_v[cell];
     if (literal_id < 0) {
         if (p->grid[cell] != '`') {
             return false;
@@ -1259,9 +1268,9 @@ static bool compile_trace_literal(
         op->next = trace_target(compiler, cell, direction);
         return true;
     }
-    const Literal *literal = &p->literals[literal_id];
-    int x = cell % p->width;
-    int y = cell / p->width;
+    const Literal *const literal = &p->literals[literal_id];
+    const int x = cell % p->width;
+    const int y = cell / p->width;
     bool load = false;
     bool valid = true;
     int64_t value = 0;
@@ -1297,7 +1306,7 @@ static bool compile_trace_literal(
 static void compile_trace_op(
     TraceCompiler *compiler, int cell, Direction direction, TraceOp *op
 ) {
-    Program *p = compiler->program;
+    Program *const p = compiler->program;
     *op = (TraceOp){
         .opcode = TRACE_NOP,
         .branch = -1,
@@ -1307,9 +1316,9 @@ static void compile_trace_op(
         return;
     }
 
-    Direction clockwise = (Direction)((direction + 1) & 3);
-    Direction counterclockwise = (Direction)((direction + 3) & 3);
-    char ch = p->grid[cell];
+    const Direction clockwise = (Direction)((direction + 1) & 3);
+    const Direction counterclockwise = (Direction)((direction + 3) & 3);
+    const char ch = p->grid[cell];
     if (ch == 'H') {
         op->opcode = TRACE_HALT;
         return;
@@ -1364,8 +1373,8 @@ static void compile_trace_op(
         break;
     case 'X': {
         op->opcode = TRACE_BRANCH_SIGN;
-        int positive = trace_target(compiler, cell, clockwise);
-        int negative = trace_target(compiler, cell, counterclockwise);
+        const int positive = trace_target(compiler, cell, clockwise);
+        const int negative = trace_target(compiler, cell, counterclockwise);
         op->operand = add_trace_sign_targets(p, positive, negative);
         break;
     }
@@ -1421,7 +1430,7 @@ static void compile_trace_op(
     }
     case 'U': {
         op->opcode = TRACE_READ_TURN;
-        TraceReadInfo read = {
+        const TraceReadInfo read = {
             .room_id = p->room_at[cell],
             .point = {cell % p->width, cell / p->width},
             .pipe_targets =
@@ -1431,12 +1440,12 @@ static void compile_trace_op(
             read.pipe_targets[i] = -1;
         }
         if (read.room_id >= 0) {
-            Room *room = &p->rooms[read.room_id];
-            int x = cell % p->width;
-            int y = cell / p->width;
+            const Room *const room = &p->rooms[read.room_id];
+            const int x = cell % p->width;
+            const int y = cell / p->width;
             for (int i = 0; i < room->incoming_count; i++) {
-                int pipe_id = room->incoming[i];
-                Point segment =
+                const int pipe_id = room->incoming[i];
+                const Point segment =
                     p->pipes[pipe_id].path[p->pipes[pipe_id].length - 1];
                 Direction exit_direction;
                 if (x != segment.x) {
@@ -1460,9 +1469,9 @@ static void compile_trace_op(
 }
 
 static void collapse_nop_traces(Program *p) {
-    int *collapsed_next =
+    int *const collapsed_next =
         xmalloc((size_t)p->trace_op_count * sizeof(*collapsed_next));
-    int *durations =
+    int *const durations =
         xmalloc((size_t)p->trace_op_count * sizeof(*durations));
     for (int pc = 0; pc < p->trace_op_count; pc++) {
         collapsed_next[pc] = p->trace_ops[pc].next;
@@ -1507,11 +1516,11 @@ static void compile_traces(Program *p) {
         compiler.state_to_pc[i] = -1;
     }
     for (int i = 0; i < p->man_count; i++) {
-        int cell = cell_index(p, p->men[i].x, p->men[i].y);
+        const int cell = cell_index(p, p->men[i].x, p->men[i].y);
         p->men[i].pc = intern_trace_state(&compiler, cell, DIR_EAST);
     }
     for (int pc = 0; pc < p->trace_op_count; pc++) {
-        int state = compiler.pc_states[pc];
+        const int state = compiler.pc_states[pc];
         TraceOp op;
         compile_trace_op(
             &compiler, state / 4, (Direction)(state % 4), &op);
@@ -1549,16 +1558,16 @@ static Program parse_program(const char *path) {
 
 #ifndef FAST_MODE
 static int pipe_endpoint_index(const Program *p, int pipe_id, bool incoming) {
-    const Pipe *pipe = &p->pipes[pipe_id];
-    Point point = incoming ? pipe->path[pipe->length - 1] : pipe->path[0];
+    const Pipe *const pipe = &p->pipes[pipe_id];
+    const Point point = incoming ? pipe->path[pipe->length - 1] : pipe->path[0];
     return cell_index(p, point.x, point.y);
 }
 #endif
 
 #ifdef FAST_MODE
 static void set_man_runnable(Program *p, int man_index, bool runnable) {
-    uint64_t mask = UINT64_C(1) << (man_index % 64);
-    uint64_t *word = &p->runnable_men[man_index / 64];
+    const uint64_t mask = UINT64_C(1) << (man_index % 64);
+    uint64_t *const word = &p->runnable_men[man_index / 64];
     if (runnable) {
         *word |= mask;
     } else {
@@ -1572,20 +1581,20 @@ static bool man_event_before(ManEvent a, ManEvent b) {
 }
 
 static void schedule_man_event(Program *p, int man_index, uint64_t tick) {
-    if (p->man_event_pending[man_index]) {
+    if UNLIKELY(p->man_event_pending[man_index]) {
         set_error(p, "little man already has a scheduled event");
         return;
     }
-    if (p->man_event_count == p->man_event_cap) {
+    if UNLIKELY(p->man_event_count == p->man_event_cap) {
         p->man_event_cap = p->man_event_cap ? p->man_event_cap * 2 : 64;
         p->man_events = xrealloc(
             p->man_events,
             (size_t)p->man_event_cap * sizeof(*p->man_events));
     }
-    ManEvent event = {.tick = tick, .man_index = man_index};
+    const ManEvent event = {.tick = tick, .man_index = man_index};
     int index = p->man_event_count++;
     while (index > 0) {
-        int parent = (index - 1) / 2;
+        const int parent = (index - 1) / 2;
         if (!man_event_before(event, p->man_events[parent])) {
             break;
         }
@@ -1597,17 +1606,17 @@ static void schedule_man_event(Program *p, int man_index, uint64_t tick) {
 }
 
 static ManEvent pop_man_event(Program *p) {
-    ManEvent result = p->man_events[0];
-    ManEvent last = p->man_events[--p->man_event_count];
+    const ManEvent result = p->man_events[0];
+    const ManEvent last = p->man_events[--p->man_event_count];
     if (p->man_event_count) {
         int index = 0;
         for (;;) {
-            int left = index * 2 + 1;
+            const int left = index * 2 + 1;
             if (left >= p->man_event_count) {
                 break;
             }
             int child = left;
-            int right = left + 1;
+            const int right = left + 1;
             if (right < p->man_event_count &&
                 man_event_before(p->man_events[right], p->man_events[left])) {
                 child = right;
@@ -1625,17 +1634,17 @@ static ManEvent pop_man_event(Program *p) {
 }
 
 static void wake_sleeping_man(Program *p, int *sleepers, int room_id) {
-    int man_index = sleepers[room_id];
+    const int man_index = sleepers[room_id];
     if (man_index < 0) {
         return;
     }
     sleepers[room_id] = -1;
-    Man *man = &p->men[man_index];
+    Man *const man = &p->men[man_index];
     if (!man->halted) {
 #ifdef PROFILE_MODE
         if (p->profile_enabled) {
-            int pipe_slot = p->profile_wait_pipe[man_index] + 1;
-            size_t slot =
+            const int pipe_slot = p->profile_wait_pipe[man_index] + 1;
+            const size_t slot =
                 (size_t)man_index * (size_t)(p->pipe_count + 1) +
                 (size_t)pipe_slot;
             p->profile_wait_ticks[slot] +=
@@ -1649,7 +1658,7 @@ static void wake_sleeping_man(Program *p, int *sleepers, int room_id) {
 }
 
 static void mark_display_ready(Program *p, int room_id) {
-    int display_id = p->display_by_room[room_id];
+    const int display_id = p->display_by_room[room_id];
     if (display_id >= 0 && !p->dirty_displays[display_id]) {
         p->dirty_displays[display_id] = 1;
         p->dirty_display_count++;
@@ -1667,7 +1676,7 @@ static bool pipe_event_before(PipeEvent a, PipeEvent b) {
 }
 
 static void push_pipe_event(Program *p, PipeEvent event) {
-    if (p->pipe_event_count == p->pipe_event_cap) {
+    if UNLIKELY(p->pipe_event_count == p->pipe_event_cap) {
         p->pipe_event_cap = p->pipe_event_cap ? p->pipe_event_cap * 2 : 64;
         p->pipe_events = xrealloc(
             p->pipe_events,
@@ -1675,7 +1684,7 @@ static void push_pipe_event(Program *p, PipeEvent event) {
     }
     int index = p->pipe_event_count++;
     while (index > 0) {
-        int parent = (index - 1) / 2;
+        const int parent = (index - 1) / 2;
         if (!pipe_event_before(event, p->pipe_events[parent])) {
             break;
         }
@@ -1686,19 +1695,19 @@ static void push_pipe_event(Program *p, PipeEvent event) {
 }
 
 static PipeEvent pop_pipe_event(Program *p) {
-    PipeEvent result = p->pipe_events[0];
-    PipeEvent last = p->pipe_events[--p->pipe_event_count];
+    const PipeEvent result = p->pipe_events[0];
+    const PipeEvent last = p->pipe_events[--p->pipe_event_count];
     if (!p->pipe_event_count) {
         return result;
     }
     int index = 0;
     for (;;) {
-        int left = index * 2 + 1;
+        const int left = index * 2 + 1;
         if (left >= p->pipe_event_count) {
             break;
         }
         int child = left;
-        int right = left + 1;
+        const int right = left + 1;
         if (right < p->pipe_event_count &&
             pipe_event_before(p->pipe_events[right], p->pipe_events[left])) {
             child = right;
@@ -1714,7 +1723,7 @@ static PipeEvent pop_pipe_event(Program *p) {
 }
 
 static void schedule_source_release(Program *p, int pipe_id) {
-    Pipe *pipe = &p->pipes[pipe_id];
+    Pipe *const pipe = &p->pipes[pipe_id];
     if (pipe->source_release_pending || !pipe->source_full ||
         pipe->token_count >= pipe->length) {
         return;
@@ -1728,7 +1737,7 @@ static void schedule_source_release(Program *p, int pipe_id) {
 }
 
 static void schedule_arrival(Program *p, int pipe_id, uint64_t earliest) {
-    Pipe *pipe = &p->pipes[pipe_id];
+    Pipe *const pipe = &p->pipes[pipe_id];
     if (pipe->arrival_pending || pipe->dest_full || !pipe->token_count) {
         return;
     }
@@ -1761,11 +1770,11 @@ static bool pipe_dest_full(const Program *p, int pipe_id) {
 }
 
 static bool consume_pipe(Program *p, int pipe_id, int64_t *value) {
-    if (pipe_id < 0) {
+    if UNLIKELY(pipe_id < 0) {
         return false;
     }
 #ifdef FAST_MODE
-    Pipe *pipe = &p->pipes[pipe_id];
+    Pipe *const pipe = &p->pipes[pipe_id];
     if (!pipe->dest_full || pipe->token_count <= 0) {
         return false;
     }
@@ -1784,13 +1793,13 @@ static bool consume_pipe(Program *p, int pipe_id, int64_t *value) {
             p, pipe_id, pipe->queued_arrivals[pipe->queue_head]);
     }
 #else
-    int index = pipe_endpoint_index(p, pipe_id, true);
+    const int index = pipe_endpoint_index(p, pipe_id, true);
     if (!p->pipe_full[index]) {
         return false;
     }
     *value = p->pipe_value[index];
     p->pipe_full[index] = 0;
-    Pipe *pipe = &p->pipes[pipe_id];
+    Pipe *const pipe = &p->pipes[pipe_id];
     if (pipe->token_count <= 0 ||
         pipe->token_positions[0] != pipe->length - 1) {
         set_error(p, "pipe token index is inconsistent");
@@ -1811,8 +1820,8 @@ static void shift_pipes(Program *p) {
 #ifdef FAST_MODE
     while (p->pipe_event_count &&
            p->pipe_events[0].tick <= p->ticks) {
-        PipeEvent event = pop_pipe_event(p);
-        Pipe *pipe = &p->pipes[event.pipe_id];
+        const PipeEvent event = pop_pipe_event(p);
+        Pipe *const pipe = &p->pipes[event.pipe_id];
         if (event.type == PIPE_SOURCE_RELEASE) {
             pipe->source_release_pending = false;
             if (pipe->source_full && pipe->token_count < pipe->length) {
@@ -1832,16 +1841,16 @@ static void shift_pipes(Program *p) {
     }
 #else
     for (int pipe_id = 0; pipe_id < p->pipe_count; pipe_id++) {
-        Pipe *pipe = &p->pipes[pipe_id];
+        const Pipe *const pipe = &p->pipes[pipe_id];
         for (int token = 0; token < pipe->token_count; token++) {
-            int position = pipe->token_positions[token];
+            const int position = pipe->token_positions[token];
             if (position + 1 >= pipe->length) {
                 continue;
             }
-            Point current_point = pipe->path[position];
-            Point next_point = pipe->path[position + 1];
-            int current = cell_index(p, current_point.x, current_point.y);
-            int next = cell_index(p, next_point.x, next_point.y);
+            const Point current_point = pipe->path[position];
+            const Point next_point = pipe->path[position + 1];
+            const int current = cell_index(p, current_point.x, current_point.y);
+            const int next = cell_index(p, next_point.x, next_point.y);
             if (!p->pipe_full[next]) {
                 p->pipe_value[next] = p->pipe_value[current];
                 p->pipe_full[next] = 1;
@@ -1854,13 +1863,13 @@ static void shift_pipes(Program *p) {
 }
 
 static void send_pipe(Program *p, int pipe_id, int64_t value) {
-    Pipe *pipe = &p->pipes[pipe_id];
+    Pipe *const pipe = &p->pipes[pipe_id];
 #ifdef FAST_MODE
-    if (pipe->source_full || pipe->token_count >= pipe->length) {
+    if UNLIKELY(pipe->source_full || pipe->token_count >= pipe->length) {
         set_error(p, "send to a full pipe");
         return;
     }
-    int tail = (pipe->queue_head + pipe->token_count) % pipe->length;
+    const int tail = (pipe->queue_head + pipe->token_count) % pipe->length;
     pipe->queued_values[tail] = value;
     pipe->queued_arrivals[tail] = p->ticks + (uint64_t)pipe->length - 1;
     pipe->token_count++;
@@ -1875,7 +1884,7 @@ static void send_pipe(Program *p, int pipe_id, int64_t value) {
         schedule_arrival(p, pipe_id, pipe->queued_arrivals[tail]);
     }
 #else
-    int endpoint = pipe_endpoint_index(p, pipe_id, false);
+    const int endpoint = pipe_endpoint_index(p, pipe_id, false);
     p->pipe_value[endpoint] = value;
     p->pipe_full[endpoint] = 1;
     pipe->token_positions[pipe->token_count++] = 0;
@@ -1891,7 +1900,7 @@ static void consume_displays(Program *p) {
         p->dirty_displays[i] = 0;
         p->dirty_display_count--;
 #endif
-        Display *display = &p->displays[i];
+        Display *const display = &p->displays[i];
         int64_t value;
         if (consume_pipe(p, display->addr_pipe, &value)) {
             if (value < 0 || value >= (int64_t)display->width * display->height) {
@@ -1946,11 +1955,11 @@ static void consume_displays(Program *p) {
 
 #ifndef FAST_MODE
 static bool handle_literal(Program *p, Man *man, int index) {
-    int literal_id = man->dx ? p->literal_h[index] : p->literal_v[index];
+    const int literal_id = man->dx ? p->literal_h[index] : p->literal_v[index];
     if (literal_id < 0) {
         return p->grid[index] == '`';
     }
-    Literal *literal = &p->literals[literal_id];
+    const Literal *const literal = &p->literals[literal_id];
     if (literal->horizontal) {
         if (man->dx > 0 && man->x == literal->min_x) {
             if (!literal->forward_valid) {
@@ -1982,31 +1991,31 @@ static bool handle_literal(Program *p, Man *man, int index) {
 }
 
 static void turn_clockwise(Man *man) {
-    int dx = -man->dy;
+    const int dx = -man->dy;
     man->dy = man->dx;
     man->dx = dx;
 }
 
 static void turn_counterclockwise(Man *man) {
-    int dx = man->dy;
+    const int dx = man->dy;
     man->dy = -man->dx;
     man->dx = dx;
 }
 
 static void split_man(Program *p, int man_index, int room_id) {
-    Man original = p->men[man_index];
-    int left_dx = original.dy;
-    int left_dy = -original.dx;
-    int right_dx = -original.dy;
-    int right_dy = original.dx;
+    const Man original = p->men[man_index];
+    const int left_dx = original.dy;
+    const int left_dy = -original.dx;
+    const int right_dx = -original.dy;
+    const int right_dy = original.dx;
     if (room_id < 0 || (!left_dx && !left_dy)) {
         set_error(p, "little man split with an invalid heading");
         return;
     }
 
-    Point right_point = {original.x + right_dx, original.y + right_dy};
-    Point left_point = {original.x + left_dx, original.y + left_dy};
-    Room *room = &p->rooms[room_id];
+    const Point right_point = {original.x + right_dx, original.y + right_dy};
+    const Point left_point = {original.x + left_dx, original.y + left_dy};
+    const Room *const room = &p->rooms[room_id];
     if (!room_contains(room, right_point.x, right_point.y) ||
         room_border(room, right_point.x, right_point.y) ||
         !room_contains(room, left_point.x, left_point.y) ||
@@ -2063,15 +2072,15 @@ static void split_man(Program *p, int man_index, int room_id) {
 #endif
 
 static int ready_incoming(const Program *p, int room_id, Point point) {
-    const Room *room = &p->rooms[room_id];
+    const Room *const room = &p->rooms[room_id];
     int best = -1;
     Point best_segment = {0, 0};
     for (int i = 0; i < room->incoming_count; i++) {
-        int pipe_id = room->incoming[i];
+        const int pipe_id = room->incoming[i];
         if (!pipe_dest_full(p, pipe_id)) {
             continue;
         }
-        Point segment = p->pipes[pipe_id].path[p->pipes[pipe_id].length - 1];
+        const Point segment = p->pipes[pipe_id].path[p->pipes[pipe_id].length - 1];
         if (best < 0 ||
             point_distance(point, segment) < point_distance(point, best_segment) ||
             (point_distance(point, segment) == point_distance(point, best_segment) &&
@@ -2090,8 +2099,8 @@ static void profile_begin_wait(
     if (!p->profile_enabled) {
         return;
     }
-    int pipe_slot = pipe_id + 1;
-    size_t slot =
+    const int pipe_slot = pipe_id + 1;
+    const size_t slot =
         (size_t)man_index * (size_t)(p->pipe_count + 1) +
         (size_t)pipe_slot;
     p->profile_wait_started[man_index] = p->ticks;
@@ -2115,11 +2124,11 @@ static bool commit_trace_target(Program *p, Man *man, int target) {
         man->pc = target;
         return true;
     }
-    int state = -target - 1;
-    int cell = state / 4;
-    Direction direction = (Direction)(state % 4);
-    int x = cell % p->width + direction_dx[direction];
-    int y = cell / p->width + direction_dy[direction];
+    const int state = -target - 1;
+    const int cell = state / 4;
+    const Direction direction = (Direction)(state % 4);
+    const int x = cell % p->width + direction_dx[direction];
+    const int y = cell / p->width + direction_dy[direction];
     if (!in_bounds(p, x, y)) {
         set_error_at(p, "little man left grid", x, y);
     } else {
@@ -2133,7 +2142,7 @@ static bool commit_trace_target(Program *p, Man *man, int target) {
 static void run_man_event(
     Program *p, int man_index, uint64_t tick_limit
 ) {
-    static const void *dispatch[] = {
+    static const void *const dispatch[] = {
         [TRACE_NOP] = &&op_nop,
         [TRACE_HALT] = &&op_halt,
         [TRACE_MOVE_A_TO_B] = &&op_move_a_to_b,
@@ -2166,10 +2175,10 @@ static void run_man_event(
         [TRACE_INVALID_LITERAL] = &&op_invalid_literal,
         [TRACE_UNSUPPORTED] = &&op_unsupported,
     };
-    Man *man = &p->men[man_index];
-    const TraceOp *ops = p->trace_ops;
-    const int64_t *constants = p->trace_constants;
-    const TraceSignTargets *sign_targets = p->trace_sign_targets;
+    Man *const man = &p->men[man_index];
+    const TraceOp *const ops = p->trace_ops;
+    const int64_t *const constants = p->trace_constants;
+    const TraceSignTargets *const sign_targets = p->trace_sign_targets;
     const TraceOp *op;
     uint64_t virtual_tick = p->ticks;
     int64_t a = man->a;
@@ -2193,17 +2202,16 @@ static void run_man_event(
 #define FIXED_HANDLER(label, action)                                        \
     label:                                                                  \
         target = op->next;                                                  \
-        if (target < 0 && virtual_tick > p->ticks) goto defer;             \
+        if (target < 0 && virtual_tick > p->ticks) goto defer;              \
         do { action; } while (0);                                           \
         goto commit
 
 dispatch_next:
-    if (__builtin_expect(
-            p->halted || man->halted || man->blocked, 0)) {
+    if UNLIKELY(p->halted || man->halted || man->blocked) {
         FLUSH_MAN();
         return;
     }
-    if (__builtin_expect(virtual_tick > tick_limit, 0)) {
+    if UNLIKELY(virtual_tick > tick_limit) {
         goto defer;
     }
     op = &ops[pc];
@@ -2215,7 +2223,7 @@ op_nop:
         goto defer;
     }
     if (op->operand > 1) {
-        if (__builtin_expect(target < 0, 0)) {
+        if UNLIKELY(target < 0) {
             goto movement_error;
         }
         pc = target;
@@ -2227,8 +2235,7 @@ op_nop:
             ] += (uint64_t)op->operand;
         }
 #endif
-        if (__builtin_expect(
-                UINT64_MAX - virtual_tick < (uint64_t)op->operand, 0)) {
+        if UNLIKELY(UINT64_MAX - virtual_tick < (uint64_t)op->operand) {
             FLUSH_MAN();
             return;
         }
@@ -2239,7 +2246,7 @@ op_nop:
 
     FIXED_HANDLER(op_move_a_to_b, b = a);
     FIXED_HANDLER(op_swap, {
-        int64_t tmp = a;
+        const int64_t tmp = a;
         a = b;
         b = tmp;
     });
@@ -2307,7 +2314,7 @@ op_nop:
     FIXED_HANDLER(op_shift_bp, bp >>= 1);
 
 op_branch_sign: {
-    TraceSignTargets branches = sign_targets[op->operand];
+    const TraceSignTargets branches = sign_targets[op->operand];
     target = a > 0
                  ? branches.positive
                  : (a < 0 ? branches.negative : op->next);
@@ -2356,8 +2363,8 @@ op_pipe_count:
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    if (__builtin_expect(op->operand < 0, 0)) {
-        int cell = op->branch;
+    if UNLIKELY(op->operand < 0) {
+        const int cell = op->branch;
         FLUSH_MAN();
         set_error_at(
             p, "q with no incoming pipe",
@@ -2372,8 +2379,8 @@ op_send:
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    if (__builtin_expect(op->operand < 0, 0)) {
-        int cell = op->branch;
+    if UNLIKELY(op->operand < 0) {
+        const int cell = op->branch;
         FLUSH_MAN();
         set_error_at(
             p, "s with no outgoing pipe",
@@ -2384,11 +2391,11 @@ op_send:
 #ifdef PROFILE_MODE
     sleep_pipe = op->operand;
 #endif
-    if (__builtin_expect(pipe_source_full(p, op->operand), 0)) {
+    if UNLIKELY(pipe_source_full(p, op->operand)) {
         goto block_writer;
     }
     send_pipe(p, op->operand, a);
-    if (__builtin_expect(p->halted, 0)) {
+    if UNLIKELY(p->halted) {
         FLUSH_MAN();
         return;
     }
@@ -2399,11 +2406,8 @@ op_send_all: {
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    if (__builtin_expect(
-            op->operand < 0 ||
-                !p->rooms[op->operand].outgoing_count,
-            0)) {
-        int cell = op->branch;
+    if UNLIKELY(op->operand < 0 || !p->rooms[op->operand].outgoing_count) {
+        const int cell = op->branch;
         FLUSH_MAN();
         set_error_at(
             p, "S with no outgoing pipes",
@@ -2411,17 +2415,16 @@ op_send_all: {
         return;
     }
     sleep_room = op->operand;
-    Room *room = &p->rooms[op->operand];
+    const Room *const room = &p->rooms[op->operand];
     for (int i = 0; i < room->outgoing_count; i++) {
-        if (__builtin_expect(
-                pipe_source_full(p, room->outgoing[i]), 0)) {
+        if UNLIKELY(pipe_source_full(p, room->outgoing[i])) {
             goto block_writer;
         }
     }
     for (int i = 0; i < room->outgoing_count; i++) {
         send_pipe(p, room->outgoing[i], a);
     }
-    if (__builtin_expect(p->halted, 0)) {
+    if UNLIKELY(p->halted) {
         FLUSH_MAN();
         return;
     }
@@ -2433,8 +2436,8 @@ op_read:
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    if (__builtin_expect(op->operand < 0, 0)) {
-        int cell = op->branch;
+    if UNLIKELY(op->operand < 0) {
+        const int cell = op->branch;
         FLUSH_MAN();
         set_error_at(
             p, "r with no incoming pipe",
@@ -2445,7 +2448,7 @@ op_read:
 #ifdef PROFILE_MODE
     sleep_pipe = op->operand;
 #endif
-    if (__builtin_expect(!pipe_dest_full(p, op->operand), 0)) {
+    if UNLIKELY(!pipe_dest_full(p, op->operand)) {
         goto block_reader;
     }
     consume_pipe(p, op->operand, &a);
@@ -2457,8 +2460,8 @@ op_read_turn: {
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    TraceReadInfo *read = &p->trace_reads[op->operand];
-    if (__builtin_expect(read->room_id < 0, 0)) {
+    const TraceReadInfo *const read = &p->trace_reads[op->operand];
+    if UNLIKELY(read->room_id < 0) {
         FLUSH_MAN();
         set_error_at(
             p, "R with no room",
@@ -2466,9 +2469,9 @@ op_read_turn: {
         return;
     }
     sleep_room = read->room_id;
-    int pipe_id = ready_incoming(
+    const int pipe_id = ready_incoming(
         p, read->room_id, read->point);
-    if (__builtin_expect(pipe_id < 0, 0)) {
+    if UNLIKELY(pipe_id < 0) {
         goto block_reader;
     }
     consume_pipe(p, pipe_id, &a);
@@ -2482,7 +2485,7 @@ op_invalid_literal: {
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    int cell = op->operand;
+    const int cell = op->operand;
     FLUSH_MAN();
     set_error_at(
         p, "invalid numeric literal",
@@ -2494,7 +2497,7 @@ op_unsupported: {
     if (virtual_tick > p->ticks) {
         goto defer;
     }
-    int cell = op->operand;
+    const int cell = op->operand;
     FLUSH_MAN();
     set_error_at(
         p, "unsupported instruction",
@@ -2511,12 +2514,12 @@ commit:
         ]++;
     }
 #endif
-    if (__builtin_expect(target >= 0, 1)) {
+    if LIKELY(target >= 0) {
         pc = target;
     } else {
         goto movement_error;
     }
-    if (__builtin_expect(virtual_tick == UINT64_MAX, 0)) {
+    if UNLIKELY(virtual_tick == UINT64_MAX) {
         FLUSH_MAN();
         return;
     }
@@ -2559,13 +2562,13 @@ defer:
 
 #else
 static void execute_man(Program *p, int man_index) {
-    Man *man = &p->men[man_index];
-    int index = cell_index(p, man->x, man->y);
+    Man *const man = &p->men[man_index];
+    const int index = cell_index(p, man->x, man->y);
     if (handle_literal(p, man, index)) {
         return;
     }
-    char ch = p->grid[index];
-    int room_id = p->room_at[index];
+    const char ch = p->grid[index];
+    const int room_id = p->room_at[index];
     bool unblocked = true;
     switch (ch) {
     case '@':
@@ -2586,7 +2589,7 @@ static void execute_man(Program *p, int man_index) {
         man->b = man->a;
         break;
     case 'W': {
-        int64_t tmp = man->a;
+        const int64_t tmp = man->a;
         man->a = man->b;
         man->b = tmp;
         break;
@@ -2661,19 +2664,19 @@ static void execute_man(Program *p, int man_index) {
         else turn_counterclockwise(man);
         break;
     case 'q': {
-        int pipe_id = p->nearest_in[index];
+        const int pipe_id = p->nearest_in[index];
         if (pipe_id < 0) {
             set_error_at(p, "q with no incoming pipe", man->x, man->y);
             return;
         }
         int64_t count = 0;
-        Pipe *pipe = &p->pipes[pipe_id];
+        const Pipe *const pipe = &p->pipes[pipe_id];
         count = pipe->token_count;
         man->bp = count;
         break;
     }
     case 's': {
-        int pipe_id = p->nearest_out[index];
+        const int pipe_id = p->nearest_out[index];
         if (pipe_id < 0) {
             set_error_at(p, "s with no outgoing pipe", man->x, man->y);
             return;
@@ -2686,7 +2689,7 @@ static void execute_man(Program *p, int man_index) {
         break;
     }
     case 'S': {
-        Room *room = room_id >= 0 ? &p->rooms[room_id] : NULL;
+        const Room *const room = room_id >= 0 ? &p->rooms[room_id] : NULL;
         if (!room || !room->outgoing_count) {
             set_error_at(p, "S with no outgoing pipes", man->x, man->y);
             return;
@@ -2705,7 +2708,7 @@ static void execute_man(Program *p, int man_index) {
         break;
     }
     case 'r': {
-        int pipe_id = p->nearest_in[index];
+        const int pipe_id = p->nearest_in[index];
         if (pipe_id < 0) {
             set_error_at(p, "r with no incoming pipe", man->x, man->y);
             return;
@@ -2719,15 +2722,15 @@ static void execute_man(Program *p, int man_index) {
     }
     case 'R':
     case 'U': {
-        int pipe_id = ready_incoming(p, room_id, (Point){man->x, man->y});
+        const int pipe_id = ready_incoming(p, room_id, (Point){man->x, man->y});
         if (pipe_id < 0) {
             unblocked = false;
         } else {
             consume_pipe(p, pipe_id, &man->a);
             if (ch == 'U') {
-                Point segment = p->pipes[pipe_id].path[p->pipes[pipe_id].length - 1];
-                int dx = man->x - segment.x;
-                int dy = man->y - segment.y;
+                const Point segment = p->pipes[pipe_id].path[p->pipes[pipe_id].length - 1];
+                const int dx = man->x - segment.x;
+                const int dy = man->y - segment.y;
                 if (dx) {
                     man->dx = dx < 0 ? -1 : 1;
                     man->dy = 0;
@@ -2753,25 +2756,25 @@ static void execute_man(Program *p, int man_index) {
 
 #ifndef FAST_MODE
 static void move_men(Program *p) {
-    Point *old = p->old_positions;
-    uint8_t *moved = p->moved;
-    uint8_t *collided = p->collided;
+    Point *const old = p->old_positions;
+    uint8_t *const moved = p->moved;
+    uint8_t *const collided = p->collided;
     memset(moved, 0, (size_t)p->man_count);
     memset(collided, 0, (size_t)p->man_count);
-    uint32_t generation = ++p->movement_generation;
+    const uint32_t generation = ++p->movement_generation;
 
     for (int i = 0; i < p->man_count; i++) {
-        Man *man = &p->men[i];
+        const Man *const man = &p->men[i];
         old[i] = (Point){man->x, man->y};
         if (!man->halted) {
-            int index = cell_index(p, man->x, man->y);
+            const int index = cell_index(p, man->x, man->y);
             p->old_occupant[index] = i;
             p->old_occupant_stamp[index] = generation;
         }
     }
 
     for (int i = 0; i < p->man_count; i++) {
-        Man *man = &p->men[i];
+        Man *const man = &p->men[i];
         if (!man->halted && !man->blocked && man->born_tick < p->ticks) {
             moved[i] = 1;
             man->x += man->dx;
@@ -2780,7 +2783,7 @@ static void move_men(Program *p) {
                 set_error_at(p, "little man left grid", man->x, man->y);
                 goto done;
             }
-            int room_id = p->room_at[cell_index(p, man->x, man->y)];
+            const int room_id = p->room_at[cell_index(p, man->x, man->y)];
             if (room_id < 0 || room_border(&p->rooms[room_id], man->x, man->y)) {
                 set_error_at(p, "little man hit a wall", man->x, man->y);
                 goto done;
@@ -2790,7 +2793,7 @@ static void move_men(Program *p) {
 
     for (int i = 0; i < p->man_count; i++) {
         if (p->men[i].halted) continue;
-        int index = cell_index(p, p->men[i].x, p->men[i].y);
+        const int index = cell_index(p, p->men[i].x, p->men[i].y);
         if (p->new_occupant_stamp[index] == generation) {
             collided[i] = 1;
             collided[p->new_occupant[index]] = 1;
@@ -2802,9 +2805,9 @@ static void move_men(Program *p) {
 
     for (int i = 0; i < p->man_count; i++) {
         if (p->men[i].halted || !moved[i]) continue;
-        int new_index = cell_index(p, p->men[i].x, p->men[i].y);
+        const int new_index = cell_index(p, p->men[i].x, p->men[i].y);
         if (p->old_occupant_stamp[new_index] != generation) continue;
-        int other = p->old_occupant[new_index];
+        const int other = p->old_occupant[new_index];
         if (other != i && moved[other] &&
             p->men[other].x == old[i].x && p->men[other].y == old[i].y) {
             collided[i] = 1;
@@ -2842,7 +2845,7 @@ static bool step_program(Program *p, uint64_t tick_limit) {
     if (p->man_event_count && p->man_events[0].tick < next_tick) {
         next_tick = p->man_events[0].tick;
     }
-    if (next_tick == UINT64_MAX) {
+    if UNLIKELY(next_tick == UINT64_MAX) {
         if (tick_limit != UINT64_MAX) {
             p->ticks = tick_limit;
             return false;
@@ -2850,7 +2853,7 @@ static bool step_program(Program *p, uint64_t tick_limit) {
         set_error(p, "event queue is empty while little men are still alive");
         return false;
     }
-    if (next_tick > tick_limit) {
+    if UNLIKELY(next_tick > tick_limit) {
         p->ticks = tick_limit;
         return false;
     }
@@ -2859,23 +2862,23 @@ static bool step_program(Program *p, uint64_t tick_limit) {
     if (p->dirty_display_count) {
         consume_displays(p);
     }
-    if (p->halted) {
+    if UNLIKELY(p->halted) {
         return false;
     }
 
     while (p->man_event_count && p->man_events[0].tick <= p->ticks) {
-        ManEvent event = pop_man_event(p);
+        const ManEvent event = pop_man_event(p);
         set_man_runnable(p, event.man_index, true);
     }
     for (int word = 0; word < p->runnable_word_count; word++) {
         uint64_t runnable = p->runnable_men[word];
         while (runnable) {
-            int bit = __builtin_ctzll(runnable);
-            int man_index = word * 64 + bit;
+            const int bit = __builtin_ctzll(runnable);
+            const int man_index = word * 64 + bit;
             runnable &= runnable - 1;
             set_man_runnable(p, man_index, false);
             run_man_event(p, man_index, tick_limit);
-            if (p->halted) {
+            if UNLIKELY(p->halted) {
                 return false;
             }
         }
@@ -2890,7 +2893,7 @@ static void step_program(Program *p) {
     if (p->halted) {
         return;
     }
-    int executing = p->man_count;
+    const int executing = p->man_count;
     for (int i = 0; i < executing; i++) {
         if (!p->men[i].halted) {
             execute_man(p, i);
@@ -2922,7 +2925,7 @@ static double now_seconds(void) {
 static uint64_t parse_u64(const char *text, const char *name) {
     errno = 0;
     char *end;
-    unsigned long long value = strtoull(text, &end, 10);
+    const unsigned long long value = strtoull(text, &end, 10);
     if (errno || end == text || *end) {
         fprintf(stderr, "invalid %s: %s\n", name, text);
         exit(2);
@@ -2931,16 +2934,16 @@ static uint64_t parse_u64(const char *text, const char *name) {
 }
 
 static int64_t *parse_inputs(const char *text, int *count) {
-    size_t length = strlen(text);
-    char *copy = xmalloc(length + 1);
+    const size_t length = strlen(text);
+    char *const copy = xmalloc(length + 1);
     memcpy(copy, text, length + 1);
     int capacity = 8;
     int64_t *values = xmalloc((size_t)capacity * sizeof(*values));
     *count = 0;
-    for (char *token = strtok(copy, ","); token; token = strtok(NULL, ",")) {
+    for (const char *token = strtok(copy, ","); token; token = strtok(NULL, ",")) {
         errno = 0;
         char *end;
-        long long value = strtoll(token, &end, 10);
+        const long long value = strtoll(token, &end, 10);
         if (errno || end == token || *end) {
             fprintf(stderr, "invalid input value: %s\n", token);
             exit(2);
@@ -2960,9 +2963,9 @@ static bool send_external_input(Program *p, int64_t value) {
         set_error(p, "input values supplied to a program without an input room");
         return false;
     }
-    Room *room = &p->rooms[p->input_room];
+    const Room *const room = &p->rooms[p->input_room];
     for (int i = 0; i < room->outgoing_count; i++) {
-        int pipe_id = room->outgoing[i];
+        const int pipe_id = room->outgoing[i];
         if (!pipe_source_full(p, pipe_id)) {
             send_pipe(p, pipe_id, value);
             return true;
@@ -2976,7 +2979,7 @@ static uint64_t consume_external_output(Program *p) {
     if (p->output_room < 0) {
         return count;
     }
-    Room *room = &p->rooms[p->output_room];
+    const Room *const room = &p->rooms[p->output_room];
     for (int i = 0; i < room->incoming_count; i++) {
         int64_t value;
         while (consume_pipe(p, room->incoming[i], &value)) {
@@ -3042,7 +3045,7 @@ int main(int argc, char **argv) {
             inputs = parse_inputs(argv[++i], &input_count);
             input_index = 0;
         } else if (!strcmp(argv[i], "--display-gated") && i + 1 < argc) {
-            uint64_t value = parse_u64(argv[++i], "initial input count");
+            const uint64_t value = parse_u64(argv[++i], "initial input count");
             if (value > INT_MAX) {
                 die("initial input count is too large");
             }
@@ -3096,9 +3099,9 @@ int main(int argc, char **argv) {
     Program program = parse_program(argv[1]);
 #ifdef PROFILE_MODE
     if (profile_requested) {
-        size_t man_count = (size_t)program.man_count;
-        size_t pipe_count = (size_t)program.pipe_count;
-        size_t wait_slots = man_count * (pipe_count + 1);
+        const size_t man_count = (size_t)program.man_count;
+        const size_t pipe_count = (size_t)program.pipe_count;
+        const size_t wait_slots = man_count * (pipe_count + 1);
         program.profile_enabled = true;
         program.profile_active_ticks =
             xcalloc(man_count, sizeof(*program.profile_active_ticks));
@@ -3147,7 +3150,7 @@ int main(int argc, char **argv) {
     }
 #endif
 
-    double start = now_seconds();
+    const double start = now_seconds();
     uint64_t output_count = 0;
 #ifdef FAST_MODE
     initialize_man_events(&program);
@@ -3157,7 +3160,7 @@ int main(int argc, char **argv) {
            (!output_limit || output_count < output_limit)) {
         int available_inputs = input_count;
         if (display_gated_inputs >= 0) {
-            uint64_t unlocked =
+            const uint64_t unlocked =
                 (uint64_t)display_gated_inputs + total_swaps(&program);
             available_inputs =
                 unlocked < (uint64_t)input_count ? (int)unlocked : input_count;
@@ -3182,7 +3185,7 @@ int main(int argc, char **argv) {
         }
 #endif
     }
-    double elapsed = now_seconds() - start;
+    const double elapsed = now_seconds() - start;
     free(inputs);
 
 #ifdef TV_MODE
@@ -3198,10 +3201,10 @@ int main(int argc, char **argv) {
     printf("seconds=%.6f\n", elapsed);
     printf("ticks_per_second=%.0f\n", elapsed > 0 ? program.ticks / elapsed : 0);
     for (int i = 0; i < program.display_count; i++) {
-        Display *display = &program.displays[i];
+        const Display *const display = &program.displays[i];
         uint64_t hash = UINT64_C(1469598103934665603);
         int nonzero = 0;
-        int pixels = display->width * display->height;
+        const int pixels = display->width * display->height;
         for (int j = 0; j < pixels; j++) {
             hash ^= (uint64_t)display->current[j];
             hash *= UINT64_C(1099511628211);
@@ -3221,13 +3224,13 @@ int main(int argc, char **argv) {
 #ifdef PROFILE_MODE
     if (program.profile_enabled) {
         for (int i = 0; i < program.man_count; i++) {
-            int room_id = program.room_at[
+            const int room_id = program.room_at[
                 cell_index(&program, program.men[i].x, program.men[i].y)];
-            Room *room = &program.rooms[room_id];
+            const Room *const room = &program.rooms[room_id];
             uint64_t waits = 0;
             uint64_t blocks = 0;
             for (int slot = 0; slot <= program.pipe_count; slot++) {
-                size_t index =
+                const size_t index =
                     (size_t)i * (size_t)(program.pipe_count + 1) +
                     (size_t)slot;
                 waits += program.profile_wait_ticks[index];
@@ -3237,14 +3240,14 @@ int main(int argc, char **argv) {
                 waits +=
                     program.ticks - program.profile_wait_started[i];
             }
-            uint64_t *opcodes =
+            const uint64_t *const opcodes =
                 &program.profile_opcode_counts[
                     (size_t)i * TRACE_OPCODE_COUNT];
             uint64_t alu_ops = 0;
             for (int opcode = TRACE_ADD; opcode <= TRACE_SHIFT_RIGHT; opcode++) {
                 alu_ops += opcodes[opcode];
             }
-            uint64_t branch_ops =
+            const uint64_t branch_ops =
                 opcodes[TRACE_BRANCH_SIGN] +
                 opcodes[TRACE_BRANCH_BP_POS_CW] +
                 opcodes[TRACE_BRANCH_BP_POS_CCW] +
@@ -3264,12 +3267,12 @@ int main(int argc, char **argv) {
                 opcodes[TRACE_NOP], opcodes[TRACE_LOAD],
                 alu_ops, branch_ops);
             for (int slot = 0; slot <= program.pipe_count; slot++) {
-                size_t index =
+                const size_t index =
                     (size_t)i * (size_t)(program.pipe_count + 1) +
                     (size_t)slot;
                 uint64_t edge_wait = program.profile_wait_ticks[index];
-                uint64_t edge_events = program.profile_wait_events[index];
-                int pipe_id = slot - 1;
+                const uint64_t edge_events = program.profile_wait_events[index];
+                const int pipe_id = slot - 1;
                 if (program.profile_wait_pipe[i] == pipe_id) {
                     edge_wait +=
                         program.ticks -
@@ -3287,7 +3290,7 @@ int main(int argc, char **argv) {
             uint64_t waits = 0;
             uint64_t blocks = 0;
             for (int man = 0; man < program.man_count; man++) {
-                size_t index =
+                const size_t index =
                     (size_t)man * (size_t)(program.pipe_count + 1) +
                     (size_t)(pipe_id + 1);
                 waits += program.profile_wait_ticks[index];
@@ -3303,9 +3306,9 @@ int main(int argc, char **argv) {
                 !waits && !blocks) {
                 continue;
             }
-            Pipe *pipe = &program.pipes[pipe_id];
-            Room *source = &program.rooms[pipe->source_room];
-            Room *dest = &program.rooms[pipe->dest_room];
+            const Pipe *const pipe = &program.pipes[pipe_id];
+            const Room *const source = &program.rooms[pipe->source_room];
+            const Room *const dest = &program.rooms[pipe->dest_room];
             printf(
                 "profile_pipe=%d length=%d source_room=%d"
                 " source_bounds=%d,%d,%d,%d dest_room=%d"
