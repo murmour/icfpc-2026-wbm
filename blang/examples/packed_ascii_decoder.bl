@@ -16,7 +16,6 @@ forever {
     A += B
     A *= B
     B = A
-
     A = recv state_in
     A /= B
     send state_out
