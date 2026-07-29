@@ -2104,7 +2104,7 @@ const CPU_TOP: usize = 5;
 const CPU_CODE_INPUT_Y: usize = CPU_TOP + 5;
 const DISPLAY_LEFT: usize = 97;
 const DISPLAY_TOP: usize = 6;
-const MIN_CODE_PIPE_CELLS: usize = 10;
+const MIN_CODE_PIPE_CELLS: usize = 20;
 
 struct FixedFloor {
     grid: Vec<Vec<char>>,
