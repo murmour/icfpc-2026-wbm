@@ -2180,6 +2180,9 @@ static void run_man_event(
         [TRACE_UNSUPPORTED] = &&op_unsupported,
     };
     Man *const man = &p->men[man_index];
+    if UNLIKELY(p->halted || man->halted || man->blocked) {
+        return;
+    }
     const TraceOp *const ops = p->trace_ops;
     const int64_t *const constants = p->trace_constants;
     const TraceSignTargets *const sign_targets = p->trace_sign_targets;
@@ -2211,10 +2214,6 @@ static void run_man_event(
         goto commit
 
 dispatch_next:
-    if UNLIKELY(p->halted || man->halted || man->blocked) {
-        FLUSH_MAN();
-        return;
-    }
     if UNLIKELY(virtual_tick > tick_limit) {
         goto defer;
     }
