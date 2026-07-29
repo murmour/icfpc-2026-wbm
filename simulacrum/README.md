@@ -26,7 +26,7 @@ At load time, Simulacrum finds rooms, literals, displays, and complete pipe path
 
 The result -- **speed**.
 
-Gotcha: doesn't support `Y`.
+Gotcha: doesn't support `Y` (except in `FAST_MODE=0`).
 
 
 ## Profiler
