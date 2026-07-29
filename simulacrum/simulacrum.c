@@ -2987,23 +2987,19 @@ static void consume_external_output(Program *p) {
 static void usage(const char *argv0) {
     fprintf(
         stderr,
-        "usage: %s PROGRAM [--frames N] [--ticks N] [--input V,...]"
-        " [--display-gated N]"
-#ifdef PROFILE_MODE
-        " [--profile]"
-#endif
-        " [--visual] [--swap]\n"
-        "  --frames N  stop after N display swaps (default 1)\n"
-        "  --ticks N   stop after N ticks (default unlimited)\n"
-        "  --input V,...  comma-separated external input values\n"
-        "  --display-gated N  release N inputs initially, then one more"
+        "usage: %s PROGRAM [options]\n"
+        "supported options:\n"
+        "\t--frames N\n\t\tstop after N display swaps (default 1)\n"
+        "\t--ticks N\n\t\tstop after N ticks (default unlimited)\n"
+        "\t--input V,...\n\t\tcomma-separated external input values\n"
+        "\t--display-gated N\n\t\trelease N inputs initially, then one more"
         " after each display swap\n"
 #ifdef PROFILE_MODE
-        "  --profile   print per-man and per-pipe execution counters\n"
+        "\t--profile\n\t\tprint per-man and per-pipe execution counters\n"
 #endif
-        "  --display    show display 0; default to unlimited frames"
+        "\t--display\n\t\tshow display 0; default to unlimited frames"
         " (requires TV_MODE)\n"
-        "  --swap      show only completed frames (requires --visual)\n",
+        "\t--swap\n\t\tshow only completed frames (requires --visual)\n",
         argv0);
 }
 
