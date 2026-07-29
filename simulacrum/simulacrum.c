@@ -81,6 +81,7 @@ typedef struct {
     int32_t branch;
     int32_t operand;
     uint8_t opcode;
+    uint16_t duration;
 } TraceOp;
 
 _Static_assert(sizeof(TraceOp) == 16, "TraceOp must stay cache-compact");
@@ -1306,6 +1307,7 @@ static void compile_trace_op(
         .opcode = TRACE_NOP,
         .branch = -1,
         .operand = -1,
+        .duration = 1,
     };
     if (compile_trace_literal(compiler, op, cell, direction)) {
         return;
@@ -1495,6 +1497,22 @@ static void collapse_nop_traces(Program *p) {
         if (p->trace_ops[pc].opcode == TRACE_NOP) {
             p->trace_ops[pc].next = collapsed_next[pc];
             p->trace_ops[pc].operand = durations[pc];
+        } else {
+            const int next = p->trace_ops[pc].next;
+            const TraceOpcode opcode = p->trace_ops[pc].opcode;
+            const bool fixed_target =
+                opcode != TRACE_BRANCH_SIGN &&
+                opcode != TRACE_BRANCH_BP_POS_CW &&
+                opcode != TRACE_BRANCH_BP_POS_CCW &&
+                opcode != TRACE_BRANCH_BP_PARITY &&
+                opcode != TRACE_READ_TURN;
+            if (fixed_target && next >= 0 &&
+                p->trace_ops[next].opcode == TRACE_NOP &&
+                durations[next] < UINT16_MAX) {
+                p->trace_ops[pc].next = collapsed_next[next];
+                p->trace_ops[pc].duration =
+                    (uint16_t)(durations[next] + 1);
+            }
         }
     }
     free(collapsed_next);
@@ -2495,10 +2513,13 @@ op_unsupported: {
 commit:
 #ifdef PROFILE_MODE
     if (p->profile_enabled) {
-        p->profile_active_ticks[man_index]++;
+        p->profile_active_ticks[man_index] += op->duration;
         p->profile_opcode_counts[
             (size_t)man_index * TRACE_OPCODE_COUNT + op->opcode
         ]++;
+        p->profile_opcode_counts[
+            (size_t)man_index * TRACE_OPCODE_COUNT + TRACE_NOP
+        ] += op->duration - 1;
     }
 #endif
     if LIKELY(target >= 0) {
@@ -2506,11 +2527,11 @@ commit:
     } else {
         goto movement_error;
     }
-    if UNLIKELY(virtual_tick == UINT64_MAX) {
+    if UNLIKELY(UINT64_MAX - virtual_tick < op->duration) {
         FLUSH_MAN();
         return;
     }
-    virtual_tick++;
+    virtual_tick += op->duration;
     goto dispatch_next;
 
 movement_error:
