@@ -1580,7 +1580,7 @@ static bool man_event_before(ManEvent a, ManEvent b) {
            (a.tick == b.tick && a.man_index < b.man_index);
 }
 
-static void schedule_man_event(Program *p, int man_index, uint64_t tick) {
+static inline void schedule_man_event(Program *p, int man_index, uint64_t tick) {
     if UNLIKELY(p->man_event_pending[man_index]) {
         set_error(p, "little man already has a scheduled event");
         return;
@@ -1675,7 +1675,7 @@ static bool pipe_event_before(PipeEvent a, PipeEvent b) {
     return a.type < b.type;
 }
 
-static void push_pipe_event(Program *p, PipeEvent event) {
+static inline void push_pipe_event(Program *p, PipeEvent event) {
     if UNLIKELY(p->pipe_event_count == p->pipe_event_cap) {
         p->pipe_event_cap = p->pipe_event_cap ? p->pipe_event_cap * 2 : 64;
         p->pipe_events = xrealloc(
@@ -1736,7 +1736,7 @@ static void schedule_source_release(Program *p, int pipe_id) {
     });
 }
 
-static void schedule_arrival(Program *p, int pipe_id, uint64_t earliest) {
+static inline void schedule_arrival(Program *p, int pipe_id, uint64_t earliest) {
     Pipe *const pipe = &p->pipes[pipe_id];
     if (pipe->arrival_pending || pipe->dest_full || !pipe->token_count) {
         return;
@@ -1769,7 +1769,7 @@ static bool pipe_dest_full(const Program *p, int pipe_id) {
 #endif
 }
 
-static bool consume_pipe(Program *p, int pipe_id, int64_t *value) {
+static inline bool consume_pipe(Program *p, int pipe_id, int64_t *value) {
     if UNLIKELY(pipe_id < 0) {
         return false;
     }
@@ -1865,7 +1865,7 @@ static void shift_pipes(Program *p) {
 #endif
 }
 
-static void send_pipe(Program *p, int pipe_id, int64_t value) {
+static inline void send_pipe(Program *p, int pipe_id, int64_t value) {
     Pipe *const pipe = &p->pipes[pipe_id];
 #ifdef FAST_MODE
     if UNLIKELY(pipe->source_full || pipe->token_count >= pipe->length) {
