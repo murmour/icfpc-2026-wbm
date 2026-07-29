@@ -1780,7 +1780,10 @@ static bool consume_pipe(Program *p, int pipe_id, int64_t *value) {
     }
     *value = pipe->queued_values[pipe->queue_head];
     pipe->dest_full = false;
-    pipe->queue_head = (pipe->queue_head + 1) % pipe->length;
+    pipe->queue_head++;
+    if (pipe->queue_head == pipe->length) {
+        pipe->queue_head = 0;
+    }
     pipe->token_count--;
 #ifdef PROFILE_MODE
     if (p->profile_enabled) {
@@ -1869,7 +1872,8 @@ static void send_pipe(Program *p, int pipe_id, int64_t value) {
         set_error(p, "send to a full pipe");
         return;
     }
-    const int tail = (pipe->queue_head + pipe->token_count) % pipe->length;
+    const int left = pipe->queue_head + pipe->token_count;
+    const int tail = left < pipe->length ? left : left - pipe->length;
     pipe->queued_values[tail] = value;
     pipe->queued_arrivals[tail] = p->ticks + (uint64_t)pipe->length - 1;
     pipe->token_count++;
