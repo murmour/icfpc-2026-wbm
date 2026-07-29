@@ -2373,12 +2373,12 @@ fn render_fixed_floor(
     clear_rect(&mut base, 0, 2, 70, 4);
     clear_rect(&mut base, 71, 0, 81, 2);
     clear_rect(&mut base, 90, 0, 108, 2);
-    clear_rect(&mut base, 56, 5, 93, 36);
+    clear_rect(&mut base, 56, 5, 93, 34);
     clear_rect(&mut base, 97, 6, 162, 71);
     clear_rect(&mut base, 55, 5, 55, 10);
 
     // This is the size-dependent lower display route from the screen CPU.
-    clear_rect(&mut base, 96, 39, 98, 72);
+    clear_rect(&mut base, 96, 37, 98, 72);
 
     if register_mode != RegisterBankMode::SingleLane {
         let clear_left = match register_mode {
@@ -2475,10 +2475,9 @@ fn render_fixed_floor(
         let display_top = expansion + DISPLAY_TOP;
         draw_display(&mut canvas, DISPLAY_LEFT, display_top, screen)?;
 
-        // The lower display source leaves the CPU at base row 34 and descends
-        // through x=96. Bend below the CPU when the display is shorter, then
-        // approach the display's bottom edge upward through x=98.
-        let bend_y = expansion + 38;
+        // The fixed route leaves the CPU at base row 33 and reaches x=96.
+        // Bend below the CPU, then approach the display bottom through x=98.
+        let bend_y = expansion + 36;
         let turn_y = display_top + screen.height + 2;
         match turn_y.cmp(&bend_y) {
             std::cmp::Ordering::Greater => {
