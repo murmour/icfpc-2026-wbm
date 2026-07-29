@@ -3454,12 +3454,17 @@ fn apply_two_lane_pgo(build: &mut Build) -> Result<PgoReport, String> {
     let screen = build
         .screen
         .ok_or_else(|| "--pgo requires a `.screen` program".to_string())?;
-    let workloads = if build.program_kind == ProgramKind::Llm {
-        llm_tests()?
-    } else {
-        let (frames, _) =
-            profile_screen_program(&build.program, screen, &[], PROFILE_FRAMES, MAX_STEPS)?;
-        vec![(Vec::new(), frames)]
+    let workloads = match build.program_kind {
+        ProgramKind::Plotter => public_plotter_tests()?,
+        ProgramKind::Snake => public_snake_tests()?,
+        ProgramKind::Pathfinder => published_pathfinder_tests()?,
+        ProgramKind::Lllm => public_lllm_tests()?,
+        ProgramKind::Llm => llm_tests()?,
+        ProgramKind::Generic | ProgramKind::Matmul => {
+            let (frames, _) =
+                profile_screen_program(&build.program, screen, &[], PROFILE_FRAMES, MAX_STEPS)?;
+            vec![(Vec::new(), frames)]
+        }
     };
     let mut profile = RegisterProfile::new(build.program.register_count);
     let mut total_frames = 0;
