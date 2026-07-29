@@ -241,9 +241,9 @@ Without a display:
 | 5 | `write SRC` | `5 SRC` |
 | 6 | ALU | `6 OP SRC` |
 | 7 | positive jump | `7 OFFSET COND` |
-| 8 | unconditional jump | `8 OFFSET` |
+| 8 and above | unconditional jump | `8 + OFFSET` |
 
-With a display, opcodes 0 through 4 are unchanged. Opcodes 5, 6, and 7 become `screen_swap`, `screen_addr`, and `screen_data`; ALU, positive jump, and unconditional jump move to opcodes 8, 9, and 10.
+With a display, opcodes 0 through 4 are unchanged. Opcodes 5, 6, and 7 become `screen_swap`, `screen_addr`, and `screen_data`; ALU and positive jump move to opcodes 8 and 9. Values 10 and above encode an unconditional jump as `10 + OFFSET`.
 
 ALU operation numbers are:
 
@@ -257,7 +257,7 @@ ALU operation numbers are:
 | shift right | 5 |
 | bitwise XOR | 6 |
 
-Offsets are forward word counts measured after the jump instruction has consumed its own words. Assembly authors normally use labels and do not need to calculate them.
+Offsets are forward word counts measured after the jump instruction has consumed its own words. Unconditional jumps fold that offset into their command word, so they occupy one word. Assembly authors normally use labels and do not need to calculate them.
 
 
 ## Floorplanning

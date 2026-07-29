@@ -14,8 +14,8 @@
 | > drbr      s0srW0ssrd+    v       |
 | vm<      v  sWs1s0W< >md*  v       |
 | > drWr      s0srv      >md-v       |
-|   r          vbWXvv   /am< v       |
-|   b               >^     < <       |
+|   m          vbWXvv   /am< v       |
+|   v               >^     < <       |
 | >rv          <     ^&am<           |
 | ^md                ^ >md}^         |
 |                    ^ ~m<           |

@@ -18,8 +18,8 @@
 | > drbr      s0srW0ssrd+    v       |
 | vm<      v  sWs1s0W< >md*  v       |
 | > drWr      s0srv      >md-v       |
-|   r          vbWXvv   /am< v       |
-|   b               >^     < <     s |
+|   m          vbWXvv   /am< v       |
+|   v               >^     < <     s |
 | >rv          <     ^&am<           |
 | ^md                ^ >md}^         |
 |                    ^ ~m<           |

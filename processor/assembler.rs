@@ -7,6 +7,7 @@ use std::io;
 enum Word {
     Value(i64),
     Offset { label: String, after: usize },
+    Jump { label: String, base: i64 },
 }
 
 #[derive(Clone, Debug)]
@@ -454,9 +455,10 @@ impl Assembler {
     }
 
     fn jmp(&mut self, label: &str) {
-        let after = self.pos() + 2;
-        self.value(if self.target.screen.is_some() { 10 } else { 8 });
-        self.offset(label, after);
+        self.words.push(Word::Jump {
+            label: label.to_string(),
+            base: if self.target.screen.is_some() { 10 } else { 8 },
+        });
     }
 
     fn add3(&mut self, dst: i64, lhs: i64, rhs: i64) {
@@ -809,7 +811,7 @@ impl Assembler {
             return Err("program is empty".to_string());
         }
         let mut out = Vec::with_capacity(total);
-        for word in self.words {
+        for (position, word) in self.words.into_iter().enumerate() {
             match word {
                 Word::Value(value) => out.push(value),
                 Word::Offset { label, after } => {
@@ -819,6 +821,15 @@ impl Assembler {
                         .ok_or_else(|| format!("unknown label `{label}`"))?;
                     let offset = (target + total - (after % total)) % total;
                     out.push(offset as i64);
+                }
+                Word::Jump { label, base } => {
+                    let target = *self
+                        .labels
+                        .get(&label)
+                        .ok_or_else(|| format!("unknown label `{label}`"))?;
+                    let after = position + 1;
+                    let offset = (target + total - (after % total)) % total;
+                    out.push(base + offset as i64);
                 }
             }
         }
@@ -3147,8 +3158,8 @@ fn run_vm_until_outputs(
                     pc = (pc + offset as usize) % words.len();
                 }
             }
-            8 => {
-                let offset = fetch(&mut pc);
+            op if op >= 8 => {
+                let offset = op - 8;
                 pc = (pc + offset as usize) % words.len();
             }
             _ => {
@@ -3338,8 +3349,8 @@ fn run_screen_vm_until_frames_inner(
                     pc = (pc + offset as usize) % words.len();
                 }
             }
-            10 => {
-                let offset = fetch(&mut pc);
+            op if op >= 10 => {
+                let offset = op - 10;
                 pc = (pc + offset as usize) % words.len();
             }
             _ => {
@@ -3440,7 +3451,7 @@ fn remap_screen_program_registers(
                 remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
                 pc += 3;
             }
-            10 => pc += 2,
+            10.. => pc += 1,
             opcode => return Err(format!("bad screen opcode {opcode} at word {pc}")),
         }
     }
@@ -4895,6 +4906,45 @@ fn main() -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unconditional_jumps_are_single_direct_words() {
+        let program = assemble(
+            r#"
+            start:
+                jmp target
+                imm r0 7
+            target:
+                imm r0 1
+                jmp start
+            "#,
+            Target::default(),
+        )
+        .expect("assemble direct jumps");
+        assert_eq!(program.words, vec![11, 3, 7, 0, 3, 1, 0, 8]);
+    }
+
+    #[test]
+    fn screen_jumps_use_the_screen_direct_jump_base() {
+        let program = assemble(
+            r#"
+            start:
+                jmp target
+                imm r0 7
+            target:
+                imm r0 1
+                jmp start
+            "#,
+            Target {
+                screen: Some(ScreenSpec {
+                    width: 1,
+                    height: 1,
+                }),
+            },
+        )
+        .expect("assemble screen direct jumps");
+        assert_eq!(program.words, vec![13, 3, 7, 0, 3, 1, 0, 10]);
+    }
 
     #[test]
     fn two_lane_pgo_pins_r0_and_orders_by_access_count() {
