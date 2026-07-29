@@ -17,6 +17,66 @@ func dist(a, b Point) int {
 	return abs(a.X-b.X) + abs(a.Y-b.Y)
 }
 
+func handleLiteral(p *Program, m *LittleMan, pt Point) bool {
+	movingHorizontal := m.DX != 0
+	if !movingHorizontal && m.DY == 0 {
+		return false
+	}
+
+	var literal *Literal
+	for _, candidate := range p.Literals {
+		if candidate.IsHorizontal != movingHorizontal {
+			continue
+		}
+		if candidate.IsHorizontal {
+			if pt.Y == candidate.Min.Y && pt.X >= candidate.Min.X && pt.X <= candidate.Max.X {
+				literal = candidate
+				break
+			}
+		} else if pt.X == candidate.Min.X && pt.Y >= candidate.Min.Y && pt.Y <= candidate.Max.Y {
+			literal = candidate
+			break
+		}
+	}
+
+	if literal == nil {
+		if p.GetAt(pt) == '`' {
+			return true
+		}
+		return false
+	}
+
+	if movingHorizontal {
+		if m.DX > 0 && pt.X == literal.Min.X {
+			if literal.ErrForward == "" {
+				m.A = literal.ValForward
+			} else {
+				p.HaltError(literal.ErrForward)
+			}
+		} else if m.DX < 0 && pt.X == literal.Max.X {
+			if literal.ErrBackward == "" {
+				m.A = literal.ValBackward
+			} else {
+				p.HaltError(literal.ErrBackward)
+			}
+		}
+	} else if m.DY > 0 && pt.Y == literal.Min.Y {
+		if literal.ErrForward == "" {
+			m.A = literal.ValForward
+		} else {
+			p.HaltError(literal.ErrForward)
+		}
+	} else if m.DY < 0 && pt.Y == literal.Max.Y {
+		if literal.ErrBackward == "" {
+			m.A = literal.ValBackward
+		} else {
+			p.HaltError(literal.ErrBackward)
+		}
+	}
+
+	return true
+}
+
 func (p *Program) getOutgoingPipes(room *Room) []*Pipe {
 	var pipes []*Pipe
 	for _, pipe := range p.Pipes {

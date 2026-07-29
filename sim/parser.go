@@ -2,6 +2,7 @@ package sim
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -54,6 +55,113 @@ func ParseProgram(code string) (*Program, error) {
 	}
 
 	return p, nil
+}
+
+func parseLiterals(p *Program) error {
+	// Parse horizontal literals.
+	for y := 0; y < p.Height; y++ {
+		startX := -1
+		for x := 0; x < p.Width; x++ {
+			if p.Grid[y][x] != '`' {
+				continue
+			}
+			if startX == -1 {
+				startX = x
+				continue
+			}
+
+			forward := ""
+			for i := startX + 1; i < x; i++ {
+				value := p.Grid[y][i]
+				if value != ' ' && (value < '0' || value > '9') {
+					return fmt.Errorf(
+						"expected a digit or a space between backticks, but found %q at (%d, %d)",
+						value, i, y,
+					)
+				}
+				if value != ' ' {
+					forward += string(value)
+				}
+			}
+			backward := reverseLiteral(forward)
+			forwardValue, err := strconv.ParseInt(forward, 10, 64)
+			forwardError := literalParseError(forward, err)
+			backwardValue, err := strconv.ParseInt(backward, 10, 64)
+			backwardError := literalParseError(backward, err)
+
+			p.Literals = append(p.Literals, &Literal{
+				Min:          Point{startX, y},
+				Max:          Point{x, y},
+				IsHorizontal: true,
+				ValForward:   forwardValue,
+				ValBackward:  backwardValue,
+				ErrForward:   forwardError,
+				ErrBackward:  backwardError,
+			})
+			startX = -1
+		}
+	}
+
+	// Parse vertical literals.
+	for x := 0; x < p.Width; x++ {
+		startY := -1
+		for y := 0; y < p.Height; y++ {
+			if p.Grid[y][x] != '`' {
+				continue
+			}
+			if startY == -1 {
+				startY = y
+				continue
+			}
+
+			forward := ""
+			for i := startY + 1; i < y; i++ {
+				value := p.Grid[i][x]
+				if value != ' ' && (value < '0' || value > '9') {
+					return fmt.Errorf(
+						"expected a digit or a space between backticks, but found %q at (%d, %d)",
+						value, x, i,
+					)
+				}
+				if value != ' ' {
+					forward += string(value)
+				}
+			}
+			backward := reverseLiteral(forward)
+			forwardValue, err := strconv.ParseInt(forward, 10, 64)
+			forwardError := literalParseError(forward, err)
+			backwardValue, err := strconv.ParseInt(backward, 10, 64)
+			backwardError := literalParseError(backward, err)
+
+			p.Literals = append(p.Literals, &Literal{
+				Min:          Point{x, startY},
+				Max:          Point{x, y},
+				IsHorizontal: false,
+				ValForward:   forwardValue,
+				ValBackward:  backwardValue,
+				ErrForward:   forwardError,
+				ErrBackward:  backwardError,
+			})
+			startY = -1
+		}
+	}
+
+	return nil
+}
+
+func reverseLiteral(value string) string {
+	reversed := make([]byte, len(value))
+	for i := range value {
+		reversed[len(value)-1-i] = value[i]
+	}
+	return string(reversed)
+}
+
+func literalParseError(spelling string, err error) string {
+	if err == nil {
+		return ""
+	}
+	return fmt.Sprintf("invalid numeric literal %q: %v", spelling, err)
 }
 
 func parseRooms(p *Program) error {
