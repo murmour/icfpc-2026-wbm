@@ -3006,7 +3006,7 @@ static void usage(const char *argv0) {
 #endif
         "\t--display\n\t\tshow display 0; default to unlimited frames"
         " (requires TV_MODE)\n"
-        "\t--swap\n\t\tshow only completed frames (requires --visual)\n",
+        "\t--swap\n\t\tshow only completed frames (requires --display)\n",
         argv0);
 }
 
@@ -3060,13 +3060,13 @@ int main(int argc, char **argv) {
             free(inputs);
             return 2;
 #endif
-        } else if (!strcmp(argv[i], "--visual")) {
+        } else if (!strcmp(argv[i], "--display")) {
 #ifdef TV_MODE
             visual_requested = true;
 #else
             fprintf(
                 stderr,
-                "--visual requires building with TV_MODE=1\n");
+                "--display requires building with TV_MODE=1\n");
             free(inputs);
             return 2;
 #endif
@@ -3087,7 +3087,7 @@ int main(int argc, char **argv) {
     }
 #ifdef TV_MODE
     if (swap_requested && !visual_requested) {
-        fprintf(stderr, "--swap requires --visual\n");
+        fprintf(stderr, "--swap requires --display\n");
         free(inputs);
         return 2;
     }
@@ -3141,7 +3141,7 @@ int main(int argc, char **argv) {
     bool visual_quit = false;
     if (visual_requested) {
         if (!program.display_count) {
-            fprintf(stderr, "--visual requires a program with a display\n");
+            fprintf(stderr, "--display requires a program with a display\n");
             free(inputs);
             return 2;
         }
