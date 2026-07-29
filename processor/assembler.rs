@@ -43,12 +43,25 @@ impl RegisterProfile {
     fn accesses(&self, register: usize) -> u64 {
         self.reads[register] + self.writes[register]
     }
+
+    fn merge(&mut self, other: &Self) {
+        assert_eq!(self.reads.len(), other.reads.len());
+        for (total, count) in self.reads.iter_mut().zip(&other.reads) {
+            *total += count;
+        }
+        for (total, count) in self.writes.iter_mut().zip(&other.writes) {
+            *total += count;
+        }
+        self.instructions += other.instructions;
+    }
 }
 
 #[derive(Clone, Debug)]
 struct PgoReport {
     profile: RegisterProfile,
     logical_to_physical: Vec<usize>,
+    workloads: usize,
+    frames: usize,
 }
 
 #[derive(Clone, Debug)]
@@ -94,6 +107,7 @@ enum ProgramKind {
 enum RegisterBankMode {
     SingleLane,
     TwoLane,
+    StaggeredTwoLane,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -1091,12 +1105,9 @@ fn place_tokens_in_sweeps(
                 if fits {
                     let open_quotes = next_quote_parity.iter().filter(|open| **open).count();
                     let score = next_i + 4 * open_quotes;
-                    if best
-                        .as_ref()
-                        .is_none_or(|(best_score, best_end, _, _)| {
-                            (score, next_i) < (*best_score, *best_end)
-                        })
-                    {
+                    if best.as_ref().is_none_or(|(best_score, best_end, _, _)| {
+                        (score, next_i) < (*best_score, *best_end)
+                    }) {
                         best = Some((score, next_i, placements, next_quote_parity));
                     }
                 }
@@ -1759,6 +1770,207 @@ fn make_two_lane_register_bank(register_count: usize) -> Result<Vec<Vec<char>>, 
     Ok(bank.grid)
 }
 
+fn make_staggered_two_lane_register_selector(
+    register_count: usize,
+) -> Result<Vec<Vec<char>>, String> {
+    if register_count < 2 || register_count % 2 != 0 {
+        return Err("staggered two-lane selector requires a positive even count".to_string());
+    }
+
+    const WIDTH: usize = 23;
+    let lanes = register_count / 2;
+    let first_pair_y = 3 + 3 * (lanes - 1);
+    let height = first_pair_y + 11;
+    let mut selector = Canvas::new(WIDTH, height);
+
+    for y in 0..height {
+        selector.put(0, y, 'v')?;
+        selector.put(WIDTH - 1, y, 'v')?;
+    }
+
+    for lane in 0..lanes {
+        let pair_y = first_pair_y - 3 * lane;
+
+        // Select the even register on the left.
+        selector.put(9, pair_y, 'd')?;
+        selector.put(8, pair_y, 'b')?;
+        selector.put(7, pair_y, 'X')?;
+        selector.put(6, pair_y, '^')?;
+        selector.put(6, pair_y - 2, '<')?;
+        selector.put(2, pair_y - 2, 'r')?;
+        selector.put(1, pair_y - 2, 's')?;
+        selector.put(7, pair_y - 1, '<')?;
+        selector.put(5, pair_y - 1, 'r')?;
+        selector.put(4, pair_y - 1, 'W')?;
+        selector.put(3, pair_y - 1, 's')?;
+
+        // An even miss decrements the address and tries the odd register.
+        selector.put(9, pair_y - 1, '>')?;
+        selector.put(14, pair_y - 1, 'm')?;
+        selector.put(15, pair_y - 1, 'a')?;
+        selector.put(16, pair_y - 1, 'b')?;
+        selector.put(17, pair_y - 1, 'N')?;
+        selector.put(18, pair_y - 1, 'X')?;
+        selector.put(20, pair_y - 1, 'r')?;
+        selector.put(21, pair_y - 1, 's')?;
+        selector.put(18, pair_y - 2, '>')?;
+        selector.put(19, pair_y - 2, 'r')?;
+        selector.put(20, pair_y - 2, 'W')?;
+        selector.put(21, pair_y - 2, 's')?;
+
+        // An odd miss decrements again and rises to the next pair.
+        selector.put(15, pair_y - 2, '<')?;
+        selector.put(11, pair_y - 2, 'm')?;
+        selector.put(10, pair_y - 2, '^')?;
+        if lane + 1 < lanes {
+            selector.put(10, pair_y - 3, '<')?;
+        }
+    }
+
+    // BP remains zero after a read. Writes save their mode into BP before
+    // consuming the old cell value, so they bypass the response sends.
+    let return_y = first_pair_y + 1;
+    selector.grid[return_y][0] = '>';
+    selector.put(1, return_y, 'd')?;
+    selector.put(2, return_y, 'v')?;
+    selector.put(11, return_y, '^')?;
+    selector.put(11, first_pair_y, '<')?;
+    selector.grid[return_y][WIDTH - 1] = '<';
+    selector.put(20, return_y, 'v')?;
+    selector.put(21, return_y, 'a')?;
+    for x in [1, 2, 20, 21] {
+        selector.put(x, return_y + 1, 'v')?;
+    }
+    selector.put(1, return_y + 2, 'v')?;
+    selector.put(2, return_y + 2, '>')?;
+    selector.put(10, return_y + 2, 'v')?;
+    selector.put(20, return_y + 2, '<')?;
+    selector.put(21, return_y + 2, 'v')?;
+    selector.put(1, return_y + 3, 'v')?;
+    selector.put(10, return_y + 3, 's')?;
+    selector.put(21, return_y + 3, 'v')?;
+    selector.put(1, return_y + 4, '>')?;
+    selector.put(10, return_y + 4, 'v')?;
+    selector.put(21, return_y + 4, '<')?;
+
+    let controller_y = return_y + 5;
+    put_text(&mut selector, 10, controller_y, ">@rbrX")?;
+    selector.put(19, controller_y, 'v')?;
+    selector.put(15, controller_y + 1, 'r')?;
+    selector.put(19, controller_y + 1, 'v')?;
+    selector.put(15, controller_y + 2, 'M')?;
+    selector.put(19, controller_y + 2, 'v')?;
+    selector.put(15, controller_y + 3, '1')?;
+    selector.put(19, controller_y + 3, 'v')?;
+    selector.put(15, controller_y + 4, '<')?;
+    selector.put(11, controller_y + 4, '^')?;
+    selector.put(19, controller_y + 4, '<')?;
+
+    // The first row only extends the two return trunks above the first
+    // station. The row immediately below the pair return does the same for
+    // three adjacent vertical paths. Removing both rows preserves topology.
+    selector.grid.remove(return_y + 1);
+    selector.grid.remove(0);
+
+    // Merge the second decrement into the following even-address station.
+    // An odd miss rises through the empty middle row, turns west at the
+    // preceding station, and executes m immediately before d. The bottom
+    // station remains distinct because it accepts the initial request.
+    let tail_start = selector.grid.len() - 9;
+    selector.grid.truncate(tail_start);
+    let station_height = selector.grid.len();
+    for (index, row) in selector.grid.iter_mut().enumerate() {
+        let compact = match index % 3 {
+            0 => "vsr <       >rWsv",
+            1 => "vsWr < >mabNX rsv",
+            _ if index + 1 == station_height => "v   ^Xbd <      v",
+            _ => "v   ^Xbdm<      v",
+        };
+        *row = compact.chars().collect();
+    }
+
+let compact_tail = [
+    ">dv           va<",
+    "  >     v     <  ",
+    "        s        ",
+    " >      v      < ",
+    "        >@rbrXv  ",
+    "         ^1Mr<   ",
+    "         ^    <  ",
+];
+    selector.grid.extend(
+        compact_tail
+            .into_iter()
+            .map(|row| row.chars().collect::<Vec<_>>()),
+    );
+
+    Ok(selector.grid)
+}
+
+fn make_staggered_two_lane_register_bank(register_count: usize) -> Result<Vec<Vec<char>>, String> {
+    let physical_count = register_count + register_count % 2;
+    let selector = make_staggered_two_lane_register_selector(physical_count)?;
+    let selector_height = selector.len();
+    const SELECTOR_LEFT: usize = 12;
+    const SELECTOR_WIDTH: usize = 17;
+    const BANK_WIDTH: usize = 42;
+    let mut bank = Canvas::new(BANK_WIDTH, selector_height + 2);
+
+    draw_room(&mut bank, SELECTOR_LEFT, 0, SELECTOR_WIDTH, selector_height)?;
+    bank.paste(SELECTOR_LEFT + 1, 1, &selector)?;
+
+    let lanes = physical_count / 2;
+    let first_pair_y = 3 + 3 * (lanes - 1);
+    for lane in 0..lanes {
+        let pair_y = first_pair_y - 3 * lane;
+        let cell_top = pair_y - 3;
+        let outer = lane % 2 != 0;
+
+        // Even registers are on the left. Every second cell moves to the
+        // outer depth; its pipes occupy the gap between two inner cells.
+        let left = if outer { 0 } else { 4 };
+        let left_pipe_start = if outer {
+            let outer_top = cell_top;
+            draw_room(&mut bank, left, outer_top, 2, 4)?;
+            put_text(&mut bank, left + 1, outer_top + 1, ">v")?;
+            put_text(&mut bank, left + 1, outer_top + 2, "@v")?;
+            put_text(&mut bank, left + 1, outer_top + 3, "^s")?;
+            put_text(&mut bank, left + 1, outer_top + 4, "^U")?;
+            left + 4
+        } else {
+            draw_room(&mut bank, left, cell_top, 4, 2)?;
+            put_text(&mut bank, left + 1, cell_top + 1, ">@sv")?;
+            put_text(&mut bank, left + 1, cell_top + 2, "^<U<")?;
+            left + 6
+        };
+        for x in left_pipe_start..SELECTOR_LEFT {
+            bank.put(x, cell_top + 1, '>')?;
+            bank.put(x, cell_top + 2, '<')?;
+        }
+
+        // Odd registers mirror the compact cell on the right.
+        let right = if outer { 38 } else { 33 };
+        if outer {
+            draw_room(&mut bank, right, cell_top, 2, 4)?;
+            put_text(&mut bank, right + 1, cell_top + 1, "Uv")?;
+            bank.put(right + 1, cell_top + 2, 's')?;
+            put_text(&mut bank, right + 1, cell_top + 3, "@v")?;
+            put_text(&mut bank, right + 1, cell_top + 4, "^<")?;
+        } else {
+            draw_room(&mut bank, right, cell_top, 3, 2)?;
+            put_text(&mut bank, right + 1, cell_top + 1, "U@v")?;
+            put_text(&mut bank, right + 1, cell_top + 2, "^s<")?;
+        }
+        let selector_right = SELECTOR_LEFT + SELECTOR_WIDTH + 2;
+        for x in selector_right..right {
+            bank.put(x, cell_top + 1, '>')?;
+            bank.put(x, cell_top + 2, '<')?;
+        }
+    }
+
+    Ok(bank.grid)
+}
+
 fn set_literal_before(
     row: &mut [char],
     marker: &str,
@@ -1892,20 +2104,14 @@ fn memory_storage_path(memory_size: usize) -> Result<MemoryStoragePath, String> 
     }
     if let Some((_, right, extend_tail)) = layout {
         let pairs = (right - 5) / 2;
-        let fixed_cells =
-            5 + pairs * 2 + (right - destination_x) + 2 * usize::from(extend_tail);
+        let fixed_cells = 5 + pairs * 2 + (right - destination_x) + 2 * usize::from(extend_tail);
         let total_span = (memory_size - fixed_cells) / 2;
         let base_span = total_span / pairs;
         let taller_pairs = total_span % pairs;
         let spans: Vec<usize> = (0..pairs)
             .map(|index| base_span + usize::from(index < taller_pairs))
             .collect();
-        let top_padding = spans
-            .iter()
-            .copied()
-            .max()
-            .unwrap_or(1)
-            .saturating_sub(4);
+        let top_padding = spans.iter().copied().max().unwrap_or(1).saturating_sub(4);
         let bottom = 4 + top_padding;
         let return_y = bottom + 1;
         let mut path = vec![(4, bottom), (4, return_y), (5, return_y), (5, bottom)];
@@ -2095,9 +2301,11 @@ struct FloorModules<'a> {
 
 const REGISTER_LEFT: usize = 71;
 const TWO_LANE_REGISTER_LEFT: usize = 62;
+const STAGGERED_TWO_LANE_REGISTER_LEFT: usize = 50;
 const REGISTER_BOTTOM: usize = 2;
 const MEMORY_LEFT: usize = 90;
 const TWO_LANE_MEMORY_LEFT: usize = 97;
+const STAGGERED_TWO_LANE_MEMORY_LEFT: usize = 93;
 const MEMORY_BOTTOM: usize = 2;
 const CPU_LEFT: usize = 56;
 const CPU_TOP: usize = 5;
@@ -2138,14 +2346,19 @@ fn render_fixed_floor(
     let registers = match register_mode {
         RegisterBankMode::SingleLane => make_compact_vertical_register_bank(build.register_count)?,
         RegisterBankMode::TwoLane => make_two_lane_register_bank(build.register_count)?,
+        RegisterBankMode::StaggeredTwoLane => {
+            make_staggered_two_lane_register_bank(build.register_count)?
+        }
     };
     let register_left = match register_mode {
         RegisterBankMode::SingleLane => REGISTER_LEFT,
         RegisterBankMode::TwoLane => TWO_LANE_REGISTER_LEFT,
+        RegisterBankMode::StaggeredTwoLane => STAGGERED_TWO_LANE_REGISTER_LEFT,
     };
     let memory_left = match register_mode {
         RegisterBankMode::SingleLane => MEMORY_LEFT,
         RegisterBankMode::TwoLane => TWO_LANE_MEMORY_LEFT,
+        RegisterBankMode::StaggeredTwoLane => STAGGERED_TWO_LANE_MEMORY_LEFT,
     };
     let memory = (build.memory_size > 0)
         .then(|| render_memory_module(build.memory_size, build.memory_pipe_cells, modules.memory))
@@ -2167,22 +2380,44 @@ fn render_fixed_floor(
     // This is the size-dependent lower display route from the screen CPU.
     clear_rect(&mut base, 96, 39, 98, 72);
 
-    if register_mode == RegisterBankMode::TwoLane {
-        clear_rect(&mut base, 62, 0, 117, 2);
-        clear_rect(&mut base, 89, 3, 102, 4);
+    if register_mode != RegisterBankMode::SingleLane {
+        let clear_left = match register_mode {
+            RegisterBankMode::StaggeredTwoLane => STAGGERED_TWO_LANE_REGISTER_LEFT,
+            _ => TWO_LANE_REGISTER_LEFT,
+        };
+        clear_rect(&mut base, clear_left, 0, 117, 2);
+        let memory_request_x = match register_mode {
+            RegisterBankMode::StaggeredTwoLane => STAGGERED_TWO_LANE_MEMORY_LEFT + 2,
+            _ => 99,
+        };
+        let memory_response_x = memory_request_x + 3;
+        clear_rect(&mut base, 89, 3, memory_response_x, 4);
         if memory.is_some() {
             base[3][89] = '>';
-            for x in 90..99 {
+            for x in 90..memory_request_x {
                 base[3][x] = '-';
             }
-            base[3][99] = '^';
-            base[3][102] = 'v';
+            base[3][memory_request_x] = '^';
+            base[3][memory_response_x] = 'v';
             base[4][89] = '^';
             base[4][92] = 'v';
-            for x in 93..102 {
+            for x in 93..memory_response_x {
                 base[4][x] = '-';
             }
-            base[4][102] = '<';
+            base[4][memory_response_x] = '<';
+        }
+        if register_mode == RegisterBankMode::StaggeredTwoLane {
+            // Align both controller ports vertically with the CPU: two cells each.
+            base[3][73] = ' ';
+            base[3][74] = '^';
+            base[3][75] = 'v';
+            base[3][76] = ' ';
+            base[3][77] = ' ';
+            base[4][73] = ' ';
+            base[4][74] = '^';
+            base[4][75] = 'v';
+            base[4][76] = ' ';
+            base[4][77] = ' ';
         }
     } else if memory.is_none() {
         clear_rect(&mut base, 89, 3, 95, 4);
@@ -3132,6 +3367,7 @@ fn run_screen_vm_until_frames(
 fn profile_screen_program(
     program: &Program,
     screen: ScreenSpec,
+    input: &[i64],
     expected_frames: usize,
     max_steps: usize,
 ) -> Result<(Vec<Vec<i64>>, RegisterProfile), String> {
@@ -3139,7 +3375,7 @@ fn profile_screen_program(
     let frames = run_screen_vm_until_frames_inner(
         program,
         screen,
-        &[],
+        input,
         expected_frames,
         max_steps,
         Some(&mut profile),
@@ -3219,20 +3455,53 @@ fn apply_two_lane_pgo(build: &mut Build) -> Result<PgoReport, String> {
     let screen = build
         .screen
         .ok_or_else(|| "--pgo requires a `.screen` program".to_string())?;
-    let (expected_frames, profile) =
-        profile_screen_program(&build.program, screen, PROFILE_FRAMES, MAX_STEPS)?;
+    let workloads = if build.program_kind == ProgramKind::Llm {
+        llm_tests()?
+    } else {
+        let (frames, _) =
+            profile_screen_program(&build.program, screen, &[], PROFILE_FRAMES, MAX_STEPS)?;
+        vec![(Vec::new(), frames)]
+    };
+    let mut profile = RegisterProfile::new(build.program.register_count);
+    let mut total_frames = 0;
+    for (index, (input, expected_frames)) in workloads.iter().enumerate() {
+        let (actual_frames, workload_profile) = profile_screen_program(
+            &build.program,
+            screen,
+            input,
+            expected_frames.len(),
+            MAX_STEPS,
+        )
+        .map_err(|err| format!("PGO workload {} failed: {err}", index + 1))?;
+        if actual_frames != *expected_frames {
+            return Err(format!(
+                "unoptimized program failed PGO workload {}",
+                index + 1
+            ));
+        }
+        profile.merge(&workload_profile);
+        total_frames += expected_frames.len();
+    }
     let logical_to_physical = two_lane_pgo_mapping(&profile);
     let mut optimized = build.program.clone();
     remap_screen_program_registers(&mut optimized, &logical_to_physical)?;
-    let actual_frames =
-        run_screen_vm_until_frames(&optimized, screen, &[], PROFILE_FRAMES, MAX_STEPS)?;
-    if actual_frames != expected_frames {
-        return Err("PGO register renumbering changed the rendered frames".to_string());
+    for (index, (input, expected_frames)) in workloads.iter().enumerate() {
+        let actual_frames =
+            run_screen_vm_until_frames(&optimized, screen, input, expected_frames.len(), MAX_STEPS)
+                .map_err(|err| format!("optimized PGO workload {} failed: {err}", index + 1))?;
+        if actual_frames != *expected_frames {
+            return Err(format!(
+                "PGO register renumbering changed workload {}",
+                index + 1
+            ));
+        }
     }
     build.program = optimized;
     Ok(PgoReport {
         profile,
         logical_to_physical,
+        workloads: workloads.len(),
+        frames: total_frames,
     })
 }
 
@@ -3244,7 +3513,9 @@ fn append_unique_test<T: PartialEq>(
 ) -> Result<(), String> {
     if let Some((_, existing)) = tests.iter().find(|(candidate, _)| candidate == &input) {
         if existing != &expected {
-            return Err(format!("{suite} has conflicting expectations for one input"));
+            return Err(format!(
+                "{suite} has conflicting expectations for one input"
+            ));
         }
     } else {
         tests.push((input, expected));
@@ -3412,8 +3683,7 @@ fn public_snake_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
         vec![2, 2, 1, 3, 2, 0, 0],
         vec![15, 0, 0],
         vec![
-            2, 2, 1, 3, 2, 0, 4, 1, 3, 3, 0, 5, 1, 2, 3, 0, 1, 1, 3, 0, 2, 1, 1, 2, 0, 3, 0,
-            4, 0,
+            2, 2, 1, 3, 2, 0, 4, 1, 3, 3, 0, 5, 1, 2, 3, 0, 1, 1, 3, 0, 2, 1, 1, 2, 0, 3, 0, 4, 0,
         ],
     ];
     let mut tests = inputs
@@ -4282,7 +4552,12 @@ fn program_room_output_path(output: &str) -> String {
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
     let pgo_requested = args.iter().any(|arg| arg == "--pgo");
-    let register_mode = if pgo_requested || args.iter().any(|arg| arg == "--two-lane-registers") {
+    let register_mode = if args
+        .iter()
+        .any(|arg| arg == "--staggered-two-lane-registers")
+    {
+        RegisterBankMode::StaggeredTwoLane
+    } else if pgo_requested || args.iter().any(|arg| arg == "--two-lane-registers") {
         RegisterBankMode::TwoLane
     } else {
         RegisterBankMode::SingleLane
@@ -4337,15 +4612,16 @@ fn main() -> io::Result<()> {
         match register_mode {
             RegisterBankMode::SingleLane => "single-lane",
             RegisterBankMode::TwoLane => "two-lane",
+            RegisterBankMode::StaggeredTwoLane => "staggered-two-lane",
         }
     );
-    if register_mode == RegisterBankMode::TwoLane && build.register_count % 2 != 0 {
+    if register_mode != RegisterBankMode::SingleLane && build.register_count % 2 != 0 {
         println!("physical register cells: {}", build.register_count + 1);
     }
     if let Some(report) = &pgo_report {
         println!(
-            "PGO profile: {} instructions, 10 frames",
-            report.profile.instructions
+            "PGO profile: {} instructions, {} frames across {} workload(s)",
+            report.profile.instructions, report.frames, report.workloads,
         );
         for logical in 0..report.logical_to_physical.len() {
             println!(
@@ -4528,16 +4804,15 @@ fn main() -> io::Result<()> {
                                 .zip(&expected)
                                 .position(|(actual, wanted)| actual != wanted)
                                 .unwrap_or(got.len().min(expected.len()));
-                            let pixel = got
-                                .get(frame)
-                                .zip(expected.get(frame))
-                                .and_then(|(actual, wanted)| {
+                            let pixel = got.get(frame).zip(expected.get(frame)).and_then(
+                                |(actual, wanted)| {
                                     actual
                                         .iter()
                                         .zip(wanted)
                                         .position(|(actual, wanted)| actual != wanted)
                                         .map(|pixel| (pixel, actual[pixel], wanted[pixel]))
-                                });
+                                },
+                            );
                             return Err(io::Error::new(
                                 io::ErrorKind::Other,
                                 format!(
@@ -4545,9 +4820,7 @@ fn main() -> io::Result<()> {
                                     idx + 1,
                                     frame + 1,
                                     pixel.map_or_else(String::new, |(index, actual, wanted)| {
-                                        format!(
-                                            ", pixel {index}: expected {wanted}, got {actual}"
-                                        )
+                                        format!(", pixel {index}: expected {wanted}, got {actual}")
                                     })
                                 ),
                             ));
