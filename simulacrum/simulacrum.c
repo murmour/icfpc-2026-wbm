@@ -250,8 +250,6 @@ typedef struct {
     TraceReadInfo *trace_reads;
     int trace_read_count;
     int trace_read_cap;
-    uint64_t *runnable_men;
-    int runnable_word_count;
     int live_man_count;
     int *display_by_room;
     uint8_t *dirty_displays;
@@ -1140,9 +1138,6 @@ static void spawn_men(Program *p) {
         p->sleeping_writers[i] = -1;
     }
     p->live_man_count = p->man_count;
-    p->runnable_word_count = (p->man_count + 63) / 64;
-    p->runnable_men =
-        xcalloc((size_t)p->runnable_word_count, sizeof(*p->runnable_men));
     p->man_event_pending = xcalloc((size_t)p->man_count, 1);
 #else
     p->men = xrealloc(p->men, (size_t)MAX_LIVE_MEN * sizeof(*p->men));
@@ -1565,16 +1560,6 @@ static int pipe_endpoint_index(const Program *p, int pipe_id, bool incoming) {
 #endif
 
 #ifdef FAST_MODE
-static void set_man_runnable(Program *p, int man_index, bool runnable) {
-    const uint64_t mask = UINT64_C(1) << (man_index % 64);
-    uint64_t *const word = &p->runnable_men[man_index / 64];
-    if (runnable) {
-        *word |= mask;
-    } else {
-        *word &= ~mask;
-    }
-}
-
 static bool man_event_before(ManEvent a, ManEvent b) {
     return a.tick < b.tick ||
            (a.tick == b.tick && a.man_index < b.man_index);
@@ -2355,7 +2340,6 @@ op_halt:
     }
 #endif
     man->halted = true;
-    set_man_runnable(p, man_index, false);
     p->live_man_count--;
     if (!p->live_man_count) {
         p->halted = true;
@@ -2537,7 +2521,6 @@ movement_error:
 block_reader:
     FLUSH_MAN();
     man->blocked = true;
-    set_man_runnable(p, man_index, false);
 #ifdef PROFILE_MODE
     profile_begin_wait(p, man_index, sleep_pipe, true);
 #endif
@@ -2547,7 +2530,6 @@ block_reader:
 block_writer:
     FLUSH_MAN();
     man->blocked = true;
-    set_man_runnable(p, man_index, false);
 #ifdef PROFILE_MODE
     profile_begin_wait(p, man_index, sleep_pipe, false);
 #endif
@@ -2871,19 +2853,9 @@ static bool step_program(Program *p, uint64_t tick_limit) {
 
     while (p->man_event_count && p->man_events[0].tick <= p->ticks) {
         const ManEvent event = pop_man_event(p);
-        set_man_runnable(p, event.man_index, true);
-    }
-    for (int word = 0; word < p->runnable_word_count; word++) {
-        uint64_t runnable = p->runnable_men[word];
-        while (runnable) {
-            const int bit = __builtin_ctzll(runnable);
-            const int man_index = word * 64 + bit;
-            runnable &= runnable - 1;
-            set_man_runnable(p, man_index, false);
-            run_man_event(p, man_index, tick_limit);
-            if UNLIKELY(p->halted) {
-                return false;
-            }
+        run_man_event(p, event.man_index, tick_limit);
+        if UNLIKELY(p->halted) {
+            return false;
         }
     }
     return true;
