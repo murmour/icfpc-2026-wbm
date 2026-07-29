@@ -11,7 +11,7 @@
     {
       "id": "unpacker",
       "file": "../blocks/base71_unpacker.block",
-      "x": 0,
+      "x": 6,
       "y": 75
     },
     {
@@ -29,7 +29,7 @@
     {
       "id": "state",
       "file": "../blocks/fifo_relay_mirror.block",
-      "x": 15,
+      "x": 21,
       "y": 90
     },
     {
@@ -48,8 +48,8 @@
       "src": "unpacker.ranks",
       "dst": "selector.rank",
       "waypoints": [
-        {"x": 43, "y": 84},
-        {"x": 43, "y": 89},
+        {"x": 48, "y": 84},
+        {"x": 48, "y": 89},
         {"x": 29, "y": 89}
       ]
     },
