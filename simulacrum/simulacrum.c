@@ -2971,17 +2971,20 @@ static bool send_external_input(Program *p, int64_t value) {
     return false;
 }
 
-static void consume_external_output(Program *p) {
+static uint64_t consume_external_output(Program *p) {
+    uint64_t count = 0;
     if (p->output_room < 0) {
-        return;
+        return count;
     }
     Room *room = &p->rooms[p->output_room];
     for (int i = 0; i < room->incoming_count; i++) {
         int64_t value;
         while (consume_pipe(p, room->incoming[i], &value)) {
             printf("output=%" PRId64 "\n", value);
+            count++;
         }
     }
+    return count;
 }
 
 static void usage(const char *argv0) {
@@ -2990,6 +2993,7 @@ static void usage(const char *argv0) {
         "usage: %s PROGRAM [options]\n"
         "supported options:\n"
         "\t--frames N\n\t\tstop after N display swaps (default 1)\n"
+        "\t--outputs N\n\t\tstop after N external output values\n"
         "\t--ticks N\n\t\tstop after N ticks (default unlimited)\n"
         "\t--input V,...\n\t\tcomma-separated external input values\n"
         "\t--display-gated N\n\t\trelease N inputs initially, then one more"
@@ -3009,6 +3013,7 @@ int main(int argc, char **argv) {
         return 2;
     }
     uint64_t frame_limit = 1;
+    uint64_t output_limit = 0;
     uint64_t tick_limit = UINT64_MAX;
     int64_t *inputs = NULL;
     int input_count = 0;
@@ -3028,6 +3033,8 @@ int main(int argc, char **argv) {
 #ifdef TV_MODE
             frame_limit_set = true;
 #endif
+        } else if (!strcmp(argv[i], "--outputs") && i + 1 < argc) {
+            output_limit = parse_u64(argv[++i], "output count");
         } else if (!strcmp(argv[i], "--ticks") && i + 1 < argc) {
             tick_limit = parse_u64(argv[++i], "tick count");
         } else if (!strcmp(argv[i], "--input") && i + 1 < argc) {
@@ -3141,11 +3148,13 @@ int main(int argc, char **argv) {
 #endif
 
     double start = now_seconds();
+    uint64_t output_count = 0;
 #ifdef FAST_MODE
     initialize_man_events(&program);
 #endif
     while (!program.halted && program.ticks < tick_limit &&
-           (!frame_limit || total_swaps(&program) < frame_limit)) {
+           (!frame_limit || total_swaps(&program) < frame_limit) &&
+           (!output_limit || output_count < output_limit)) {
         int available_inputs = input_count;
         if (display_gated_inputs >= 0) {
             uint64_t unlocked =
@@ -3164,7 +3173,7 @@ int main(int argc, char **argv) {
 #else
         step_program(&program);
 #endif
-        consume_external_output(&program);
+        output_count += consume_external_output(&program);
 #ifdef TV_MODE
         if (visual_requested &&
             !visual_update(&visual, &program.displays[0], false)) {
