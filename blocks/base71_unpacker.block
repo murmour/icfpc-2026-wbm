@@ -1,18 +1,18 @@
 {
   "name": "base71_unpacker",
-  "size": "40x11",
+  "size": "39x11",
   "interior": [
-    ">@v >v >9M1+bd                     >v >v",
-    "  >r^>s^     >8M*M7+Mv >/v >Wv >md ^    ",
-    "                         >s^            ",
-    "                                        ",
-    "                                        ",
-    "                                        ",
-    "                                        ",
-    "                                    >r^ ",
-    "                     >r^     >s^        ",
-    "             ^                   <      ",
-    "^                                      <"
+    ">@v >v >9M1+bd                    >v >v",
+    "  >r^>s^     >8M*M7+Mv >/v >Wv >md^    ",
+    "                         >s^           ",
+    "                                       ",
+    "                                       ",
+    "                                       ",
+    "                                       ",
+    "                                   >r^ ",
+    "                     >r^     >s^       ",
+    "             ^                   <     ",
+    "^                                     <"
   ],
   "ports": {
     "ranks": {
@@ -29,10 +29,10 @@
     },
     "rom": {
       "type": "input",
-      "side": "top",
+      "side": "left",
       "offset_range": [
-        3,
-        3
+        1,
+        1
       ],
       "length_range": [
         2,

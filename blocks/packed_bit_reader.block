@@ -1,26 +1,23 @@
 {
   "name": "packed_bit_reader",
-  "size": "37x11",
+  "size": "22x8",
   "interior": [
-    ">@v >v >`49`bd                  >v >v",
-    "  >r^>s^     >`2`Mv >/v >Wv >md ^    ",
-    "                      >s^            ",
-    "                                     ",
-    "                                     ",
-    "                                     ",
-    "                                     ",
-    "                                 >r^ ",
-    "                  >r^     >s^        ",
-    "             ^                <      ",
-    "^                                   <"
+    ">@>rs`49`v          >v",
+    "  v      <            ",
+    "  >  bd           >v  ",
+    "      >`2`Mr/sWsmd^   ",
+    "      ^          <    ",
+    "  v                <  ",
+    "  >r                ^ ",
+    "^                    <"
   ],
   "ports": {
     "bits": {
       "type": "output",
-      "side": "bottom",
+      "side": "top",
       "offset_range": [
-        27,
-        27
+        15,
+        15
       ],
       "length_range": [
         2,
@@ -31,8 +28,8 @@
       "type": "input",
       "side": "top",
       "offset_range": [
-        3,
-        3
+        2,
+        2
       ],
       "length_range": [
         2,
@@ -41,10 +38,10 @@
     },
     "state_in": {
       "type": "input",
-      "side": "right",
+      "side": "bottom",
       "offset_range": [
-        8,
-        8
+        4,
+        4
       ],
       "length_range": [
         2,
@@ -55,8 +52,8 @@
       "type": "output",
       "side": "top",
       "offset_range": [
-        14,
-        14
+        12,
+        12
       ],
       "length_range": [
         2,

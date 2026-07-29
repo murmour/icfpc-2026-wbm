@@ -1,26 +1,19 @@
 {
   "name": "packed_ascii_decoder",
-  "size": "39x11",
+  "size": "24x4",
   "interior": [
-    ">@v >v >v >bd                     >v >v",
-    "  >r^>s^>r^ >`8`M+*Mv >/v >Wv >md ^    ",
-    "                        >s^            ",
-    "                                       ",
-    "                                       ",
-    "                                       ",
-    "                                       ",
-    "                                   >r^ ",
-    "                    >r^     >s^        ",
-    "            ^                   <      ",
-    "^                                     <"
+    ">@rsrbd              >rv",
+    "      >`8`M+*Mr/sWsmd^  ",
+    "      ^             <   ",
+    "^                      <"
   ],
   "ports": {
     "bytes": {
       "type": "output",
-      "side": "bottom",
+      "side": "top",
       "offset_range": [
-        29,
-        29
+        18,
+        18
       ],
       "length_range": [
         2,
@@ -31,8 +24,8 @@
       "type": "input",
       "side": "top",
       "offset_range": [
-        3,
-        3
+        2,
+        2
       ],
       "length_range": [
         2,
@@ -41,10 +34,10 @@
     },
     "state_in": {
       "type": "input",
-      "side": "right",
+      "side": "top",
       "offset_range": [
-        8,
-        8
+        15,
+        15
       ],
       "length_range": [
         2,

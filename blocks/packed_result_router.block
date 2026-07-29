@@ -1,29 +1,21 @@
 {
   "name": "packed_result_router",
-  "size": "21x14",
+  "size": "11x6",
   "interior": [
-    "     >`0`          v ",
-    "                     ",
-    ">@v >Xv >v >v >v > >v",
-    "  >r^ >r^>s^>r^      ",
-    "                     ",
-    "                     ",
-    "                     ",
-    "                     ",
-    "                     ",
-    "               >s^   ",
-    "                     ",
-    "     >v >v >       ^ ",
-    "      >r^>s^         ",
-    "^                   <"
+    "   >`0`  v ",
+    "           ",
+    ">@rXrsrs >v",
+    "           ",
+    "   >rs   ^ ",
+    "^         <"
   ],
   "ports": {
     "replacement": {
       "type": "output",
-      "side": "bottom",
+      "side": "top",
       "offset_range": [
-        10,
-        10
+        5,
+        5
       ],
       "length_range": [
         2,
@@ -32,10 +24,10 @@
     },
     "response": {
       "type": "output",
-      "side": "bottom",
+      "side": "top",
       "offset_range": [
-        16,
-        16
+        7,
+        7
       ],
       "length_range": [
         2,
@@ -46,8 +38,8 @@
       "type": "input",
       "side": "top",
       "offset_range": [
-        7,
-        7
+        4,
+        4
       ],
       "length_range": [
         2,

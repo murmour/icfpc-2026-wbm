@@ -1,25 +1,24 @@
 {
   "name": "sort_chain_decoder",
-  "size": "37x13",
+  "size": "30x12",
   "interior": [
-    "     >`16`bd                     > v ",
-    "               >H            v       ",
-    "                                     ",
-    "           >v >X             >md ^   ",
-    "            >r^                      ",
-    "               >M`10001`-v > ^       ",
-    "                         >s^         ",
-    "           ^                   <     ",
-    "                                     ",
-    ">@v >X                             >v",
-    "  >r^                                ",
-    "     >H                            ^ ",
-    "^                                   <"
+    "   >`16`bd                > v ",
+    "           >H          v      ",
+    "                              ",
+    "         >rX           >md^   ",
+    "                              ",
+    "           >M`10001`-s ^      ",
+    "         ^               <    ",
+    "                              ",
+    ">@rX                        >v",
+    "                              ",
+    "   >H                       ^ ",
+    "^                            <"
   ],
   "ports": {
     "stream": {
       "type": "input",
-      "side": "bottom",
+      "side": "left",
       "offset_range": [
         3,
         3
@@ -33,8 +32,8 @@
       "type": "output",
       "side": "top",
       "offset_range": [
-        26,
-        26
+        21,
+        21
       ],
       "length_range": [
         2,
