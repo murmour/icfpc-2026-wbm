@@ -348,7 +348,7 @@ class FlowProgram:
         for stage in self.stages:
             by_layer.setdefault(stage.layer, []).append(stage)
             label = (
-                f"{stage.name}\\n{stage.mode.value}\\nlayer {stage.layer}"
+                f"{stage.name}\n{stage.mode.value}\nlayer {stage.layer}"
             )
             lines.append(
                 f"  {json.dumps(stage.name)} "
@@ -359,7 +359,7 @@ class FlowProgram:
             lines.append(f"  {{ rank=same; {names}; }} // layer {layer}")
         for edge in self.edges:
             style = "bold" if edge.transport is Transport.MAN else "solid"
-            label = f"{edge.name}\\n{edge.transport.value}: {edge.payload}"
+            label = f"{edge.name}\n{edge.transport.value}: {edge.payload}"
             lines.append(
                 f"  {json.dumps(edge.source)} -> {json.dumps(edge.target)} "
                 f"[label={json.dumps(label)}, style={json.dumps(style)}];"
