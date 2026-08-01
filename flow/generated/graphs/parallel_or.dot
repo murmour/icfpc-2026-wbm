@@ -1,0 +1,15 @@
+digraph flow {
+  rankdir="LR";
+  node [shape="box"];
+  "split" [label="split\npersistent\nlayer 0"];
+  "left" [label="left\ntransient\nlayer 1"];
+  "right" [label="right\ntransient\nlayer 1"];
+  "join" [label="join\npersistent\nlayer 2"];
+  { rank=same; "split"; } // layer 0
+  { rank=same; "left"; "right"; } // layer 1
+  { rank=same; "join"; } // layer 2
+  "split" -> "left" [label="left_man\nman: inputs", style="bold"];
+  "split" -> "right" [label="right_man\nman: inputs", style="bold"];
+  "left" -> "join" [label="left_bit\npipe: bit", style="solid"];
+  "right" -> "join" [label="right_bit\npipe: bit", style="solid"];
+}

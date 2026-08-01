@@ -1,0 +1,57 @@
+digraph flow {
+  rankdir="LR";
+  node [shape="box"];
+  "main" [label="main\npersistent\nlayer 0"];
+  "worker_0" [label="worker_0\npersistent\nlayer 1"];
+  "worker_1" [label="worker_1\npersistent\nlayer 1"];
+  "worker_2" [label="worker_2\npersistent\nlayer 1"];
+  "worker_3" [label="worker_3\npersistent\nlayer 1"];
+  "worker_4" [label="worker_4\npersistent\nlayer 1"];
+  "worker_5" [label="worker_5\npersistent\nlayer 1"];
+  "worker_6" [label="worker_6\npersistent\nlayer 1"];
+  "worker_7" [label="worker_7\npersistent\nlayer 1"];
+  "worker_8" [label="worker_8\npersistent\nlayer 1"];
+  "worker_9" [label="worker_9\npersistent\nlayer 1"];
+  "worker_10" [label="worker_10\npersistent\nlayer 1"];
+  "worker_11" [label="worker_11\npersistent\nlayer 1"];
+  "worker_12" [label="worker_12\npersistent\nlayer 1"];
+  "worker_13" [label="worker_13\npersistent\nlayer 1"];
+  "worker_14" [label="worker_14\npersistent\nlayer 1"];
+  "worker_15" [label="worker_15\npersistent\nlayer 1"];
+  "reducer" [label="reducer\npersistent\nlayer 2"];
+  { rank=same; "main"; } // layer 0
+  { rank=same; "worker_0"; "worker_1"; "worker_2"; "worker_3"; "worker_4"; "worker_5"; "worker_6"; "worker_7"; "worker_8"; "worker_9"; "worker_10"; "worker_11"; "worker_12"; "worker_13"; "worker_14"; "worker_15"; } // layer 1
+  { rank=same; "reducer"; } // layer 2
+  "main" -> "worker_0" [label="raw_0\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_1" [label="raw_1\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_2" [label="raw_2\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_3" [label="raw_3\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_4" [label="raw_4\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_5" [label="raw_5\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_6" [label="raw_6\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_7" [label="raw_7\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_8" [label="raw_8\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_9" [label="raw_9\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_10" [label="raw_10\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_11" [label="raw_11\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_12" [label="raw_12\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_13" [label="raw_13\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_14" [label="raw_14\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "main" -> "worker_15" [label="raw_15\npipe: N, M, K, then B and A scalars plus barrier release", style="solid"];
+  "worker_0" -> "reducer" [label="result_0\npipe: one dot product per A row", style="solid"];
+  "worker_1" -> "reducer" [label="result_1\npipe: one dot product per A row", style="solid"];
+  "worker_2" -> "reducer" [label="result_2\npipe: one dot product per A row", style="solid"];
+  "worker_3" -> "reducer" [label="result_3\npipe: one dot product per A row", style="solid"];
+  "worker_4" -> "reducer" [label="result_4\npipe: one dot product per A row", style="solid"];
+  "worker_5" -> "reducer" [label="result_5\npipe: one dot product per A row", style="solid"];
+  "worker_6" -> "reducer" [label="result_6\npipe: one dot product per A row", style="solid"];
+  "worker_7" -> "reducer" [label="result_7\npipe: one dot product per A row", style="solid"];
+  "worker_8" -> "reducer" [label="result_8\npipe: one dot product per A row", style="solid"];
+  "worker_9" -> "reducer" [label="result_9\npipe: one dot product per A row", style="solid"];
+  "worker_10" -> "reducer" [label="result_10\npipe: one dot product per A row", style="solid"];
+  "worker_11" -> "reducer" [label="result_11\npipe: one dot product per A row", style="solid"];
+  "worker_12" -> "reducer" [label="result_12\npipe: one dot product per A row", style="solid"];
+  "worker_13" -> "reducer" [label="result_13\npipe: one dot product per A row", style="solid"];
+  "worker_14" -> "reducer" [label="result_14\npipe: one dot product per A row", style="solid"];
+  "worker_15" -> "reducer" [label="result_15\npipe: one dot product per A row", style="solid"];
+}

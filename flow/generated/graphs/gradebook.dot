@@ -1,0 +1,26 @@
+digraph flow {
+  rankdir="LR";
+  node [shape="box"];
+  "input" [label="input\npersistent\nlayer 0"];
+  "shard_0" [label="shard_0\npersistent\nlayer 1"];
+  "shard_1" [label="shard_1\npersistent\nlayer 1"];
+  "shard_2" [label="shard_2\npersistent\nlayer 1"];
+  "shard_3" [label="shard_3\npersistent\nlayer 1"];
+  "reducer" [label="reducer\npersistent\nlayer 2"];
+  { rank=same; "input"; } // layer 0
+  { rank=same; "shard_0"; "shard_1"; "shard_2"; "shard_3"; } // layer 1
+  { rank=same; "reducer"; } // layer 2
+  "input" -> "shard_0" [label="raw_0\npipe: raw scalar stream", style="solid"];
+  "input" -> "shard_1" [label="raw_1\npipe: raw scalar stream", style="solid"];
+  "input" -> "shard_2" [label="raw_2\npipe: raw scalar stream", style="solid"];
+  "input" -> "shard_3" [label="raw_3\npipe: raw scalar stream", style="solid"];
+  "input" -> "reducer" [label="raw_reducer\npipe: raw scalar stream", style="solid"];
+  "shard_0" -> "reducer" [label="sum_0\npipe: GET/SET/AVG partial", style="solid"];
+  "shard_1" -> "reducer" [label="sum_1\npipe: GET/SET/AVG partial", style="solid"];
+  "shard_2" -> "reducer" [label="sum_2\npipe: GET/SET/AVG partial", style="solid"];
+  "shard_3" -> "reducer" [label="sum_3\npipe: GET/SET/AVG partial", style="solid"];
+  "shard_0" -> "reducer" [label="max_0\npipe: TOP key partial", style="solid"];
+  "shard_1" -> "reducer" [label="max_1\npipe: TOP key partial", style="solid"];
+  "shard_2" -> "reducer" [label="max_2\npipe: TOP key partial", style="solid"];
+  "shard_3" -> "reducer" [label="max_3\npipe: TOP key partial", style="solid"];
+}

@@ -1,0 +1,21 @@
+digraph flow {
+  rankdir="LR";
+  node [shape="box"];
+  "input" [label="input\npersistent\nlayer 0"];
+  "splitter" [label="splitter\npersistent\nlayer 1"];
+  "row" [label="row\ntransient\nlayer 2"];
+  "column" [label="column\ntransient\nlayer 2"];
+  "box" [label="box\ntransient\nlayer 2"];
+  "collector" [label="collector\npersistent\nlayer 3"];
+  { rank=same; "input"; } // layer 0
+  { rank=same; "splitter"; } // layer 1
+  { rank=same; "row"; "column"; "box"; } // layer 2
+  { rank=same; "collector"; } // layer 3
+  "input" -> "splitter" [label="descriptor\npipe: {row, column, box, bit}", style="solid"];
+  "splitter" -> "row" [label="row_worker\nman: cell", style="bold"];
+  "splitter" -> "column" [label="column_worker\nman: cell", style="bold"];
+  "splitter" -> "box" [label="box_worker\nman: cell", style="bold"];
+  "row" -> "collector" [label="row_conflict\npipe: bool", style="solid"];
+  "column" -> "collector" [label="column_conflict\npipe: bool", style="solid"];
+  "box" -> "collector" [label="box_conflict\npipe: bool", style="solid"];
+}

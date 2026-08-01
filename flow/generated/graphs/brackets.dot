@@ -1,0 +1,12 @@
+digraph flow {
+  rankdir="LR";
+  node [shape="box"];
+  "reader" [label="reader\npersistent\nlayer 0"];
+  "scanner" [label="scanner\npersistent\nlayer 1"];
+  "result" [label="result\npersistent\nlayer 2"];
+  { rank=same; "reader"; } // layer 0
+  { rank=same; "scanner"; } // layer 1
+  { rank=same; "result"; } // layer 2
+  "reader" -> "scanner" [label="round\npipe: initialized state", style="solid"];
+  "scanner" -> "result" [label="answer\npipe: completed state", style="solid"];
+}

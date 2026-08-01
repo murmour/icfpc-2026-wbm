@@ -1,3 +1,9 @@
+This Russian text was used by the author as a scratch buffer for sharing ideas with AI.
+
+Saved here for archival purposes. Not worth reading unless you're _really_ curious.
+
+...
+
 # Folding IR: граф комнаты для прямоугольной укладки
 
 Пакет `flow.folding` не подключён к существующим генераторам. Он задаёт
