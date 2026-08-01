@@ -40,15 +40,9 @@ It's a streaming motion-energy detector:
 - `delta` retains the previous sample in `B` and emits  `current - previous`.
 - `square` receives each difference and emits its square.
 
-Corresponding  `.man` output:
-```text
- >--v   >--v   >--v
- ^  v   ^  v   ^  v
-+-++-----++-----++-+
-|I||>@rWv||>@rMv||O|
-+-+|^s+N<||^ s*<|+-+
-   +-----++-----+
-```
+Corresponding `.man` output:
+
+![Compiled Motion Energy program](images/motion-energy.svg)
 
 
 ## Example: Pipeline

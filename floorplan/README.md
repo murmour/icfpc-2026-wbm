@@ -27,14 +27,7 @@ This floor connects the external input to a compiled FIFO room, then connects th
 
 Floorplan produces:
 
-```text
- >----v>---v
- ^    v^   v
-+-++-----++-+
-|I||>@rsv||O|
-+-+|^   <|+-+
-   +-----+
-```
+![Floorplanned FIFO relay](images/fifo-example.svg)
 
 
 ## Routing

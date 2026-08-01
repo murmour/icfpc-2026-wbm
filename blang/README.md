@@ -54,12 +54,8 @@ test two_words {
 ```
 
 Compilation result (see [full metadata](../blocks/packed_ascii_decoder.block)):
-```text
->@rsrbd              >rv
-      >`8`M+*Mr/sWsmd^
-      ^             <
-^                      <
-```
+
+![Compiled Packed ASCII decoder room](images/packed-ascii-decoder.svg)
 
 
 ## Ports

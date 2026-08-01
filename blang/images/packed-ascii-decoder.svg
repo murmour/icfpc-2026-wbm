@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="784" height="224" viewBox="0 0 784 224" role="img" aria-label="Little Man program, 28 by 8 cells">
+<rect width="784" height="224" fill="#d6d3d1"/>
+<g shape-rendering="crispEdges">
+<path fill="#6366f1" d="M28 28h728v28h-728zM28 56h28v28h-28zM728 56h28v28h-28zM28 84h28v28h-28zM728 84h28v28h-28zM28 112h28v28h-28zM728 112h28v28h-28zM28 140h28v28h-28zM728 140h28v28h-28zM28 168h728v28h-728z"/>
+<path fill="#facc15" d="M56 56h28v28h-28zM224 56h28v28h-28zM644 56h28v28h-28zM700 56h28v28h-28zM224 84h28v28h-28zM616 84h56v28h-56zM224 112h28v28h-28zM616 112h28v28h-28zM56 140h28v28h-28zM700 140h28v28h-28z"/>
+<path fill="#f87171" d="M84 56h28v28h-28z"/>
+<path fill="#f472b6" d="M112 56h84v28h-84zM672 56h28v28h-28zM448 84h28v28h-28zM504 84h28v28h-28zM560 84h28v28h-28z"/>
+<path fill="#93c5fd" d="M196 56h28v28h-28zM336 84h28v28h-28zM420 84h28v28h-28zM532 84h28v28h-28zM588 84h28v28h-28z"/>
+<path fill="#94a3b8" d="M252 84h84v28h-84z"/>
+<path fill="#4ade80" d="M364 84h56v28h-56zM476 84h28v28h-28z"/>
+<path fill="none" stroke="#a8a29e" stroke-width="2" d="M0 0V224M28 0V224M56 0V224M84 0V224M112 0V224M140 0V224M168 0V224M196 0V224M224 0V224M252 0V224M280 0V224M308 0V224M336 0V224M364 0V224M392 0V224M420 0V224M448 0V224M476 0V224M504 0V224M532 0V224M560 0V224M588 0V224M616 0V224M644 0V224M672 0V224M700 0V224M728 0V224M756 0V224M784 0V224M0 0H784M0 28H784M0 56H784M0 84H784M0 112H784M0 140H784M0 168H784M0 196H784M0 224H784"/>
+</g>
+<g fill="#000" font-family="DejaVu Sans Mono, ui-monospace, monospace" font-size="18" text-anchor="middle" dominant-baseline="central">
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 378 406 434 462 490 518 546 574 602 630 658 686 714 742" y="42">+------------------------+</text>
+<text x="42 70 98 126 154 182 210 238 658 686 714 742" y="70">|&gt;@rsrbd&gt;rv|</text>
+<text x="42 238 266 294 322 350 378 406 434 462 490 518 546 574 602 630 658 742" y="98">|&gt;`8`M+*Mr/sWsmd^|</text>
+<text x="42 238 630 742" y="126">|^&lt;|</text>
+<text x="42 70 714 742" y="154">|^&lt;|</text>
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 378 406 434 462 490 518 546 574 602 630 658 686 714 742" y="182">+------------------------+</text>
+</g>
+</svg>

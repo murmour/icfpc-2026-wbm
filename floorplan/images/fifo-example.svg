@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="224" viewBox="0 0 420 224" role="img" aria-label="Little Man program, 15 by 8 cells">
+<rect width="420" height="224" fill="#d6d3d1"/>
+<g shape-rendering="crispEdges">
+<path fill="#a5b4fc" d="M56 28h308v28h-308zM56 56h28v28h-28zM196 56h56v28h-56zM336 56h28v28h-28z"/>
+<path fill="#78716c" d="M28 84h84v28h-84zM308 84h84v28h-84zM28 112h28v28h-28zM84 112h28v28h-28zM308 112h28v28h-28zM364 112h28v28h-28zM28 140h84v28h-84zM308 140h84v28h-84z"/>
+<path fill="#6366f1" d="M112 84h196v28h-196zM112 112h28v28h-28zM280 112h28v28h-28zM112 140h28v28h-28zM280 140h28v28h-28zM112 168h196v28h-196z"/>
+<path fill="#facc15" d="M140 112h28v28h-28zM252 112h28v28h-28zM140 140h28v28h-28zM252 140h28v28h-28z"/>
+<path fill="#f87171" d="M168 112h28v28h-28z"/>
+<path fill="#f472b6" d="M196 112h56v28h-56z"/>
+<path fill="none" stroke="#a8a29e" stroke-width="2" d="M0 0V224M28 0V224M56 0V224M84 0V224M112 0V224M140 0V224M168 0V224M196 0V224M224 0V224M252 0V224M280 0V224M308 0V224M336 0V224M364 0V224M392 0V224M420 0V224M0 0H420M0 28H420M0 56H420M0 84H420M0 112H420M0 140H420M0 168H420M0 196H420M0 224H420"/>
+</g>
+<g fill="#000" font-family="DejaVu Sans Mono, ui-monospace, monospace" font-size="18" text-anchor="middle" dominant-baseline="central">
+<text x="70 98 126 154 182 210 238 266 294 322 350" y="42">&gt;----v&gt;---v</text>
+<text x="70 210 238 350" y="70">^v^v</text>
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 378" y="98">+-++-----++-+</text>
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 378" y="126">|I||&gt;@rsv||O|</text>
+<text x="42 70 98 126 154 266 294 322 350 378" y="154">+-+|^&lt;|+-+</text>
+<text x="126 154 182 210 238 266 294" y="182">+-----+</text>
+</g>
+</svg>

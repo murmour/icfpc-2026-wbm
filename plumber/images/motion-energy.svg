@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="616" height="224" viewBox="0 0 616 224" role="img" aria-label="Little Man program, 22 by 8 cells">
+<rect width="616" height="224" fill="#d6d3d1"/>
+<g shape-rendering="crispEdges">
+<path fill="#a5b4fc" d="M56 28h112v28h-112zM252 28h112v28h-112zM448 28h112v28h-112zM56 56h28v28h-28zM140 56h28v28h-28zM252 56h28v28h-28zM336 56h28v28h-28zM448 56h28v28h-28zM532 56h28v28h-28z"/>
+<path fill="#78716c" d="M28 84h84v28h-84zM504 84h84v28h-84zM28 112h28v28h-28zM84 112h28v28h-28zM504 112h28v28h-28zM560 112h28v28h-28zM28 140h84v28h-84zM504 140h84v28h-84z"/>
+<path fill="#6366f1" d="M112 84h392v28h-392zM112 112h28v28h-28zM280 112h56v28h-56zM476 112h28v28h-28zM112 140h28v28h-28zM280 140h56v28h-56zM476 140h28v28h-28zM112 168h392v28h-392z"/>
+<path fill="#facc15" d="M140 112h28v28h-28zM252 112h28v28h-28zM336 112h28v28h-28zM448 112h28v28h-28zM140 140h28v28h-28zM252 140h28v28h-28zM336 140h28v28h-28zM448 140h28v28h-28z"/>
+<path fill="#f87171" d="M168 112h28v28h-28zM364 112h28v28h-28z"/>
+<path fill="#f472b6" d="M196 112h28v28h-28zM392 112h28v28h-28zM168 140h28v28h-28zM392 140h28v28h-28z"/>
+<path fill="#93c5fd" d="M224 112h28v28h-28zM420 112h28v28h-28z"/>
+<path fill="#4ade80" d="M196 140h56v28h-56zM420 140h28v28h-28z"/>
+<path fill="none" stroke="#a8a29e" stroke-width="2" d="M0 0V224M28 0V224M56 0V224M84 0V224M112 0V224M140 0V224M168 0V224M196 0V224M224 0V224M252 0V224M280 0V224M308 0V224M336 0V224M364 0V224M392 0V224M420 0V224M448 0V224M476 0V224M504 0V224M532 0V224M560 0V224M588 0V224M616 0V224M0 0H616M0 28H616M0 56H616M0 84H616M0 112H616M0 140H616M0 168H616M0 196H616M0 224H616"/>
+</g>
+<g fill="#000" font-family="DejaVu Sans Mono, ui-monospace, monospace" font-size="18" text-anchor="middle" dominant-baseline="central">
+<text x="70 98 126 154 266 294 322 350 462 490 518 546" y="42">&gt;--v&gt;--v&gt;--v</text>
+<text x="70 154 266 350 462 546" y="70">^v^v^v</text>
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 378 406 434 462 490 518 546 574" y="98">+-++-----++-----++-+</text>
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 378 406 434 462 490 518 546 574" y="126">|I||&gt;@rWv||&gt;@rMv||O|</text>
+<text x="42 70 98 126 154 182 210 238 266 294 322 350 406 434 462 490 518 546 574" y="154">+-+|^s+N&lt;||^s*&lt;|+-+</text>
+<text x="126 154 182 210 238 266 294 322 350 378 406 434 462 490" y="182">+-----++-----+</text>
+</g>
+</svg>
