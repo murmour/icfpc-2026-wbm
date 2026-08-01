@@ -24,9 +24,11 @@
 #ifdef __GNUC__
 #define LIKELY(expr) (__builtin_expect((expr), 1))
 #define UNLIKELY(expr) (__builtin_expect((expr), 0))
+#define NOINLINE __attribute__((noinline))
 #else
 #define LIKELY(expr) (expr)
 #define UNLIKELY(expr) (expr)
+#define NOINLINE
 #endif
 
 #ifndef FAST_MODE
@@ -2078,7 +2080,7 @@ static void split_man(Program *p, int man_index, int room_id) {
 }
 #endif
 
-static int ready_incoming(const Program *p, int room_id, Point point) {
+static NOINLINE int ready_incoming(const Program *p, int room_id) {
     const Room *const room = &p->rooms[room_id];
     int best = -1;
     Point best_segment = {0, 0};
@@ -2088,10 +2090,7 @@ static int ready_incoming(const Program *p, int room_id, Point point) {
             continue;
         }
         const Point segment = p->pipes[pipe_id].path[p->pipes[pipe_id].length - 1];
-        if (best < 0 ||
-            point_distance(point, segment) < point_distance(point, best_segment) ||
-            (point_distance(point, segment) == point_distance(point, best_segment) &&
-             reading_order_before(segment, best_segment))) {
+        if (best < 0 || reading_order_before(segment, best_segment)) {
             best = pipe_id;
             best_segment = segment;
         }
@@ -2474,8 +2473,7 @@ op_read_turn: {
         return;
     }
     sleep_room = read->room_id;
-    const int pipe_id = ready_incoming(
-        p, read->room_id, read->point);
+    const int pipe_id = ready_incoming(p, read->room_id);
     if UNLIKELY(pipe_id < 0) {
         goto block_reader;
     }
@@ -2728,7 +2726,7 @@ static void execute_man(Program *p, int man_index) {
     }
     case 'R':
     case 'U': {
-        const int pipe_id = ready_incoming(p, room_id, (Point){man->x, man->y});
+        const int pipe_id = ready_incoming(p, room_id);
         if (pipe_id < 0) {
             unblocked = false;
         } else {
