@@ -495,12 +495,9 @@ func (p *Program) Step() {
 					if readyPipe == nil {
 						readyPipe = pipe
 						readySeg = seg
-					} else {
-						d1, d2 := dist(Point{m.X, m.Y}, readySeg), dist(Point{m.X, m.Y}, seg)
-						if d2 < d1 || (d2 == d1 && (seg.Y < readySeg.Y || (seg.Y == readySeg.Y && seg.X < readySeg.X))) {
-							readyPipe = pipe
-							readySeg = seg
-						}
+					} else if seg.Y < readySeg.Y || (seg.Y == readySeg.Y && seg.X < readySeg.X) {
+						readyPipe = pipe
+						readySeg = seg
 					}
 				}
 			}

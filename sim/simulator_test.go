@@ -165,6 +165,43 @@ func TestMovementSwapCollision(t *testing.T) {
 	}
 }
 
+func TestReceiveAnyUsesReadingOrderRatherThanDistance(t *testing.T) {
+	room := &Room{MinX: 0, MinY: 0, MaxX: 8, MaxY: 6}
+	nearValue := int64(22)
+	earlyValue := int64(11)
+	nearPoint := Point{X: 6, Y: 4}
+	earlyPoint := Point{X: 1, Y: 1}
+	nearPipe := &Pipe{
+		Path: []Point{nearPoint}, Values: []*int64{&nearValue}, DestRoom: room,
+	}
+	earlyPipe := &Pipe{
+		Path: []Point{earlyPoint}, Values: []*int64{&earlyValue}, DestRoom: room,
+	}
+	grid := make([][]byte, 7)
+	for y := range grid {
+		grid[y] = []byte("+       +")
+	}
+	grid[0] = []byte("+++++++++")
+	grid[6] = []byte("+++++++++")
+	grid[3][5] = 'R'
+	program := &Program{
+		Width: 9, Height: 7, Grid: grid,
+		Rooms: []*Room{room},
+		Pipes: []*Pipe{nearPipe, earlyPipe},
+		Men:   []*LittleMan{{ID: 0, X: 5, Y: 3, DX: 1}},
+		GridValues: map[Point]*int64{
+			nearPoint: &nearValue, earlyPoint: &earlyValue,
+		},
+		MaxTicks: 10,
+	}
+
+	program.Step()
+
+	if got := program.Men[0].A; got != earlyValue {
+		t.Fatalf("R received %d, want reading-order value %d", got, earlyValue)
+	}
+}
+
 func TestDisplayWritesAndClearsNextBuffer(t *testing.T) {
 	program := testProgram(t,
 		"+---+  +====+",
