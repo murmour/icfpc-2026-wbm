@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="336" height="364" viewBox="0 0 336 364" role="img" aria-label="Little Man program, 12 by 13 cells">
+<rect width="336" height="364" fill="#d6d3d1"/>
+<g shape-rendering="crispEdges">
+<path fill="#78716c" d="M84 28h168v28h-168zM84 56h28v28h-28zM140 56h56v28h-56zM224 56h28v28h-28zM84 84h168v28h-168z"/>
+<path fill="#a5b4fc" d="M28 56h56v28h-56zM252 56h56v28h-56zM28 84h28v28h-28zM280 84h28v28h-28z"/>
+<path fill="#6366f1" d="M28 112h280v28h-280zM28 140h28v28h-28zM280 140h28v28h-28zM28 168h28v28h-28zM280 168h28v28h-28zM28 196h28v28h-28zM280 196h28v28h-28zM28 224h28v28h-28zM280 224h28v28h-28zM28 252h28v28h-28zM280 252h28v28h-28zM28 280h28v28h-28zM280 280h28v28h-28zM28 308h280v28h-280z"/>
+<path fill="#facc15" d="M56 140h28v28h-28zM252 140h28v28h-28zM84 168h28v28h-28zM252 168h28v28h-28zM112 196h28v28h-28zM196 196h28v28h-28zM252 196h28v28h-28zM112 224h28v28h-28zM196 224h28v28h-28zM252 224h28v28h-28zM84 252h28v28h-28zM196 252h28v28h-28zM252 252h28v28h-28zM56 280h28v28h-28zM196 280h28v28h-28z"/>
+<path fill="#93c5fd" d="M224 196h28v28h-28zM168 224h28v28h-28zM168 252h28v28h-28z"/>
+<path fill="#f87171" d="M84 224h28v28h-28zM252 280h28v28h-28z"/>
+<path fill="#f472b6" d="M140 224h28v28h-28zM224 252h28v28h-28zM224 280h28v28h-28z"/>
+<path fill="none" stroke="#a8a29e" stroke-width="2" d="M0 0V364M28 0V364M56 0V364M84 0V364M112 0V364M140 0V364M168 0V364M196 0V364M224 0V364M252 0V364M280 0V364M308 0V364M336 0V364M0 0H336M0 28H336M0 56H336M0 84H336M0 112H336M0 140H336M0 168H336M0 196H336M0 224H336M0 252H336M0 280H336M0 308H336M0 336H336M0 364H336"/>
+</g>
+<g fill="#000" font-family="DejaVu Sans Mono, ui-monospace, monospace" font-size="18" text-anchor="middle" dominant-baseline="central">
+<text x="98 126 154 182 210 238" y="42">+-++-+</text>
+<text x="42 70 98 126 154 182 210 238 266 294" y="70">v&lt;|I||O|&lt;&lt;</text>
+<text x="42 98 126 154 182 210 238 294" y="98">v+-++-+^</text>
+<text x="42 70 98 126 154 182 210 238 266 294" y="126">+--------+</text>
+<text x="42 70 266 294" y="154">|v&lt;|</text>
+<text x="42 98 266 294" y="182">|&gt;^|</text>
+<text x="42 126 210 238 266 294" y="210">|vam&lt;|</text>
+<text x="42 98 126 154 182 210 266 294" y="238">|@&gt;rb&gt;Y|</text>
+<text x="42 98 182 210 238 266 294" y="266">|^m&lt;r&lt;|</text>
+<text x="42 70 210 238 266 294" y="294">|&gt;asH|</text>
+<text x="42 70 98 126 154 182 210 238 266 294" y="322">+--------+</text>
+</g>
+</svg>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280" role="img" aria-label="Little Man program, 10 by 10 cells">
+<rect width="280" height="280" fill="#d6d3d1"/>
+<g shape-rendering="crispEdges">
+<path fill="#6366f1" d="M28 28h224v28h-224zM28 56h28v28h-28zM224 56h28v28h-28zM28 84h28v28h-28zM224 84h28v28h-28zM28 112h224v28h-224z"/>
+<path fill="#f87171" d="M56 56h28v28h-28z"/>
+<path fill="#f472b6" d="M84 56h28v28h-28zM56 84h28v28h-28z"/>
+<path fill="#93c5fd" d="M112 56h28v28h-28zM112 84h28v28h-28zM168 84h28v28h-28z"/>
+<path fill="#4ade80" d="M140 56h56v28h-56zM84 84h28v28h-28z"/>
+<path fill="#facc15" d="M196 56h28v28h-28zM196 84h28v28h-28z"/>
+<path fill="#94a3b8" d="M140 84h28v28h-28z"/>
+<path fill="#78716c" d="M28 140h84v28h-84zM28 168h28v28h-28zM84 168h28v28h-28zM140 168h84v28h-84zM28 196h84v28h-84zM140 196h28v28h-28zM196 196h28v28h-28zM140 224h84v28h-84z"/>
+<path fill="#a5b4fc" d="M112 140h56v28h-56zM224 140h28v28h-28zM224 168h28v28h-28z"/>
+<path fill="none" stroke="#a8a29e" stroke-width="2" d="M0 0V280M28 0V280M56 0V280M84 0V280M112 0V280M140 0V280M168 0V280M196 0V280M224 0V280M252 0V280M280 0V280M0 0H280M0 28H280M0 56H280M0 84H280M0 112H280M0 140H280M0 168H280M0 196H280M0 224H280M0 252H280M0 280H280"/>
+</g>
+<g fill="#000" font-family="DejaVu Sans Mono, ui-monospace, monospace" font-size="18" text-anchor="middle" dominant-baseline="central">
+<text x="42 70 98 126 154 182 210 238" y="42">+------+</text>
+<text x="42 70 98 126 154 182 210 238" y="70">|@rM*+v|</text>
+<text x="42 70 98 126 154 182 210 238" y="98">|s}W1M&lt;|</text>
+<text x="42 70 98 126 154 182 210 238" y="126">+------+</text>
+<text x="42 70 98 126 154 238" y="154">+-+&gt;^v</text>
+<text x="42 70 98 154 182 210 238" y="182">|I|+-+&lt;</text>
+<text x="42 70 98 154 182 210" y="210">+-+|O|</text>
+<text x="154 182 210" y="238">+-+</text>
+</g>
+</svg>

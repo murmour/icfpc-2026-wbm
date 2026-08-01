@@ -1,0 +1,87 @@
++-------------------------------------------------------------------------------------+
+|>@0M`575`s4s2sWss2s3s0s1s8s6s1s9s1s0s`59`s0ss2s3s1ss8s6s1s9s1s0s`14`s0s`10`sWs`627`sv|
+| v     s0s5s0s1s3s0s7s0s9s3s`21`s6s0s`21`       s0s2s0s8ss1s8s1s`61`s3s6ss0s6s4s2s 4<|
+| >  `595`s0ss+s3s2s1s8s6s1s9 s1 s0s`59`s0ss+s3ss1s8s6s1s9s1s0s      `65`s0 ssW s3s4sv|
+| v    s3s`87`s1s2s8ss1s3s4ss 0s`063` s 0s1s9s1s4s8s1s`51`s3s4ss0s`08`s0s1s9s1s6s8s 1<|
+| >       `16`sWs8s2s4s9s`331`s0sss4s3s Ws1s8s2s1s    `59`s0ss4s3s`15`s1s8s4s/s3s    v|
+| v sss0s`182`s9s1s2s8s1s`932` s3s4ss0s`13`  s1s0s8ss1s3s4sss0s`303`s9s1s2s8s1s `41` <|
+| >4s3s  `16` sWs8s0s1s0s2s0s3sWs1s8s3s/sW s6s0sss2s3s      `15`sWs8s4s1s0s3s0s3 sWs v|
+| v s5sss0sM `31`   s9s*s6s8s2ss0s6s5s2s0s7s0s3s5s8s0s`86723`     s3s0s3s0s 3s/  s8s0<|
+| >8s4s7s9s `209`s0s3s   `256`s`12`s  `131`s0ss9s3s+s/ s8s0s1s0sWs0 s2s4s3s0ss4  s3s v|
+| vs1s3s8s1s`61`s3sWsss0s4s0s1s 4s8s1s`53556`s3s4sssWs`11`      s0s1s3s8s1s`63556`   <|
+| >Ws3s0s8s6 ss9s+s0sss5s8s2s4s0s5 s0s   `19`s2s0s3s8s2s4 sWs3s0sss5s8s4s7s9s`120`s0sv|
+| v sss0s7ss 0s3sWs6s9s0s 3s+Ws`11` s0s1s 9s/s6s8s1s`05`s3s9sss0s9s0s 1s0s8ss1s 3s9ss<|
+| >5s8s0s7s0 s5 s0s1sWs5s0ss8s3s      `16`s1s8s0sWsW s3 s0sss2s3s  `65536`sWs8s1 ss8sv|
+| v s3s`31`s`11`      s0s 1s9s1s6s8s1s`05` s3s8sss0s 8s0s 1s0s8ss1s3s 8ss s0s3s 1s7s0<|
+| >0s8s0s4 s2s6s2s3s  `10`s0s7s0s3s1s0s5s0s     `193`s0 s s8ss2s9ss6s0s3s    `50`s1s v|
+| vssWs 7s0s9s3s0s6s/s 3s8s1sWs3s2s0s2s0s 2s0s1s 0s8s1s`61` ss3ss0s9s 3ss0s5s0s 1s0s8<|
+| >s3ss1ss8s0s1s0s3s0s ss3ss`50`s1s8s6s1s9s/s0s `11`s+s3s0 s3s0ss5s3s1ss8 s2s/s0s5s0sv|
+| vss0s 6s4s2s4s8s1s3s9s0s3s`21`    s`652`   s3s`01` ss3s`856`sWs5s0s1s3s5s`775`   s9<|
+| >6s3s`16`s1s8s1ss8s0 s2s0s4s0s3s*s0 s8s2ss/s3s0s3s`32768`s0 s8s5s3s0s7s0s1s6s7s/s  v|
+|^  s`11`s0s5s0s1s3s0s Ws0s+s3s4s6s0s3sWs7s0s8ss1s8s 1s`63556`  s3s4s s0s3s`61`      <|
++-------------------------------------------------------------------------------------+
+                     v    +----+  +-----------------+  +---+
+                     |    |>@sv|>>|vsr <       >rWsv|>>|U@v|
+                     |    |^<U<|<<|vsWr < >mabNX rsv|<<|^s<|
+                     |+--++----+  |v   ^Xbdm<      v|  +---++--+
+                     ||>v|>>>>>>>>|vsr <       >rWsv|>>>>>>>|Uv|       >v>v>v
+                     ||@v|<<<<<<<<|vsWr < >mabNX rsv|<<<<<<<|s |       ||||||>v>v>v
+                     ||^s|+----+  |v   ^Xbdm<      v|  +---+|@v|       ||||||||||||
+                     ||^U||>@sv|>>|vsr <       >rWsv|>>|U@v||^<|       ||||||||||||
+                     |+--+|^<U<|<<|vsWr < >mabNX rsv|<<|^s<|+--+       ||||||||||||
+                     |+--++----+  |v   ^Xbdm<      v|  +---++--+ +----+||||||||||||
+                     ||>v|>>>>>>>>|vsr <       >rWsv|>>>>>>>|Uv| |>@ v|||||||||||||
+                     ||@v|<<<<<<<<|vsWr < >mabNX rsv|<<<<<<<|s | |^sr<|||||||||||||
+                     ||^s|+----+  |v   ^Xbdm<      v|  +---+|@v| +----+||||||||||||
+                     ||^U||>@sv|>>|vsr <       >rWsv|>>|U@v||^<|    ^v>^>^>^>^>^>^>v
+                     |+--+|^<U<|<<|vsWr < >mabNX rsv|<<|^s<|+--+    ^>^v-----------<
+                     |+--++----+  |v   ^Xbdm<      v|  +---++--+ +-----------------+
+                     ||>v|>>>>>>>>|vsr <       >rWsv|>>>>>>>|Uv| |@`66`b> 0d  v    |
+                     ||@v|<<<<<<<<|vsWr < >mabNX rsv|<<<<<<<|s | |      ^sm<>W bv  |
+                     ||^s|+----+  |v   ^Xbdm<      v|  +---+|@v| | >s          v>v<|
+                     ||^U||>@sv|>>|vsr <       >rWsv|>>|U@v||^<| | r   >r  vs     m|
+                     |+--+|^<U<|<<|vsWr < >mabNX rsv|<<|^s<|+--+ | drsvdrsv       s|
+                     >---v+----+  |v   ^Xbd <      v|  +---+     | ^ m<^ m<       r|
+                         >-v      |>dv           va<|            |               a^|
+                           |      |  >     v     <  |            |                 |
+                           |      |        s        |            |                 |
+                           |      | >      v      < |            |         r    b  |
+                           |      |        >@rbrXv  |            |         >^ v  < |
+                           |      |         ^1Mr<   |            | X>  ^       sW  |
+                           |      |         ^    <  |            | ^rW-`56`Wbr<>^  |
+                           |      +-----------------+            +-----------------+
+                           |                  ^v             >-----^  v
+                           |                  ^v             ^  v-----<
+                           |+------------------------------------+ >>>v
+                           ||>rbdrWr      s0srWs1sWs           @v| | +================+
+                           || vm<                                | |>:                :
+                           || > drWr      s0srWs0sr       s1sWs v| ||:                :
+                           || vm<                                | ||:                :
+                           >| > drWr      s0sr           s0srv   | ||:                :
+                            | vm<      v    sWs1sW           <   | ||:                :
+                            | > drWr      s1sWs                 v| ||:                :
+                            | vm<                                | ||:                :
+                            | > drW v >   Ws1sWs                v| ||:                :
+                            | vm<                                | ||:                :
+                            | > dr        s0sr            v      | ||:                :
+                            | vm<                                | ||:                :
+                            | > dr        s0sr                 v | ||:                :
+                            | vm<                                | ||:                :
+                            | > dr        s0sr                v  | ||:                :
+                            | vm<                                | ||:                :
+                            | > drbr      s0srW0ssrd+    v       | ||:                :
+                            | vm<      v  sWs1s0W< >md*  v       | ||+================+
+                            | > drWr      s0srv      >md-v       | || ^
+                            |   m          vbWXvv   /am< v       | || |
+                            |   v               >^     < <     s |>^| |
+                            | >rv          <     ^&am<           |  | |
+                            | ^md                ^ >md}^         |  | |
+                            |                    ^ ~m<           |  | |
+                            |                                 s  |>-^ |
+                            |                                    |    |
+                            |       >r^       v<          s      |    |
+                            |^  <      <   <  <^          <   <<<|>-v |
+                            +------------------------------------+  | |
+                                                      +-+>^         | |
+                                                      |I|           >-^
+                                                      +-+
