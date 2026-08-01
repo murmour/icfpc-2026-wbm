@@ -2330,23 +2330,31 @@ struct FixedFloor {
     code_target: (usize, usize),
 }
 
-fn trim_grid(mut grid: Vec<Vec<char>>) -> Vec<Vec<char>> {
-    let height = grid
-        .iter()
-        .rposition(|row| row.iter().any(|ch| *ch != ' '))
-        .map(|index| index + 1)
-        .unwrap_or(0);
-    grid.truncate(height);
-    let width = grid
-        .iter()
-        .filter_map(|row| row.iter().rposition(|ch| *ch != ' '))
-        .max()
-        .map(|index| index + 1)
-        .unwrap_or(0);
-    for row in &mut grid {
-        row.truncate(width);
+fn trim_grid_around_anchor(
+    grid: Vec<Vec<char>>,
+    anchor: (usize, usize),
+) -> (Vec<Vec<char>>, (usize, usize)) {
+    let mut left = anchor.0;
+    let mut right = anchor.0;
+    let mut top = anchor.1;
+    let mut bottom = anchor.1;
+
+    for (y, row) in grid.iter().enumerate() {
+        for (x, ch) in row.iter().enumerate() {
+            if *ch != ' ' {
+                left = left.min(x);
+                right = right.max(x);
+                top = top.min(y);
+                bottom = bottom.max(y);
+            }
+        }
     }
-    grid
+
+    let trimmed = grid[top..=bottom]
+        .iter()
+        .map(|row| row[left..=right].to_vec())
+        .collect();
+    (trimmed, (anchor.0 - left, anchor.1 - top))
 }
 
 fn render_fixed_floor(
@@ -2537,10 +2545,11 @@ fn render_fixed_floor(
         canvas.put(85, peripheral_top + 1, 'I')?;
     }
 
-    Ok(FixedFloor {
-        grid: trim_grid(canvas.grid),
-        code_target: (CPU_LEFT - 1, expansion + CPU_CODE_INPUT_Y),
-    })
+    let (grid, code_target) = trim_grid_around_anchor(
+        canvas.grid,
+        (CPU_LEFT - 1, expansion + CPU_CODE_INPUT_Y),
+    );
+    Ok(FixedFloor { grid, code_target })
 }
 
 #[derive(Clone)]
@@ -4906,6 +4915,20 @@ fn main() -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn fixed_floor_trimming_removes_template_margins_and_moves_anchor() {
+        let grid = vec![
+            vec![' ', ' ', ' ', ' ', ' ', ' '],
+            vec![' ', ' ', '+', '-', '+', ' '],
+            vec![' ', ' ', '|', ' ', '|', ' '],
+            vec![' ', ' ', '+', '-', '+', ' '],
+            vec![' ', ' ', ' ', ' ', ' ', ' '],
+        ];
+        let (trimmed, anchor) = trim_grid_around_anchor(grid, (3, 2));
+        assert_eq!(trimmed, string_grid("+-+\n| |\n+-+\n"));
+        assert_eq!(anchor, (1, 1));
+    }
 
     #[test]
     fn unconditional_jumps_are_single_direct_words() {
