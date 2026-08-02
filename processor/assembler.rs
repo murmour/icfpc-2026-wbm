@@ -1225,6 +1225,20 @@ fn literal(value: i64) -> String {
     }
 }
 
+fn floor_div_rem(a: i64, b: i64) -> (i64, i64) {
+    debug_assert_ne!(b, 0);
+    if a == i64::MIN && b == -1 {
+        return (i64::MIN, 0);
+    }
+    let mut quotient = a / b;
+    let mut remainder = a % b;
+    if (a < 0) != (b < 0) && remainder != 0 {
+        quotient -= 1;
+        remainder += b;
+    }
+    (quotient, remainder)
+}
+
 fn reverse_literal_text(text: &str) -> String {
     let mut chars: Vec<char> = text.chars().collect();
     chars.reverse();
@@ -1307,9 +1321,9 @@ fn encode_program_tokens(words: &[i64]) -> Vec<String> {
                 offer(word, node.a, "W-s".to_string());
             }
             if node.b != 0 && !(node.a == i64::MIN && node.b == -1) {
-                let quotient = node.a.div_euclid(node.b);
+                let (quotient, remainder) = floor_div_rem(node.a, node.b);
                 if word == quotient {
-                    offer(quotient, node.a.rem_euclid(node.b), "/s".to_string());
+                    offer(quotient, remainder, "/s".to_string());
                 }
             }
         }
@@ -3435,7 +3449,7 @@ fn run_vm_until_outputs(
                         if b == 0 {
                             0
                         } else {
-                            a.div_euclid(b)
+                            floor_div_rem(a, b).0
                         }
                     }
                     4 => a & b,
@@ -3623,7 +3637,7 @@ fn run_screen_vm_until_frames_inner(
                         if b == 0 {
                             0
                         } else {
-                            a.div_euclid(b)
+                            floor_div_rem(a, b).0
                         }
                     }
                     4 => a & b,
@@ -5293,6 +5307,14 @@ mod tests {
         )
         .expect("assemble direct jumps");
         assert_eq!(program.words, vec![11, 3, 7, 0, 3, 1, 0, 8]);
+    }
+
+    #[test]
+    fn division_uses_lm_floor_semantics() {
+        assert_eq!(floor_div_rem(10, -12_499_026), (-1, -12_499_016));
+        assert_eq!(floor_div_rem(-10, 3), (-4, 2));
+        assert_eq!(floor_div_rem(-10, -3), (3, -1));
+        assert_eq!(floor_div_rem(i64::MIN, -1), (i64::MIN, 0));
     }
 
     #[test]
