@@ -121,7 +121,7 @@ A sixteen-value ring is combined with a sixteen-bit presence mask. The ring head
 
 [`.man` file](tcp-273ea9b5.man)
 
-[Packet Reassembly solution](images/tcp-273ea9b5.svg)
+![Packet Reassembly solution](images/tcp-273ea9b5.svg)
 
 
 ## Plotter
