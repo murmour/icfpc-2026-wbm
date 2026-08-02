@@ -9,15 +9,15 @@
 ; r4: y1
 ; r5: x2
 ; r6: y2
-; r7: x
-; r8: y
+; r7: distance 1 scanline delta
+; r8: distance 2 scanline delta
 ; r9: pixels
 ; r10: rows left
-; r11: distance 1
-; r12: distance 2
-; r13: temporary
-; r14: square-root estimate
-; r15: temporary/color
+; r11: distance 1 squared
+; r12: distance 2 squared
+; r13: distance 1 band/temporary
+; r14: distance 2 band/temporary
+; r15: color
 ; r16-r23: oscillator (previous, current) pairs
 
 start:
@@ -50,91 +50,177 @@ frame:
   addi0 32
   mov r6 r0
 
-  imm r8 0
   imm r10 64
 
 row:
-  imm r7 0
+  ; Initialize both squared distances at x=0. Their first differences
+  ; advance the squared distances across the row using additions only.
+  imm r0 64
+  sub0 r10
+  mov r13 r0
+
+  mul r11 r3 r3
+  sub r14 r13 r4
+  mul r14 r14 r14
+  add r11 r11 r14
+
+  mul r12 r5 r5
+  sub r14 r13 r6
+  mul r14 r14 r14
+  add r12 r12 r14
+
+  muli r7 r3 -2
+  inc r7
+  muli r8 r5 -2
+  inc r8
   imm r9 64
 
 pixel:
-  ; d1 = floor(hypot(x - x1, y - y1)).
-  sub r11 r7 r3
-  jc r11 d1_dx_positive
-  neg r11
+  ; d1_band = floor(sqrt(d1_squared) / 8). The threshold tree compares
+  ; against (8*k)^2 and therefore computes the exact visible distance bits.
+  subi r0 r11 2303
+  jc r0 d1_band_6_11
+  subi r0 r11 575
+  jc r0 d1_band_3_5
+  subi r0 r11 255
+  jc r0 d1_band_2
+  subi r0 r11 63
+  jc r0 d1_band_1
+  imm r13 0
+  jmp d1_band_ready
 
-d1_dx_positive:
-  mul r11 r11 r11
-  sub r12 r8 r4
-  jc r12 d1_dy_positive
-  neg r12
+d1_band_1:
+  imm r13 1
+  jmp d1_band_ready
 
-d1_dy_positive:
-  mul r12 r12 r12
-  add r11 r11 r12
+d1_band_2:
+  imm r13 2
+  jmp d1_band_ready
 
-  imm r14 64
-  imm r15 6
+d1_band_3_5:
+  subi r0 r11 1599
+  jc r0 d1_band_5
+  subi r0 r11 1023
+  jc r0 d1_band_4
+  imm r13 3
+  jmp d1_band_ready
 
-d1_sqrt:
-  div r0 r11 r14
-  add0 r14
-  mov r13 r0
-  divi r14 r13 2
-  dec r15
-  jc r15 d1_sqrt
-  mul r0 r14 r14
-  sub0 r11
-  mov r13 r0
-  jc r13 d1_adjust
-  jmp d1_ready
+d1_band_4:
+  imm r13 4
+  jmp d1_band_ready
 
-d1_adjust:
-  dec r14
+d1_band_5:
+  imm r13 5
+  jmp d1_band_ready
 
-d1_ready:
-  mov r11 r14
-  ; d2 = floor(hypot(x - x2, y - y2)).
-  sub r12 r7 r5
-  jc r12 d2_dx_positive
-  neg r12
+d1_band_6_11:
+  subi r0 r11 5183
+  jc r0 d1_band_9_11
+  subi r0 r11 4095
+  jc r0 d1_band_8
+  subi r0 r11 3135
+  jc r0 d1_band_7
+  imm r13 6
+  jmp d1_band_ready
 
-d2_dx_positive:
-  mul r12 r12 r12
-  sub r13 r8 r6
-  jc r13 d2_dy_positive
-  neg r13
+d1_band_7:
+  imm r13 7
+  jmp d1_band_ready
 
-d2_dy_positive:
-  mul r13 r13 r13
-  add r12 r12 r13
-  imm r14 64
-  imm r15 6
+d1_band_8:
+  imm r13 8
+  jmp d1_band_ready
 
-d2_sqrt:
-  div r0 r12 r14
-  add0 r14
-  mov r13 r0
-  divi r14 r13 2
-  dec r15
-  jc r15 d2_sqrt
-  mul r0 r14 r14
-  sub0 r12
-  mov r13 r0
-  jc r13 d2_adjust
-  jmp d2_ready
+d1_band_9_11:
+  subi r0 r11 7743
+  jc r0 d1_band_11
+  subi r0 r11 6399
+  jc r0 d1_band_10
+  imm r13 9
+  jmp d1_band_ready
 
-d2_adjust:
-  dec r14
+d1_band_10:
+  imm r13 10
+  jmp d1_band_ready
 
-d2_ready:
-  mov r12 r14
+d1_band_11:
+  imm r13 11
 
-  ; pattern = (d1 XOR d2) >> 3. Odd bands are black; even bands
+d1_band_ready:
+  ; Classify the second squared distance through the same thresholds.
+  subi r0 r12 2303
+  jc r0 d2_band_6_11
+  subi r0 r12 575
+  jc r0 d2_band_3_5
+  subi r0 r12 255
+  jc r0 d2_band_2
+  subi r0 r12 63
+  jc r0 d2_band_1
+  imm r14 0
+  jmp d2_band_ready
+
+d2_band_1:
+  imm r14 1
+  jmp d2_band_ready
+
+d2_band_2:
+  imm r14 2
+  jmp d2_band_ready
+
+d2_band_3_5:
+  subi r0 r12 1599
+  jc r0 d2_band_5
+  subi r0 r12 1023
+  jc r0 d2_band_4
+  imm r14 3
+  jmp d2_band_ready
+
+d2_band_4:
+  imm r14 4
+  jmp d2_band_ready
+
+d2_band_5:
+  imm r14 5
+  jmp d2_band_ready
+
+d2_band_6_11:
+  subi r0 r12 5183
+  jc r0 d2_band_9_11
+  subi r0 r12 4095
+  jc r0 d2_band_8
+  subi r0 r12 3135
+  jc r0 d2_band_7
+  imm r14 6
+  jmp d2_band_ready
+
+d2_band_7:
+  imm r14 7
+  jmp d2_band_ready
+
+d2_band_8:
+  imm r14 8
+  jmp d2_band_ready
+
+d2_band_9_11:
+  subi r0 r12 7743
+  jc r0 d2_band_11
+  subi r0 r12 6399
+  jc r0 d2_band_10
+  imm r14 9
+  jmp d2_band_ready
+
+d2_band_10:
+  imm r14 10
+  jmp d2_band_ready
+
+d2_band_11:
+  imm r14 11
+
+d2_band_ready:
+  ; pattern = d1_band XOR d2_band. Odd bands are black; even bands
   ; cycle through colors 10..15, advancing once every ten frames.
-  mov r0 r11
-  xor0 r12
-  divi0 8
+  mov r0 r13
+  xor0 r14
   mov r13 r0
   andi0 1
   jc r0 pixel_black
@@ -156,10 +242,12 @@ pixel_black:
   screen_data r15
 
 pixel_done:
-  inc r7
+  add r11 r11 r7
+  addi r7 r7 2
+  add r12 r12 r8
+  addi r8 r8 2
   dec r9
   jc r9 pixel
-  inc r8
   dec r10
   jc r10 row
   imm r15 0
