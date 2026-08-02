@@ -10,12 +10,13 @@
 ; r5: center 1 y
 ; r6: center 2 x
 ; r7: center 2 y
-; r8: pixel x
+; r8: ball 0 squared distance
 ; r9: pixel y
 ; r10: rows left
 ; r11: pixels left
 ; r12: field sum
-; r13-r15: temporaries
+; r13-r14: ball 1 and ball 2 squared distances
+; r15, r28-r29: squared-distance scanline deltas
 ; r16-r27: oscillator (previous, current) pairs at scale 1,000,000
 
 start:
@@ -85,88 +86,94 @@ frame:
   imm r10 64
 
 row:
-  imm r8 0
+  ; Initialize the three squared distances at x=0. Since pixels are 64
+  ; coordinate units apart, each delta increases by 2*64*64 = 8192.
+  sub r0 r9 r3
+  mul0 r0
+  mov r8 r0
+  mul r0 r2 r2
+  add0 r8
+  mov r8 r0
+  muli r0 r2 -128
+  addi0 4096
+  mov r15 r0
+
+  sub r0 r9 r5
+  mul0 r0
+  mov r13 r0
+  mul r0 r4 r4
+  add0 r13
+  mov r13 r0
+  muli r0 r4 -128
+  addi0 4096
+  mov r28 r0
+
+  sub r0 r9 r7
+  mul0 r0
+  mov r14 r0
+  mul r0 r6 r6
+  add0 r14
+  mov r14 r0
+  muli r0 r6 -128
+  addi0 4096
+  mov r29 r0
+
   imm r11 64
 
 pixel:
   imm r12 0
 
   ; Radius 6.4 field.
-  sub r0 r8 r2
-  mul0 r0
-  mov r13 r0
-  sub r0 r9 r3
-  mul0 r0
-  mov r14 r0
-  add r13 r13 r14
-  jc r13 ball0_nonzero
-  jmp ball0_done
+  mov r1 r12
+  imm r0 171798692
+  div0 r8
+  add0 r1
+  mov r12 r0
 
-ball0_nonzero:
-  imm r14 171798692
-  div r15 r14 r13
-  add r12 r12 r15
-
-ball0_done:
   ; Radius 9.6 field.
-  sub r0 r8 r4
-  mul0 r0
-  mov r13 r0
-  sub r0 r9 r5
-  mul0 r0
-  mov r14 r0
-  add r13 r13 r14
-  jc r13 ball1_nonzero
-  jmp ball1_done
+  mov r1 r12
+  imm r0 386547057
+  div0 r13
+  add0 r1
+  mov r12 r0
 
-ball1_nonzero:
-  imm r14 386547057
-  div r15 r14 r13
-  add r12 r12 r15
-
-ball1_done:
   ; Radius 12.8 field.
-  sub r0 r8 r6
-  mul0 r0
-  mov r13 r0
-  sub r0 r9 r7
-  mul0 r0
-  mov r14 r0
-  add r13 r13 r14
-  jc r13 ball2_nonzero
-  jmp ball2_done
+  mov r1 r12
+  imm r0 687194767
+  div0 r14
+  add0 r1
+  mov r12 r0
 
-ball2_nonzero:
-  imm r14 687194767
-  div r15 r14 r13
-  add r12 r12 r15
-
-ball2_done:
   ; Color bands for field values >4, >2, and >1.
-  subi r13 r12 4096
-  jc r13 core
-  subi r13 r12 2048
-  jc r13 middle
-  subi r13 r12 1024
-  jc r13 edge
-  imm r15 0
+  subi r0 r12 4096
+  jc r0 core
+  subi r0 r12 2048
+  jc r0 middle
+  subi r0 r12 1024
+  jc r0 edge
+  imm r1 0
   jmp emit
 
 core:
-  imm r15 1
+  imm r1 1
   jmp emit
 
 middle:
-  imm r15 14
+  imm r1 14
   jmp emit
 
 edge:
-  imm r15 6
+  imm r1 6
 
 emit:
-  screen_data r15
+  screen_data r1
 
-  addi r8 r8 64
+  add r8 r8 r15
+  addi r15 r15 8192
+  add r13 r13 r28
+  addi r28 r28 8192
+  add r14 r14 r29
+  addi r29 r29 8192
   dec r11
   jc r11 pixel
 
