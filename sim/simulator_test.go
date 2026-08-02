@@ -41,6 +41,25 @@ func TestParseProgramRejectsInvalidLiteralCharacters(t *testing.T) {
 	}
 }
 
+func TestPipeEndpointAdjacentToAnotherRoomIsNotAOneCellPipe(t *testing.T) {
+	program := testProgram(t,
+		"+--+ +---+",
+		"|@ | | @ |",
+		"+--+ |   |",
+		"   v<|   |",
+		"  +-+|   |",
+		"  |O|+---+",
+		"  +-+     ",
+	)
+
+	if len(program.Pipes) != 1 {
+		t.Fatalf("got %d pipes, want 1", len(program.Pipes))
+	}
+	if got := len(program.Pipes[0].Path); got != 2 {
+		t.Fatalf("pipe length = %d, want 2", got)
+	}
+}
+
 func TestSplitCopiesRegistersHeadingsAndOrder(t *testing.T) {
 	program := testProgram(t,
 		"+-------+",

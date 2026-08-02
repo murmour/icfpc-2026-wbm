@@ -454,13 +454,7 @@ func tracePipe(p *Program, srcRoom *Room, srcSegment Point, startCell Point, sta
 			}
 
 			if len(path) < 2 {
-				return fmt.Errorf(
-					"pipe cannot be a single cell at %d,%d from room border %d,%d",
-					curr.X,
-					curr.Y,
-					srcSegment.X,
-					srcSegment.Y,
-				)
+				return nil
 			}
 
 			pipe := &Pipe{
