@@ -1,5 +1,5 @@
 .screen 64 64
-.memory 24 140
+.memory 24 48
 
 ; Depth-shaded perspective cube rotating around the X and Y axes.
 ;
