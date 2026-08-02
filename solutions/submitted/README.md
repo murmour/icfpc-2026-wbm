@@ -175,7 +175,7 @@ A splitter forks row, column, and box workers for every cell. They update indepe
 
 [`.man` file](sudoku-validity-21542b04.man)
 
-[Sudoku Auditor solution](images/sudoku-validity-21542b04.svg)
+![Sudoku Auditor solution](images/sudoku-validity-21542b04.svg)
 
 
 ## Subset Sum
