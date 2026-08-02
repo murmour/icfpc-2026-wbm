@@ -130,6 +130,8 @@ Implemented with the [Processor](../../processor).
 
 A register-only Bresenham rasterizer selects separate shallow and steep loops. It advances a linear display address using signed x/y strides and draws both endpoints of each line.
 
+Yes, the layout is horrendous. :(
+
 **Area:** 131x83 | **Average public ticks:** 302,262.3
 
 [`.asm` source](../../processor/solutions/plotter.asm) | [`.man` file](plotter-ca209a0b.man)
