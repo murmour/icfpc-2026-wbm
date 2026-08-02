@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::env;
 use std::fs;
 use std::io;
@@ -65,10 +65,18 @@ struct PgoReport {
     frames: usize,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct LivenessReport {
+    logical_to_alias: Vec<usize>,
+    register_count_before: usize,
+    register_count_after: usize,
+}
+
 #[derive(Clone, Debug)]
 struct Build {
     program: Program,
     register_count: usize,
+    liveness: LivenessReport,
     memory_size: usize,
     memory_pipe_cells: usize,
     screen: Option<ScreenSpec>,
@@ -246,6 +254,7 @@ fn parse_directive(toks: &[String]) -> Result<Option<Directive>, String> {
         }
         [name, kind] if name == ".kind" && kind == "plotter" => {
             Ok(Some(Directive::Kind(ProgramKind::Plotter)))
+        }
         [name, kind] if name == ".kind" && kind == "pathfinder" => {
             Ok(Some(Directive::Kind(ProgramKind::Pathfinder)))
         }
@@ -863,6 +872,301 @@ fn assemble(src: &str, target: Target) -> Result<Program, String> {
     asm.resolve()
 }
 
+#[derive(Clone, Debug)]
+struct FlowInstruction {
+    reads: Vec<usize>,
+    writes: Vec<usize>,
+    successors: Vec<usize>,
+    move_pair: Option<(usize, usize)>,
+}
+
+fn register_word(program: &Program, position: usize) -> Result<usize, String> {
+    let raw = *program
+        .words
+        .get(position)
+        .ok_or_else(|| format!("truncated instruction at word {position}"))?;
+    let register = usize::try_from(raw)
+        .map_err(|_| format!("negative register operand {raw} at word {position}"))?;
+    if register >= program.register_count {
+        return Err(format!(
+            "register operand r{register} at word {position} exceeds register count {}",
+            program.register_count
+        ));
+    }
+    Ok(register)
+}
+
+fn push_unique(registers: &mut Vec<usize>, register: usize) {
+    if !registers.contains(&register) {
+        registers.push(register);
+    }
+}
+
+fn decode_program_flow(program: &Program, screen: bool) -> Result<Vec<FlowInstruction>, String> {
+    struct DecodedInstruction {
+        pc: usize,
+        reads: Vec<usize>,
+        writes: Vec<usize>,
+        successor_pcs: Vec<usize>,
+        move_pair: Option<(usize, usize)>,
+    }
+
+    let word_count = program.words.len();
+    if word_count == 0 {
+        return Err("program is empty".to_string());
+    }
+    let alu_opcode = if screen { 8 } else { 6 };
+    let branch_opcode = if screen { 9 } else { 7 };
+    let jump_base = if screen { 10 } else { 8 };
+    let mut decoded = Vec::new();
+    let mut pc = 0;
+    while pc < word_count {
+        let opcode = program.words[pc];
+        let mut reads = Vec::new();
+        let mut writes = Vec::new();
+        let mut move_pair = None;
+        let (width, mut successor_pcs) = match opcode {
+            0 => {
+                let dst = register_word(program, pc + 1)?;
+                let src = register_word(program, pc + 2)?;
+                push_unique(&mut reads, src);
+                push_unique(&mut writes, dst);
+                move_pair = Some((dst, src));
+                (3, Vec::new())
+            }
+            1 => {
+                push_unique(&mut reads, register_word(program, pc + 1)?);
+                push_unique(&mut reads, register_word(program, pc + 2)?);
+                (3, Vec::new())
+            }
+            2 => {
+                push_unique(&mut writes, register_word(program, pc + 1)?);
+                push_unique(&mut reads, register_word(program, pc + 2)?);
+                (3, Vec::new())
+            }
+            3 => {
+                program
+                    .words
+                    .get(pc + 1)
+                    .ok_or_else(|| format!("truncated immediate at word {pc}"))?;
+                push_unique(&mut writes, register_word(program, pc + 2)?);
+                (3, Vec::new())
+            }
+            4 => {
+                push_unique(&mut writes, register_word(program, pc + 1)?);
+                (2, Vec::new())
+            }
+            5 => {
+                push_unique(&mut reads, register_word(program, pc + 1)?);
+                (2, Vec::new())
+            }
+            6 | 7 if screen => {
+                push_unique(&mut reads, register_word(program, pc + 1)?);
+                (2, Vec::new())
+            }
+            op if op == alu_opcode => {
+                program
+                    .words
+                    .get(pc + 1)
+                    .ok_or_else(|| format!("truncated ALU instruction at word {pc}"))?;
+                push_unique(&mut reads, 0);
+                push_unique(&mut reads, register_word(program, pc + 2)?);
+                push_unique(&mut writes, 0);
+                (3, Vec::new())
+            }
+            op if op == branch_opcode => {
+                let raw_offset = *program
+                    .words
+                    .get(pc + 1)
+                    .ok_or_else(|| format!("truncated branch at word {pc}"))?;
+                let offset = usize::try_from(raw_offset)
+                    .map_err(|_| format!("negative branch offset {raw_offset} at word {pc}"))?;
+                push_unique(&mut reads, register_word(program, pc + 2)?);
+                let after = pc + 3;
+                (3, vec![(after + offset) % word_count])
+            }
+            op if op >= jump_base => {
+                let offset = usize::try_from(op - jump_base)
+                    .map_err(|_| format!("bad jump opcode {op} at word {pc}"))?;
+                (1, vec![(pc + 1 + offset) % word_count])
+            }
+            _ => return Err(format!("bad opcode {opcode} at word {pc}")),
+        };
+        if pc + width > word_count {
+            return Err(format!(
+                "instruction at word {pc} crosses the program boundary"
+            ));
+        }
+        if opcode < jump_base {
+            successor_pcs.push((pc + width) % word_count);
+        }
+        successor_pcs.sort_unstable();
+        successor_pcs.dedup();
+        decoded.push(DecodedInstruction {
+            pc,
+            reads,
+            writes,
+            successor_pcs,
+            move_pair,
+        });
+        pc += width;
+    }
+
+    let mut instruction_at = vec![None; word_count];
+    for (index, instruction) in decoded.iter().enumerate() {
+        instruction_at[instruction.pc] = Some(index);
+    }
+    decoded
+        .into_iter()
+        .map(|instruction| {
+            let successors = instruction
+                .successor_pcs
+                .into_iter()
+                .map(|successor| {
+                    instruction_at[successor].ok_or_else(|| {
+                        format!(
+                            "instruction at word {} jumps into the middle of word {successor}",
+                            instruction.pc
+                        )
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(FlowInstruction {
+                reads: instruction.reads,
+                writes: instruction.writes,
+                successors,
+                move_pair: instruction.move_pair,
+            })
+        })
+        .collect()
+}
+
+fn add_interference(adjacency: &mut [HashSet<usize>], left: usize, right: usize) {
+    if left != right {
+        adjacency[left].insert(right);
+        adjacency[right].insert(left);
+    }
+}
+
+fn static_register_aliases(program: &mut Program, screen: bool) -> Result<LivenessReport, String> {
+    let register_count_before = program.register_count;
+    let flow = decode_program_flow(program, screen)?;
+    let instruction_count = flow.len();
+    let mut live_in = vec![vec![false; register_count_before]; instruction_count];
+    let mut live_out = vec![vec![false; register_count_before]; instruction_count];
+
+    loop {
+        let mut changed = false;
+        for index in (0..instruction_count).rev() {
+            let mut next_out = vec![false; register_count_before];
+            for &successor in &flow[index].successors {
+                for (live, successor_live) in next_out.iter_mut().zip(&live_in[successor]) {
+                    *live |= *successor_live;
+                }
+            }
+            let mut next_in = next_out.clone();
+            for &register in &flow[index].writes {
+                next_in[register] = false;
+            }
+            for &register in &flow[index].reads {
+                next_in[register] = true;
+            }
+            if next_out != live_out[index] || next_in != live_in[index] {
+                live_out[index] = next_out;
+                live_in[index] = next_in;
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+
+    let mut used = vec![false; register_count_before];
+    used[0] = true;
+    let mut adjacency = vec![HashSet::new(); register_count_before];
+    let mut preferences = vec![HashSet::new(); register_count_before];
+    for (index, instruction) in flow.iter().enumerate() {
+        for &register in instruction.reads.iter().chain(&instruction.writes) {
+            used[register] = true;
+        }
+        for left in 0..instruction.reads.len() {
+            for right in left + 1..instruction.reads.len() {
+                add_interference(
+                    &mut adjacency,
+                    instruction.reads[left],
+                    instruction.reads[right],
+                );
+            }
+        }
+        if let Some((dst, src)) = instruction.move_pair {
+            if dst != src {
+                preferences[dst].insert(src);
+                preferences[src].insert(dst);
+            }
+        }
+        for &written in &instruction.writes {
+            for (live, &is_live) in live_out[index].iter().enumerate() {
+                if is_live && instruction.move_pair != Some((written, live)) {
+                    add_interference(&mut adjacency, written, live);
+                }
+            }
+        }
+    }
+
+    let mut colors = vec![None; register_count_before];
+    colors[0] = Some(0);
+    while let Some(register) = (0..register_count_before)
+        .filter(|&register| used[register] && colors[register].is_none())
+        .max_by(|&left, &right| {
+            let saturation = |register: usize| {
+                adjacency[register]
+                    .iter()
+                    .filter_map(|&neighbor| colors[neighbor])
+                    .collect::<HashSet<_>>()
+                    .len()
+            };
+            saturation(left)
+                .cmp(&saturation(right))
+                .then_with(|| adjacency[left].len().cmp(&adjacency[right].len()))
+                .then_with(|| right.cmp(&left))
+        })
+    {
+        let available = |color: usize| {
+            adjacency[register]
+                .iter()
+                .all(|&neighbor| colors[neighbor] != Some(color))
+        };
+        let mut preferred_colors = preferences[register]
+            .iter()
+            .filter_map(|&neighbor| colors[neighbor])
+            .collect::<Vec<_>>();
+        preferred_colors.sort_unstable();
+        preferred_colors.dedup();
+        let color = preferred_colors
+            .into_iter()
+            .find(|&color| available(color))
+            .unwrap_or_else(|| {
+                (0..=register_count_before)
+                    .find(|&color| available(color))
+                    .expect("one fresh register color is always available")
+            });
+        colors[register] = Some(color);
+    }
+
+    let logical_to_alias = colors
+        .into_iter()
+        .map(|color| color.unwrap_or(0))
+        .collect::<Vec<_>>();
+    remap_program_registers(program, &logical_to_alias, screen)?;
+    let register_count_after = program.register_count;
+    Ok(LivenessReport {
+        logical_to_alias,
+        register_count_before,
+        register_count_after,
+    })
+}
+
 fn build(src: &str) -> Result<Build, String> {
     let expanded = expand_repeats(src)?;
     let mut memory_size = 8usize;
@@ -885,7 +1189,8 @@ fn build(src: &str) -> Result<Build, String> {
             }
         }
     }
-    let program = assemble(&expanded, target)?;
+    let mut program = assemble(&expanded, target)?;
+    let liveness = static_register_aliases(&mut program, target.screen.is_some())?;
     let register_count = program.register_count;
     Ok(Build {
         memory_size: if program.uses_memory { memory_size } else { 0 },
@@ -896,6 +1201,7 @@ fn build(src: &str) -> Result<Build, String> {
         },
         program,
         register_count,
+        liveness,
         screen: target.screen,
         program_kind,
     })
@@ -3420,9 +3726,10 @@ fn remap_register_operand(
     Ok(())
 }
 
-fn remap_screen_program_registers(
+fn remap_program_registers(
     program: &mut Program,
     logical_to_physical: &[usize],
+    screen: bool,
 ) -> Result<(), String> {
     let mut pc = 0;
     while pc < program.words.len() {
@@ -3436,22 +3743,40 @@ fn remap_screen_program_registers(
                 remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
                 pc += 3;
             }
-            4..=7 => {
+            4..=5 => {
                 remap_register_operand(&mut program.words, pc + 1, logical_to_physical)?;
                 pc += 2;
             }
-            8 => {
+            6..=7 if screen => {
+                remap_register_operand(&mut program.words, pc + 1, logical_to_physical)?;
+                pc += 2;
+            }
+            6 if !screen => {
                 remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
                 pc += 3;
             }
-            9 => {
+            8 if screen => {
                 remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
                 pc += 3;
             }
-            10.. => pc += 1,
-            opcode => return Err(format!("bad screen opcode {opcode} at word {pc}")),
+            7 if !screen => {
+                remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
+                pc += 3;
+            }
+            9 if screen => {
+                remap_register_operand(&mut program.words, pc + 2, logical_to_physical)?;
+                pc += 3;
+            }
+            10.. if screen => pc += 1,
+            8.. if !screen => pc += 1,
+            opcode => return Err(format!("bad opcode {opcode} at word {pc}")),
         }
     }
+    program.register_count = logical_to_physical
+        .iter()
+        .copied()
+        .max()
+        .map_or(1, |register| register + 1);
     Ok(())
 }
 
@@ -3496,7 +3821,7 @@ fn apply_two_lane_pgo(build: &mut Build) -> Result<PgoReport, String> {
     }
     let logical_to_physical = two_lane_pgo_mapping(&profile);
     let mut optimized = build.program.clone();
-    remap_screen_program_registers(&mut optimized, &logical_to_physical)?;
+    remap_program_registers(&mut optimized, &logical_to_physical, true)?;
     for (index, (input, expected_frames)) in workloads.iter().enumerate() {
         let actual_frames =
             run_screen_vm_until_frames(&optimized, screen, input, expected_frames.len(), MAX_STEPS)
@@ -4630,6 +4955,10 @@ fn main() -> io::Result<()> {
     fs::write(&room_output, layout.room.as_bytes())?;
 
     println!("assembled words: {}", build.program.words.len());
+    println!(
+        "liveness register aliases: {} -> {}",
+        build.liveness.register_count_before, build.liveness.register_count_after
+    );
     println!("register slots: {}", build.register_count);
     println!(
         "register bank: {}",
@@ -4999,6 +5328,78 @@ mod tests {
     }
 
     #[test]
+    fn liveness_aliases_disjoint_registers() {
+        let source = r#"
+        loop:
+            imm r2 7
+            write r2
+            imm r3 9
+            write r3
+            jmp loop
+        "#;
+        let build = build(source).expect("assemble disjoint lifetimes");
+        assert_eq!(build.liveness.register_count_before, 4);
+        assert_eq!(build.liveness.register_count_after, 1);
+        assert_eq!(build.liveness.logical_to_alias[2], 0);
+        assert_eq!(build.liveness.logical_to_alias[3], 0);
+        assert_eq!(
+            run_vm_until_outputs(&build.program, &[], 4, 100).expect("run aliased program"),
+            vec![7, 9, 7, 9]
+        );
+    }
+
+    #[test]
+    fn liveness_keeps_simultaneous_operands_apart() {
+        let source = r#"
+        loop:
+            read r2
+            read r3
+            add r4 r2 r3
+            write r4
+            jmp loop
+        "#;
+        let build = build(source).expect("assemble interfering lifetimes");
+        assert_ne!(
+            build.liveness.logical_to_alias[2],
+            build.liveness.logical_to_alias[3]
+        );
+        assert_eq!(
+            run_vm_until_outputs(&build.program, &[20, 22], 1, 100)
+                .expect("run interfering program"),
+            vec![42]
+        );
+    }
+
+    #[test]
+    fn liveness_follows_both_branch_successors() {
+        let source = r#"
+        start:
+            read r2
+            jc r2 positive
+            imm r3 10
+            write r3
+            jmp start
+        positive:
+            imm r4 20
+            write r4
+            jmp start
+        "#;
+        let build = build(source).expect("assemble branch lifetimes");
+        assert_eq!(
+            build.liveness.logical_to_alias[3],
+            build.liveness.logical_to_alias[4]
+        );
+        assert_eq!(
+            run_vm_until_outputs(&build.program, &[0], 1, 100).expect("run false branch"),
+            vec![10]
+        );
+        assert_eq!(
+            run_vm_until_outputs(&build.program, &[1], 1, 100).expect("run true branch"),
+            vec![20]
+        );
+    }
+
+    #[test]
     fn plotter_reference_draws_endpoints_in_both_directions() {
         let frames = plotter_expected_frames(&[0, 0, 31, 23, 8, 4, 0, 0, 9, 5, 9, 5])
             .expect("generate Plotter frames");
@@ -5026,19 +5427,21 @@ mod tests {
     fn two_lane_pgo_preserves_rendered_frames() {
         let source = r#"
             .screen 1 1
-        loop:
-            imm r3 1
-            screen_data r3
-            screen_data r3
-            screen_data r3
+        start:
             imm r2 0
+            imm r3 1
+        loop:
+            screen_data r3
+            screen_data r3
+            screen_data r3
             screen_swap r2
             jmp loop
         "#;
         let mut build = build(source).expect("assemble test effect");
+        assert_eq!(build.liveness.register_count_after, 2);
         let report = apply_two_lane_pgo(&mut build).expect("optimize test effect");
-        assert_eq!(report.logical_to_physical, vec![0, 3, 2, 1]);
-        assert_eq!(report.profile.reads[3], 30);
-        assert_eq!(report.profile.writes[3], 10);
+        assert_eq!(report.logical_to_physical, vec![0, 1]);
+        assert_eq!(report.profile.reads[1], 30);
+        assert_eq!(report.profile.writes[1], 1);
     }
 }
