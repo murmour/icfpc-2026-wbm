@@ -117,6 +117,7 @@ enum Directive {
     Memory { size: usize, pipe_cells: usize },
     Screen(ScreenSpec),
     Kind(ProgramKind),
+    Reg,
 }
 
 fn strip_comment(line: &str) -> &str {
@@ -183,7 +184,7 @@ fn expand_repeats(source: &str) -> Result<String, String> {
     Ok(output)
 }
 
-fn parse_reg(s: &str) -> Result<i64, String> {
+fn parse_register_number(s: &str) -> Result<i64, String> {
     let raw = s.strip_prefix('r').unwrap_or(s);
     raw.parse::<i64>()
         .map_err(|_| format!("expected register, got `{s}`"))
@@ -194,6 +195,86 @@ fn parse_reg(s: &str) -> Result<i64, String> {
                 Err(format!("register must be non-negative, got `{s}`"))
             }
         })
+}
+
+fn parse_register_alias<'a>(raw: &'a str) -> Result<(&'a str, usize, bool), String> {
+    let (name, count, indexed) = if let Some(open) = raw.find('[') {
+        if !raw.ends_with(']') || raw[..open].contains(']') || raw[open + 1..].contains('[') {
+            return Err(format!("bad register alias `{raw}`"));
+        }
+        let count_text = &raw[open + 1..raw.len() - 1];
+        let count = count_text
+            .parse::<usize>()
+            .map_err(|_| format!("bad register alias count `{count_text}`"))?;
+        if count == 0 {
+            return Err("register alias array must not be empty".to_string());
+        }
+        (&raw[..open], count, true)
+    } else {
+        if raw.contains(']') {
+            return Err(format!("bad register alias `{raw}`"));
+        }
+        (raw, 1, false)
+    };
+
+    let mut chars = name.chars();
+    let valid = chars
+        .next()
+        .is_some_and(|ch| ch.is_ascii_alphabetic() || ch == '_')
+        && chars.all(|ch| ch.is_ascii_alphanumeric() || ch == '_');
+    if !valid || parse_register_number(name).is_ok() {
+        return Err(format!("bad register alias name `{name}`"));
+    }
+    Ok((name, count, indexed))
+}
+
+fn collect_register_aliases(src: &str) -> Result<HashMap<String, i64>, String> {
+    let mut aliases = HashMap::new();
+    let mut declarations = HashSet::new();
+
+    for (idx, raw) in src.lines().enumerate() {
+        let line_no = idx + 1;
+        let toks = tokenize(strip_comment(raw));
+        if toks.first().is_none_or(|token| token != ".reg") {
+            continue;
+        }
+        let [_, raw_name, raw_register] = toks.as_slice() else {
+            return Err(format!(
+                "line {line_no}: `.reg` expects a name and a base register"
+            ));
+        };
+        let (name, count, indexed) =
+            parse_register_alias(raw_name).map_err(|err| format!("line {line_no}: {err}"))?;
+        if !declarations.insert(name.to_string()) {
+            return Err(format!(
+                "line {line_no}: duplicate register alias declaration `{name}`"
+            ));
+        }
+        let base =
+            parse_register_number(raw_register).map_err(|err| format!("line {line_no}: {err}"))?;
+        let count_i64 = i64::try_from(count)
+            .map_err(|_| format!("line {line_no}: register alias array is too large"))?;
+        base.checked_add(count_i64 - 1)
+            .ok_or_else(|| format!("line {line_no}: register alias array is too large"))?;
+
+        for index in 0..count {
+            let alias = if indexed {
+                format!("{name}[{index}]")
+            } else {
+                name.to_string()
+            };
+            aliases.insert(alias, base + index as i64);
+        }
+    }
+    Ok(aliases)
+}
+
+fn parse_reg(s: &str, aliases: &HashMap<String, i64>) -> Result<i64, String> {
+    if let Some(&register) = aliases.get(s) {
+        Ok(register)
+    } else {
+        parse_register_number(s)
+    }
 }
 
 fn parse_int(s: &str) -> Result<i64, String> {
@@ -268,6 +349,10 @@ fn parse_directive(toks: &[String]) -> Result<Option<Directive>, String> {
             Ok(Some(Directive::Kind(ProgramKind::Matmul)))
         }
         [name, kind] if name == ".kind" => Err(format!("unknown program kind `{kind}`")),
+        [name, _, _] if name == ".reg" => Ok(Some(Directive::Reg)),
+        [name, ..] if name == ".reg" => {
+            Err("`.reg` expects a name and a base register".to_string())
+        }
         [name, ..] if name.starts_with('.') => Err(format!("unknown directive `{name}`")),
         _ => Ok(None),
     }
@@ -701,24 +786,39 @@ impl Assembler {
         Ok(())
     }
 
-    fn emit_tokens(&mut self, toks: &[String]) -> Result<(), String> {
+    fn emit_tokens(
+        &mut self,
+        toks: &[String],
+        register_aliases: &HashMap<String, i64>,
+    ) -> Result<(), String> {
         if let [op, operand] = toks {
             if let Some((alu, immediate)) = alu0_code(op) {
                 if immediate {
                     self.imm(1, parse_int(operand)?);
                     self.alu0(alu, 1);
                 } else {
-                    self.alu0(alu, parse_reg(operand)?);
+                    self.alu0(alu, parse_reg(operand, register_aliases)?);
                 }
                 return Ok(());
             }
         }
         match toks {
-            [op, dst, src] if op == "mov" => self.mov(parse_reg(dst)?, parse_reg(src)?),
-            [op, addr, src] if op == "store" => self.store(parse_reg(addr)?, parse_reg(src)?),
-            [op, dst, addr] if op == "load" => self.load(parse_reg(dst)?, parse_reg(addr)?),
-            [op, dst, value] if op == "imm" => self.imm(parse_reg(dst)?, parse_int(value)?),
-            [op, dst] if op == "read" => self.read(parse_reg(dst)?),
+            [op, dst, src] if op == "mov" => self.mov(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(src, register_aliases)?,
+            ),
+            [op, addr, src] if op == "store" => self.store(
+                parse_reg(addr, register_aliases)?,
+                parse_reg(src, register_aliases)?,
+            ),
+            [op, dst, addr] if op == "load" => self.load(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(addr, register_aliases)?,
+            ),
+            [op, dst, value] if op == "imm" => {
+                self.imm(parse_reg(dst, register_aliases)?, parse_int(value)?)
+            }
+            [op, dst] if op == "read" => self.read(parse_reg(dst, register_aliases)?),
             [op, src] if op == "write" => {
                 if self.target.screen.is_some() {
                     return Err(
@@ -726,78 +826,112 @@ impl Assembler {
                             .to_string(),
                     );
                 }
-                self.write(parse_reg(src)?)
+                self.write(parse_reg(src, register_aliases)?)
             }
             [op, src] if op == "screen_swap" || op == "screen_commit" => {
-                self.screen_swap(parse_reg(src)?)?
+                self.screen_swap(parse_reg(src, register_aliases)?)?
             }
-            [op, src] if op == "screen_addr" => self.screen_addr(parse_reg(src)?)?,
-            [op, src] if op == "screen_data" => self.screen_data(parse_reg(src)?)?,
+            [op, src] if op == "screen_addr" => {
+                self.screen_addr(parse_reg(src, register_aliases)?)?
+            }
+            [op, src] if op == "screen_data" => {
+                self.screen_data(parse_reg(src, register_aliases)?)?
+            }
             [op, alu] if op == "alu" => self.alu(alu_code(alu)?),
-            [op, cond, label] if op == "jc" || op == "jpos" => self.jc(parse_reg(cond)?, label),
+            [op, cond, label] if op == "jc" || op == "jpos" => {
+                self.jc(parse_reg(cond, register_aliases)?, label)
+            }
             [op, label] if op == "jmp" => self.jmp(label),
-            [op, dst, lhs, rhs] if op == "add" => {
-                self.add3(parse_reg(dst)?, parse_reg(lhs)?, parse_reg(rhs)?)
-            }
-            [op, dst, lhs, rhs] if op == "sub" => {
-                self.sub3(parse_reg(dst)?, parse_reg(lhs)?, parse_reg(rhs)?)
-            }
-            [op, dst, lhs, rhs] if op == "mul" => {
-                self.mul3(parse_reg(dst)?, parse_reg(lhs)?, parse_reg(rhs)?)
-            }
-            [op, dst, lhs, rhs] if op == "div" => {
-                self.div3(parse_reg(dst)?, parse_reg(lhs)?, parse_reg(rhs)?)
-            }
-            [op, dst, lhs, rhs] if op == "and" => {
-                self.and3(parse_reg(dst)?, parse_reg(lhs)?, parse_reg(rhs)?)
-            }
-            [op, dst, lhs, rhs] if op == "shr" => {
-                self.shr3(parse_reg(dst)?, parse_reg(lhs)?, parse_reg(rhs)?)
-            }
-            [op, dst, lhs, value] if op == "addi" => {
-                self.alu_imm(parse_reg(dst)?, parse_reg(lhs)?, parse_int(value)?, 0)
-            }
-            [op, dst, lhs, value] if op == "muli" => {
-                self.alu_imm(parse_reg(dst)?, parse_reg(lhs)?, parse_int(value)?, 1)
-            }
-            [op, dst, lhs, value] if op == "subi" => {
-                self.alu_imm(parse_reg(dst)?, parse_reg(lhs)?, parse_int(value)?, 2)
-            }
-            [op, dst, lhs, value] if op == "divi" => {
-                self.alu_imm(parse_reg(dst)?, parse_reg(lhs)?, parse_int(value)?, 3)
-            }
-            [op, reg] if op == "neg" => self.neg_reg(parse_reg(reg)?),
-            [op, reg] if op == "inc" => self.inc(parse_reg(reg)?),
-            [op, reg] if op == "dec" => self.dec(parse_reg(reg)?),
+            [op, dst, lhs, rhs] if op == "add" => self.add3(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+            ),
+            [op, dst, lhs, rhs] if op == "sub" => self.sub3(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+            ),
+            [op, dst, lhs, rhs] if op == "mul" => self.mul3(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+            ),
+            [op, dst, lhs, rhs] if op == "div" => self.div3(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+            ),
+            [op, dst, lhs, rhs] if op == "and" => self.and3(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+            ),
+            [op, dst, lhs, rhs] if op == "shr" => self.shr3(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+            ),
+            [op, dst, lhs, value] if op == "addi" => self.alu_imm(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_int(value)?,
+                0,
+            ),
+            [op, dst, lhs, value] if op == "muli" => self.alu_imm(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_int(value)?,
+                1,
+            ),
+            [op, dst, lhs, value] if op == "subi" => self.alu_imm(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_int(value)?,
+                2,
+            ),
+            [op, dst, lhs, value] if op == "divi" => self.alu_imm(
+                parse_reg(dst, register_aliases)?,
+                parse_reg(lhs, register_aliases)?,
+                parse_int(value)?,
+                3,
+            ),
+            [op, reg] if op == "neg" => self.neg_reg(parse_reg(reg, register_aliases)?),
+            [op, reg] if op == "inc" => self.inc(parse_reg(reg, register_aliases)?),
+            [op, reg] if op == "dec" => self.dec(parse_reg(reg, register_aliases)?),
             [op, reg, value, label] if op == "jeq" => {
-                self.jeq_const(parse_reg(reg)?, parse_int(value)?, label)?
+                self.jeq_const(parse_reg(reg, register_aliases)?, parse_int(value)?, label)?
             }
             [op, reg, value, label] if op == "jeqs" => {
-                self.jeq_small_const(parse_reg(reg)?, parse_int(value)?, label)?
+                self.jeq_small_const(parse_reg(reg, register_aliases)?, parse_int(value)?, label)?
             }
-            [op, lhs, rhs, label] if op == "jeqr" => {
-                self.jeq_reg(parse_reg(lhs)?, parse_reg(rhs)?, label)?
-            }
-            [op, lhs, rhs, label] if op == "jeqrs" => {
-                self.jeq_small_reg(parse_reg(lhs)?, parse_reg(rhs)?, label)?
-            }
+            [op, lhs, rhs, label] if op == "jeqr" => self.jeq_reg(
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+                label,
+            )?,
+            [op, lhs, rhs, label] if op == "jeqrs" => self.jeq_small_reg(
+                parse_reg(lhs, register_aliases)?,
+                parse_reg(rhs, register_aliases)?,
+                label,
+            )?,
             [op, dst, position, address, index, factor, quotient] if op == "load4" => self
                 .load_packed4(
-                    parse_reg(dst)?,
-                    parse_reg(position)?,
-                    parse_reg(address)?,
-                    parse_reg(index)?,
-                    parse_reg(factor)?,
-                    parse_reg(quotient)?,
+                    parse_reg(dst, register_aliases)?,
+                    parse_reg(position, register_aliases)?,
+                    parse_reg(address, register_aliases)?,
+                    parse_reg(index, register_aliases)?,
+                    parse_reg(factor, register_aliases)?,
+                    parse_reg(quotient, register_aliases)?,
                 )?,
             [op, dst, position, address, index, factor, quotient] if op == "load8" => self
                 .load_packed8(
-                    parse_reg(dst)?,
-                    parse_reg(position)?,
-                    parse_reg(address)?,
-                    parse_reg(index)?,
-                    parse_reg(factor)?,
-                    parse_reg(quotient)?,
+                    parse_reg(dst, register_aliases)?,
+                    parse_reg(position, register_aliases)?,
+                    parse_reg(address, register_aliases)?,
+                    parse_reg(index, register_aliases)?,
+                    parse_reg(factor, register_aliases)?,
+                    parse_reg(quotient, register_aliases)?,
                 )?,
             [op] if op == "matmul" => self.emit_matmul()?,
             [] => {}
@@ -843,6 +977,7 @@ impl Assembler {
 }
 
 fn assemble(src: &str, target: Target) -> Result<Program, String> {
+    let register_aliases = collect_register_aliases(src)?;
     let mut asm = Assembler::new(target);
     for (idx, raw) in src.lines().enumerate() {
         let line_no = idx + 1;
@@ -866,7 +1001,7 @@ fn assemble(src: &str, target: Target) -> Result<Program, String> {
         {
             continue;
         }
-        asm.emit_tokens(&toks)
+        asm.emit_tokens(&toks, &register_aliases)
             .map_err(|err| format!("line {line_no}: {err}"))?;
     }
     asm.resolve()
@@ -1186,6 +1321,7 @@ fn build(src: &str) -> Result<Build, String> {
                 }
                 Directive::Screen(screen) => target.screen = Some(screen),
                 Directive::Kind(kind) => program_kind = kind,
+                Directive::Reg => {}
             }
         }
     }
@@ -5307,6 +5443,63 @@ mod tests {
         )
         .expect("assemble direct jumps");
         assert_eq!(program.words, vec![11, 3, 7, 0, 3, 1, 0, 8]);
+    }
+
+    #[test]
+    fn register_aliases_support_scalars_arrays_and_label_collisions() {
+        let named = assemble(
+            r#"
+            .reg FRAME r2
+            .reg phase r2
+            .reg oscillator[2] r3
+
+            frame:
+                imm frame 7
+                imm oscillator[0] 11
+                add oscillator[1] frame oscillator[0]
+                add0 oscillator[1]
+                jc phase done
+            done:
+                jmp frame
+            "#,
+            Target::default(),
+        )
+        .expect("assemble named registers");
+        let numeric = assemble(
+            r#"
+            frame:
+                imm r2 7
+                imm r3 11
+                add r4 r2 r3
+                add0 r4
+                jc r2 done
+            done:
+                jmp frame
+            "#,
+            Target::default(),
+        )
+        .expect("assemble numeric registers");
+
+        assert_eq!(named.words, numeric.words);
+        assert_eq!(named.register_count, 5);
+    }
+
+    #[test]
+    fn register_alias_declarations_are_validated() {
+        let duplicate = assemble(
+            ".reg value r2\n.reg value[2] r3\nimm r0 0\n",
+            Target::default(),
+        )
+        .expect_err("reject duplicate alias namespace");
+        assert!(duplicate.contains("duplicate register alias declaration `value`"));
+
+        let empty = assemble(".reg values[0] r2\nimm r0 0\n", Target::default())
+            .expect_err("reject empty alias array");
+        assert!(empty.contains("register alias array must not be empty"));
+
+        let out_of_range = assemble(".reg values[2] r2\nimm values[2] 0\n", Target::default())
+            .expect_err("reject an undeclared array element");
+        assert!(out_of_range.contains("expected register, got `values[2]`"));
     }
 
     #[test]

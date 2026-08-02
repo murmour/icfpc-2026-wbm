@@ -67,11 +67,14 @@ Jumps use labels. The assembler converts each label into a forward word skip thr
 .memory 64 160
 .screen 16 16
 .kind snake
+.reg frame r2
+.reg oscillator[8] r16
 ```
 
 - `.memory SIZE [PIPE_CELLS]` configures RAM. The storage pipe defaults to `2 * SIZE`; an explicit size must be even and at least `2 * SIZE`. The memory module is generated only when the program accesses memory. A program that accesses memory without this directive receives 8 slots and a 16-cell storage pipe.
 - `.screen WIDTH HEIGHT` adds a display of a specified size (from 1 through 64).
-- `.kind NAME` selects reference tests for `snake`, `pathfinder`, `lllm`, `llm`, or `matmul`.
+- `.kind NAME` selects reference tests for `plotter`, `snake`, `pathfinder`, `lllm`, `llm`, or `matmul`.
+- `.reg NAME REGISTER` gives a register a source-level name. Writing `NAME[COUNT]` declares a contiguous array beginning at `REGISTER`, addressed with constant indices such as `oscillator[3]`. Several names may alias the same register, which is useful when setup and runtime give a slot different roles. Aliases allocate no registers and are resolved before liveness-based register merging.
 
 Repeated source can be generated with an inclusive range. `{i}` is replaced with the current index:
 
