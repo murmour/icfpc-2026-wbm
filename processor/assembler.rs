@@ -3056,9 +3056,11 @@ fn render_meta_floor(
                         if !valid_numeric_literals(&canvas.grid) {
                             continue;
                         }
+                        let (trimmed, _) =
+                            trim_grid_around_anchor(canvas.grid, target);
                         let key = (pipe.len(), room_width * room_height);
                         let layout = FloorLayout {
-                            man: grid_to_string(&canvas.grid),
+                            man: grid_to_string(&trimmed),
                             room: grid_to_string(&shape.room),
                             orientation: shape.orientation,
                             pipe_cells: pipe.len(),
