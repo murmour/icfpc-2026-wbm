@@ -8,15 +8,16 @@
 ; Vertices on each z face use cyclic order, allowing all twelve edges
 ; to be selected arithmetically and drawn by one fixed-point DDA loop.
 ;
-; r2,r3   sin/cos of Y rotation, scale 1,000,000
-; r4,r5   sin/cos of X rotation, scale 1,000,000
+; Geometry uses Q12 fixed point so successive rotations retain subpixel motion.
+; r2,r3   sin/cos of Y rotation, scale 100,000,000
+; r4,r5   sin/cos of X rotation, scale 100,000,000
 ; r6      vertex / edge index
 ; r7-r15  projection and line-rendering temporaries
 
 imm r2 0
-imm r3 1000000
-imm r4 -342020
-imm r5 939693
+imm r3 100000000
+imm r4 -34202014
+imm r5 93969262
 
 frame:
 ; Project all eight vertices.
@@ -27,35 +28,35 @@ project_vertex:
 mov r14 r6
 subi r0 r14 3
 jc r0 vertex_back
-imm r9 -15
+imm r9 -61440
 jmp vertex_z_ready
 vertex_back:
 subi r14 r14 4
-imm r9 15
+imm r9 61440
 vertex_z_ready:
 
 ; y is negative for cyclic vertices 0,1 and positive for 2,3.
 subi r0 r14 1
 jc r0 vertex_y_positive
-imm r8 -15
+imm r8 -61440
 jmp vertex_y_ready
 vertex_y_positive:
-imm r8 15
+imm r8 61440
 vertex_y_ready:
 
 ; x follows the cyclic pattern negative, positive, positive, negative.
 mov r0 r14
 jc r0 vertex_x_middle
-imm r7 -15
+imm r7 -61440
 jmp vertex_x_ready
 vertex_x_middle:
 imm r0 3
 sub0 r14
 jc r0 vertex_x_positive
-imm r7 -15
+imm r7 -61440
 jmp vertex_x_ready
 vertex_x_positive:
-imm r7 15
+imm r7 61440
 vertex_x_ready:
 
 ; Rotate around Y:
@@ -64,13 +65,13 @@ vertex_x_ready:
 mul r10 r7 r3
 mul r15 r9 r2
 add r0 r10 r15
-divi0 1000000
+divi0 100000000
 mov r10 r0
 
 mul r11 r9 r3
 mul r15 r7 r2
 sub r0 r11 r15
-divi0 1000000
+divi0 100000000
 mov r11 r0
 
 ; Rotate around X:
@@ -79,13 +80,13 @@ mov r11 r0
 mul r12 r8 r5
 mul r15 r11 r4
 sub r0 r12 r15
-divi0 1000000
+divi0 100000000
 mov r12 r0
 
 mul r13 r8 r4
 mul r15 r11 r5
 add r0 r13 r15
-divi0 1000000
+divi0 100000000
 mov r13 r0
 
 ; Preserve camera-space depth for dynamic edge shading.
@@ -93,7 +94,7 @@ addi r14 r6 16
 store r14 r13
 
 ; Perspective projection with camera distance 90.
-addi r13 r13 90
+addi r13 r13 368640
 muli r0 r10 90
 div0 r13
 addi0 32
@@ -255,32 +256,32 @@ imm r0 0
 screen_swap r0
 
 ; Advance Y by 2 degrees.
-muli r7 r2 999391
-muli r8 r3 34899
+muli r7 r2 99939083
+muli r8 r3 3489950
 add r0 r7 r8
-divi0 1000000
+divi0 100000000
 mov r7 r0
 
-muli r9 r3 999391
-muli r10 r2 34899
+muli r9 r3 99939083
+muli r10 r2 3489950
 sub r0 r9 r10
-divi0 1000000
+divi0 100000000
 mov r9 r0
 
 mov r2 r7
 mov r3 r9
 
 ; Advance X by 1.3 degrees.
-muli r7 r4 999743
-muli r8 r5 22687
+muli r7 r4 99974261
+muli r8 r5 2268733
 add r0 r7 r8
-divi0 1000000
+divi0 100000000
 mov r7 r0
 
-muli r9 r5 999743
-muli r10 r4 22687
+muli r9 r5 99974261
+muli r10 r4 2268733
 sub r0 r9 r10
-divi0 1000000
+divi0 100000000
 mov r9 r0
 
 mov r4 r7

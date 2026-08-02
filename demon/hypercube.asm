@@ -11,11 +11,15 @@
 ; r2-r5    vertex x,y,z,w
 ; r6       vertex / edge index
 ; r7-r15   projection and line-rendering temporaries
+;
+; Vertex coordinates use a scale of 3584. This preserves fractional motion
+; through all four rotations while making 0.35*w exactly match the projected
+; depth scale of 10240.
 
 ; All four rotations begin at zero.
 imm r12 48
 imm r13 0
-imm r14 1000000
+imm r14 1000000000
 store r12 r13
 inc r12
 store r12 r14
@@ -41,37 +45,37 @@ project_vertex:
 mov r0 r6
 andi0 1
 jc r0 vertex_x_positive
-imm r2 -10
+imm r2 -3584
 jmp vertex_x_ready
 vertex_x_positive:
-imm r2 10
+imm r2 3584
 vertex_x_ready:
 
 mov r0 r6
 andi0 2
 jc r0 vertex_y_positive
-imm r3 -10
+imm r3 -3584
 jmp vertex_y_ready
 vertex_y_positive:
-imm r3 10
+imm r3 3584
 vertex_y_ready:
 
 mov r0 r6
 andi0 4
 jc r0 vertex_z_positive
-imm r4 -10
+imm r4 -3584
 jmp vertex_z_ready
 vertex_z_positive:
-imm r4 10
+imm r4 3584
 vertex_z_ready:
 
 mov r0 r6
 andi0 8
 jc r0 vertex_w_positive
-imm r5 -10
+imm r5 -3584
 jmp vertex_w_ready
 vertex_w_positive:
-imm r5 10
+imm r5 3584
 vertex_w_ready:
 
 ; Rotate XW.
@@ -82,12 +86,12 @@ load r14 r12
 mul r7 r2 r14
 mul r8 r5 r13
 sub r0 r7 r8
-divi0 1000000
+divi0 1000000000
 mov r7 r0
 mul r8 r2 r13
 mul r9 r5 r14
 add r0 r8 r9
-divi0 1000000
+divi0 1000000000
 mov r8 r0
 mov r2 r7
 mov r5 r8
@@ -100,12 +104,12 @@ load r14 r12
 mul r7 r3 r14
 mul r8 r4 r13
 sub r0 r7 r8
-divi0 1000000
+divi0 1000000000
 mov r7 r0
 mul r8 r3 r13
 mul r9 r4 r14
 add r0 r8 r9
-divi0 1000000
+divi0 1000000000
 mov r8 r0
 mov r3 r7
 mov r4 r8
@@ -118,12 +122,12 @@ load r14 r12
 mul r7 r4 r14
 mul r8 r5 r13
 sub r0 r7 r8
-divi0 1000000
+divi0 1000000000
 mov r7 r0
 mul r8 r4 r13
 mul r9 r5 r14
 add r0 r8 r9
-divi0 1000000
+divi0 1000000000
 mov r8 r0
 mov r4 r7
 mov r5 r8
@@ -136,18 +140,18 @@ load r14 r12
 mul r7 r2 r14
 mul r8 r3 r13
 sub r0 r7 r8
-divi0 1000000
+divi0 1000000000
 mov r7 r0
 mul r8 r2 r13
 mul r9 r3 r14
 add r0 r8 r9
-divi0 1000000
+divi0 1000000000
 mov r8 r0
 mov r2 r7
 mov r3 r8
 
-; 4D perspective. r7-r9 retain x,y,z at a scale of 1024.
-imm r13 32
+; 4D perspective. r7-r9 retain x,y,z at a scale of 10240.
+imm r13 11469
 sub r13 r13 r5
 muli r0 r2 21504
 div0 r13
@@ -201,9 +205,7 @@ store r12 r10
 inc r12
 store r12 r11
 addi r12 r6 32
-muli r0 r5 358
-add0 r9
-mov r13 r0
+add r13 r5 r9
 store r12 r13
 
 inc r6
@@ -274,9 +276,10 @@ load r15 r11
 addi r11 r14 32
 load r10 r11
 add r15 r15 r10
-subi r0 r15 1000
+subi r0 r15 11264
 jc r0 edge_color_near
-jc r15 edge_color_middle
+addi r0 r15 7168
+jc r0 edge_color_middle
 
 ; Far palette: Blue, Green, Red, Brown.
 jc r12 edge_far_nonzero
@@ -395,80 +398,80 @@ hypercube_ready:
 imm r0 0
 screen_swap r0
 
-; Advance XW by approximately 0.017 radians.
+; Advance XW by 0.017 radians.
 imm r12 48
 load r7 r12
 inc r12
 load r8 r12
-muli r9 r7 999856
-muli r10 r8 16999
+muli r9 r7 999855503
+muli r10 r8 16999181
 add r0 r9 r10
-divi0 1000000
+divi0 1000000000
 mov r9 r0
-muli r10 r8 999856
-muli r11 r7 16999
+muli r10 r8 999855503
+muli r11 r7 16999181
 sub r0 r10 r11
-divi0 1000000
+divi0 1000000000
 mov r10 r0
 imm r12 48
 store r12 r9
 inc r12
 store r12 r10
 
-; Advance YZ by approximately 0.013 radians.
+; Advance YZ by 0.013 radians.
 imm r12 50
 load r7 r12
 inc r12
 load r8 r12
-muli r9 r7 999916
-muli r10 r8 13000
+muli r9 r7 999915501
+muli r10 r8 12999634
 add r0 r9 r10
-divi0 1000000
+divi0 1000000000
 mov r9 r0
-muli r10 r8 999916
-muli r11 r7 13000
+muli r10 r8 999915501
+muli r11 r7 12999634
 sub r0 r10 r11
-divi0 1000000
+divi0 1000000000
 mov r10 r0
 imm r12 50
 store r12 r9
 inc r12
 store r12 r10
 
-; Advance ZW by approximately 0.009 radians.
+; Advance ZW by 0.009 radians.
 imm r12 52
 load r7 r12
 inc r12
 load r8 r12
-muli r9 r7 999960
-muli r10 r8 9000
+muli r9 r7 999959500
+muli r10 r8 8999879
 add r0 r9 r10
-divi0 1000000
+divi0 1000000000
 mov r9 r0
-muli r10 r8 999960
-muli r11 r7 9000
+muli r10 r8 999959500
+muli r11 r7 8999879
 sub r0 r10 r11
-divi0 1000000
+divi0 1000000000
 mov r10 r0
 imm r12 52
 store r12 r9
 inc r12
 store r12 r10
 
-; Advance XY by approximately 0.006 radians.
+; Advance XY by 0.006 radians.
 imm r12 54
 load r7 r12
 inc r12
 load r8 r12
-muli r9 r7 999982
-muli r10 r8 6000
+muli r9 r7 999982000
+muli r10 r8 5999964
 add r0 r9 r10
-divi0 1000000
+divi0 1000000000
 mov r9 r0
-muli r10 r8 999982
-muli r11 r7 6000
+muli r10 r8 999982000
+muli r11 r7 5999964
 sub r0 r10 r11
-divi0 1000000
+divi0 1000000000
 mov r10 r0
 imm r12 54
 store r12 r9

@@ -13,8 +13,9 @@
 ; stores thirty edges packed as vertex_a * 20 + vertex_b. Memory
 ; 70..89 stores the camera-space depth of each projected vertex.
 ;
-; r2,r3   sin/cos of Y rotation, scale 1,000,000
-; r4,r5   sin/cos of X rotation, scale 1,000,000
+; Geometry uses Q10 fixed point so successive rotations retain subpixel motion.
+; r2,r3   sin/cos of Y rotation, scale 100,000,000
+; r4,r5   sin/cos of X rotation, scale 100,000,000
 ; r6      vertex / edge index
 ; r7-r15  geometry and line-rendering temporaries
 
@@ -112,10 +113,10 @@ imm r7 379
 store r6 r7
 
 ; Start away from a symmetry axis so all three dimensions are visible.
-imm r2 422618
-imm r3 906308
-imm r4 -342020
-imm r5 939693
+imm r2 42261826
+imm r3 90630779
+imm r4 -34202014
+imm r5 93969262
 
 frame:
 imm r6 0
@@ -128,9 +129,9 @@ jc r0 non_cube_vertex
 ; Vertices 0..7: each index bit selects one sign.
 mov r15 r6
 divi r0 r15 4
-muli0 20
+muli0 20480
 mov r15 r0
-subi r7 r15 10
+subi r7 r15 10240
 
 mov r15 r6
 divi r15 r15 2
@@ -139,9 +140,9 @@ divi r0 r14 2
 muli0 2
 mov r14 r0
 sub r0 r15 r14
-muli0 20
+muli0 20480
 mov r15 r0
-subi r8 r15 10
+subi r8 r15 10240
 
 mov r15 r6
 mov r14 r15
@@ -149,9 +150,9 @@ divi r0 r14 2
 muli0 2
 mov r14 r0
 sub r0 r15 r14
-muli0 20
+muli0 20480
 mov r15 r0
-subi r9 r15 10
+subi r9 r15 10240
 jmp vertex_ready
 
 non_cube_vertex:
@@ -164,9 +165,9 @@ imm r7 0
 
 mov r15 r14
 divi r0 r15 2
-muli0 12
+muli0 12288
 mov r15 r0
-subi r8 r15 6
+subi r8 r15 6144
 
 mov r15 r14
 mov r13 r15
@@ -174,9 +175,9 @@ divi r0 r13 2
 muli0 2
 mov r13 r0
 sub r0 r15 r13
-muli0 32
+muli0 32768
 mov r15 r0
-subi r9 r15 16
+subi r9 r15 16384
 jmp vertex_ready
 
 last_two_families:
@@ -187,9 +188,9 @@ jc r0 fourth_family
 subi r14 r6 12
 mov r15 r14
 divi r0 r15 2
-muli0 12
+muli0 12288
 mov r15 r0
-subi r7 r15 6
+subi r7 r15 6144
 
 mov r15 r14
 mov r13 r15
@@ -197,9 +198,9 @@ divi r0 r13 2
 muli0 2
 mov r13 r0
 sub r0 r15 r13
-muli0 32
+muli0 32768
 mov r15 r0
-subi r8 r15 16
+subi r8 r15 16384
 imm r9 0
 jmp vertex_ready
 
@@ -208,9 +209,9 @@ fourth_family:
 subi r14 r6 16
 mov r15 r14
 divi r0 r15 2
-muli0 32
+muli0 32768
 mov r15 r0
-subi r7 r15 16
+subi r7 r15 16384
 imm r8 0
 
 mov r15 r14
@@ -219,9 +220,9 @@ divi r0 r13 2
 muli0 2
 mov r13 r0
 sub r0 r15 r13
-muli0 12
+muli0 12288
 mov r15 r0
-subi r9 r15 6
+subi r9 r15 6144
 
 vertex_ready:
 ; Rotate around Y:
@@ -230,13 +231,13 @@ vertex_ready:
 mul r10 r7 r3
 mul r15 r9 r2
 add r0 r10 r15
-divi0 1000000
+divi0 100000000
 mov r10 r0
 
 mul r11 r9 r3
 mul r15 r7 r2
 sub r0 r11 r15
-divi0 1000000
+divi0 100000000
 mov r11 r0
 
 ; Rotate around X:
@@ -245,13 +246,13 @@ mov r11 r0
 mul r12 r8 r5
 mul r15 r11 r4
 sub r0 r12 r15
-divi0 1000000
+divi0 100000000
 mov r12 r0
 
 mul r13 r8 r4
 mul r15 r11 r5
 add r0 r13 r15
-divi0 1000000
+divi0 100000000
 mov r13 r0
 
 ; Preserve camera-space depth for dynamic edge shading.
@@ -259,7 +260,7 @@ addi r14 r6 70
 store r14 r13
 
 ; Perspective projection with camera distance 110 and focal length 150.
-addi r13 r13 110
+addi r13 r13 112640
 muli r0 r10 150
 div0 r13
 addi0 32
@@ -398,32 +399,32 @@ imm r0 0
 screen_swap r0
 
 ; Advance Y by 1.4 degrees.
-muli r7 r2 999702
-muli r8 r3 24432
+muli r7 r2 99970149
+muli r8 r3 2443218
 add r0 r7 r8
-divi0 1000000
+divi0 100000000
 mov r7 r0
 
-muli r9 r3 999702
-muli r10 r2 24432
+muli r9 r3 99970149
+muli r10 r2 2443218
 sub r0 r9 r10
-divi0 1000000
+divi0 100000000
 mov r9 r0
 
 mov r2 r7
 mov r3 r9
 
 ; Advance X by 0.9 degrees.
-muli r7 r4 999877
-muli r8 r5 15707
+muli r7 r4 99987663
+muli r8 r5 1570732
 add r0 r7 r8
-divi0 1000000
+divi0 100000000
 mov r7 r0
 
-muli r9 r5 999877
-muli r10 r4 15707
+muli r9 r5 99987663
+muli r10 r4 1570732
 sub r0 r9 r10
-divi0 1000000
+divi0 100000000
 mov r9 r0
 
 mov r4 r7
