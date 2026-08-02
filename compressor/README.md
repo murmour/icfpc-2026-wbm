@@ -1,4 +1,4 @@
-# Compressor
+# Compressor 🗜️
 
 Compression experiments for **History Lesson**.
 

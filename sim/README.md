@@ -1,4 +1,4 @@
-# Go Simulator
+# Go Simulator 🧍‍♂️
 
 `sim` is the basic test workbench for Little Man programs. It keeps the machine model explicit and inspectable, making it useful for validating generated `.man` files and debugging individual rooms.
 

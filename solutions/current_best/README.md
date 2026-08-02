@@ -1,4 +1,4 @@
-# Current Best Solutions
+# Current Best Solutions 🤓
 
 These are post-contest improvements of our solutions.
 

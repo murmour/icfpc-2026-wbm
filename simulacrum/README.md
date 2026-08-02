@@ -1,4 +1,4 @@
-# Simulacrum
+# Simulacrum 🪐
 
 This piece of code is a **truly-high-speed** interpreter for Little Man programs.
 

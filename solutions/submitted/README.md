@@ -1,4 +1,4 @@
-# Submitted Solutions
+# Submitted Solutions 🏆
 
 These are the exact `.man` files submitted during the contest.
 
