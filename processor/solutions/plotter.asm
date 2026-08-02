@@ -1,4 +1,5 @@
 .screen 32 24
+.kind plotter
 
 ; Draw one Bresenham line per round on the 32x24 display.
 ; The processor blocks on the next read after the final round.

@@ -89,6 +89,7 @@ struct Target {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProgramKind {
     Generic,
+    Plotter,
     Snake,
     Pathfinder,
     Lllm,
@@ -243,6 +244,8 @@ fn parse_directive(toks: &[String]) -> Result<Option<Directive>, String> {
         [name, kind] if name == ".kind" && kind == "snake" => {
             Ok(Some(Directive::Kind(ProgramKind::Snake)))
         }
+        [name, kind] if name == ".kind" && kind == "plotter" => {
+            Ok(Some(Directive::Kind(ProgramKind::Plotter)))
         [name, kind] if name == ".kind" && kind == "pathfinder" => {
             Ok(Some(Directive::Kind(ProgramKind::Pathfinder)))
         }
@@ -3460,6 +3463,7 @@ fn apply_two_lane_pgo(build: &mut Build) -> Result<PgoReport, String> {
         .screen
         .ok_or_else(|| "--pgo requires a `.screen` program".to_string())?;
     let workloads = match build.program_kind {
+        ProgramKind::Plotter => public_plotter_tests()?,
         ProgramKind::Snake => public_snake_tests()?,
         ProgramKind::Pathfinder => published_pathfinder_tests()?,
         ProgramKind::Lllm => public_lllm_tests()?,
@@ -3591,6 +3595,59 @@ fn snake_frame(body: &VecDeque<(i64, i64)>, fruit: Option<(i64, i64)>, lost: boo
         frame[(y * 16 + x) as usize] = 9;
     }
     frame
+}
+
+fn plotter_expected_frames(input: &[i64]) -> Result<Vec<Vec<i64>>, String> {
+    const WIDTH: i64 = 32;
+    const HEIGHT: i64 = 24;
+    if input.is_empty() || input.len() % 4 != 0 {
+        return Err("plotter input must contain one or more x0,y0,x1,y1 groups".to_string());
+    }
+    input
+        .chunks_exact(4)
+        .map(|coordinates| {
+            let [mut x0, mut y0, x1, y1] = <[i64; 4]>::try_from(coordinates).unwrap();
+            for (name, value, limit) in [
+                ("x0", x0, WIDTH),
+                ("y0", y0, HEIGHT),
+                ("x1", x1, WIDTH),
+                ("y1", y1, HEIGHT),
+            ] {
+                if !(0..limit).contains(&value) {
+                    return Err(format!("plotter {name} coordinate {value} is out of range"));
+                }
+            }
+            let mut frame = vec![0; (WIDTH * HEIGHT) as usize];
+            let dx = (x1 - x0).abs();
+            let step_x = if x0 < x1 { 1 } else { -1 };
+            let dy = -(y1 - y0).abs();
+            let step_y = if y0 < y1 { 1 } else { -1 };
+            let mut error = dx + dy;
+            loop {
+                frame[(y0 * WIDTH + x0) as usize] = 15;
+                if x0 == x1 && y0 == y1 {
+                    break;
+                }
+                let doubled_error = error * 2;
+                if doubled_error >= dy {
+                    error += dy;
+                    x0 += step_x;
+                }
+                if doubled_error <= dx {
+                    error += dx;
+                    y0 += step_y;
+                }
+            }
+            Ok(frame)
+        })
+        .collect()
+}
+
+fn public_plotter_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
+    public_test_inputs(include_str!("../public_tests/plotter.json"))?
+        .into_iter()
+        .map(|input| plotter_expected_frames(&input).map(|frames| (input, frames)))
+        .collect()
 }
 
 fn snake_expected_frames(input: &[i64]) -> Result<Vec<Vec<i64>>, String> {
@@ -4631,6 +4688,29 @@ fn main() -> io::Result<()> {
     if args.iter().any(|arg| arg == "--test") {
         if let Some(screen) = build.screen {
             match build.program_kind {
+                ProgramKind::Plotter => {
+                    for (idx, (input, expected)) in public_plotter_tests()
+                        .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?
+                        .into_iter()
+                        .enumerate()
+                    {
+                        let got = run_screen_vm_until_frames(
+                            &build.program,
+                            screen,
+                            &input,
+                            expected.len(),
+                            5_000_000,
+                        )
+                        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+                        if got != expected {
+                            return Err(io::Error::new(
+                                io::ErrorKind::Other,
+                                format!("Plotter test {} failed", idx + 1),
+                            ));
+                        }
+                    }
+                    println!("Plotter frame tests: ok");
+                }
                 ProgramKind::Snake => {
                     for (idx, (input, expected)) in public_snake_tests()
                         .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?
@@ -4916,6 +4996,30 @@ mod tests {
             instructions: 0,
         };
         assert_eq!(two_lane_pgo_mapping(&profile), vec![0, 3, 2, 1]);
+    }
+
+    #[test]
+    fn plotter_reference_draws_endpoints_in_both_directions() {
+        let frames = plotter_expected_frames(&[0, 0, 31, 23, 8, 4, 0, 0, 9, 5, 9, 5])
+            .expect("generate Plotter frames");
+        assert_eq!(frames.len(), 3);
+        assert_eq!(frames[0].iter().filter(|&&color| color == 15).count(), 32);
+        assert_eq!(frames[0][0], 15);
+        assert_eq!(frames[0][23 * 32 + 31], 15);
+        assert_eq!(frames[1][4 * 32 + 8], 15);
+        assert_eq!(frames[1][0], 15);
+        assert_eq!(frames[2].iter().filter(|&&color| color == 15).count(), 1);
+        assert_eq!(frames[2][5 * 32 + 9], 15);
+    }
+
+    #[test]
+    fn plotter_pgo_uses_public_workloads() {
+        let mut build = build(include_str!("solutions/plotter.asm"))
+            .expect("assemble Plotter reference solution");
+        assert_eq!(build.program_kind, ProgramKind::Plotter);
+        let report = apply_two_lane_pgo(&mut build).expect("profile Plotter workloads");
+        assert_eq!(report.workloads, 6);
+        assert_eq!(report.frames, 21);
     }
 
     #[test]
