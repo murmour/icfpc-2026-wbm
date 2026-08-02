@@ -81,13 +81,6 @@ struct ScreenSpec {
     height: usize,
 }
 
-impl ScreenSpec {
-    const PLOTTER: Self = Self {
-        width: 32,
-        height: 24,
-    };
-}
-
 #[derive(Clone, Copy, Debug, Default)]
 struct Target {
     screen: Option<ScreenSpec>,
@@ -96,7 +89,6 @@ struct Target {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum ProgramKind {
     Generic,
-    Plotter,
     Snake,
     Pathfinder,
     Lllm,
@@ -230,9 +222,6 @@ fn parse_directive(toks: &[String]) -> Result<Option<Directive>, String> {
                 return Err(format!("memory pipe size must be even, got {pipe_cells}"));
             }
             Ok(Some(Directive::Memory { size, pipe_cells }))
-        }
-        [name] if name == ".screen" || name == "screen" => {
-            Ok(Some(Directive::Screen(ScreenSpec::PLOTTER)))
         }
         [name, width, height] if name == ".screen" || name == "screen" => {
             let parse_dimension = |raw: &str| {
@@ -880,12 +869,6 @@ fn build(src: &str) -> Result<Build, String> {
     for (idx, raw) in expanded.lines().enumerate() {
         let line_no = idx + 1;
         let toks = tokenize(strip_comment(raw).trim());
-        if matches!(
-            toks.as_slice(),
-            [name] if name == ".screen" || name == "screen"
-        ) {
-            program_kind = ProgramKind::Plotter;
-        }
         if let Some(directive) =
             parse_directive(&toks).map_err(|err| format!("line {line_no}: {err}"))?
         {
@@ -3477,7 +3460,6 @@ fn apply_two_lane_pgo(build: &mut Build) -> Result<PgoReport, String> {
         .screen
         .ok_or_else(|| "--pgo requires a `.screen` program".to_string())?;
     let workloads = match build.program_kind {
-        ProgramKind::Plotter => public_plotter_tests()?,
         ProgramKind::Snake => public_snake_tests()?,
         ProgramKind::Pathfinder => published_pathfinder_tests()?,
         ProgramKind::Lllm => public_lllm_tests()?,
@@ -3598,47 +3580,6 @@ fn public_matmul_tests() -> Result<Vec<(Vec<i64>, Vec<i64>)>, String> {
         append_unique_test(&mut tests, input, expected, "matrix tests")?;
     }
     Ok(tests)
-}
-
-fn bresenham_frame(mut x0: i64, mut y0: i64, x1: i64, y1: i64) -> Vec<i64> {
-    let mut frame = vec![0i64; 32 * 24];
-    let dx = (x1 - x0).abs();
-    let sx = if x0 < x1 { 1 } else { -1 };
-    let dy = -(y1 - y0).abs();
-    let sy = if y0 < y1 { 1 } else { -1 };
-    let mut err = dx + dy;
-    loop {
-        frame[(y0 * 32 + x0) as usize] = 15;
-        if x0 == x1 && y0 == y1 {
-            break;
-        }
-        let e2 = 2 * err;
-        if e2 >= dy {
-            err += dy;
-            x0 += sx;
-        }
-        if e2 <= dx {
-            err += dx;
-            y0 += sy;
-        }
-    }
-    frame
-}
-
-fn public_plotter_tests() -> Result<Vec<(Vec<i64>, Vec<Vec<i64>>)>, String> {
-    public_test_inputs(include_str!("../public_tests/plotter.json"))?
-        .into_iter()
-        .map(|input| {
-            if input.len() % 4 != 0 {
-                return Err("plotter public test has an incomplete round".to_string());
-            }
-            let frames = input
-                .chunks_exact(4)
-                .map(|round| bresenham_frame(round[0], round[1], round[2], round[3]))
-                .collect();
-            Ok((input, frames))
-        })
-        .collect()
 }
 
 fn snake_frame(body: &VecDeque<(i64, i64)>, fruit: Option<(i64, i64)>, lost: bool) -> Vec<i64> {
@@ -4690,29 +4631,6 @@ fn main() -> io::Result<()> {
     if args.iter().any(|arg| arg == "--test") {
         if let Some(screen) = build.screen {
             match build.program_kind {
-                ProgramKind::Plotter => {
-                    for (idx, (input, expected)) in public_plotter_tests()
-                        .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?
-                        .into_iter()
-                        .enumerate()
-                    {
-                        let got = run_screen_vm_until_frames(
-                            &build.program,
-                            screen,
-                            &input,
-                            expected.len(),
-                            5_000_000,
-                        )
-                        .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
-                        if got != expected {
-                            return Err(io::Error::new(
-                                io::ErrorKind::Other,
-                                format!("plotter test {} failed", idx + 1),
-                            ));
-                        }
-                    }
-                    println!("public plotter-style tests: ok");
-                }
                 ProgramKind::Snake => {
                     for (idx, (input, expected)) in public_snake_tests()
                         .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?
