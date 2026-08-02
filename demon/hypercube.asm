@@ -1,23 +1,21 @@
 .screen 64 64
-.memory 56
+.memory 40
 
 ; Rotating four-dimensional hypercube (tesseract).
 ;
 ; Memory:
 ;   0..31   sixteen projected (x,y) pairs
-;   32..47  projected vertex depths
-;   48..55  (sin,cos) oscillator pairs for XW, YZ, ZW, and XY
+;   32..39  (sin,cos) oscillator pairs for XW, YZ, ZW, and XY
 ;
 ; r2-r5    vertex x,y,z,w
 ; r6       vertex / edge index
 ; r7-r15   projection and line-rendering temporaries
 ;
-; Vertex coordinates use a scale of 3584. This preserves fractional motion
-; through all four rotations while making 0.35*w exactly match the projected
-; depth scale of 10240.
+; Vertex coordinates use a scale of 3584 to preserve fractional motion
+; through all four rotations.
 
 ; All four rotations begin at zero.
-imm r12 48
+imm r12 32
 imm r13 0
 imm r14 1000000000
 store r12 r13
@@ -79,7 +77,7 @@ imm r5 3584
 vertex_w_ready:
 
 ; Rotate XW.
-imm r12 48
+imm r12 32
 load r13 r12
 inc r12
 load r14 r12
@@ -97,7 +95,7 @@ mov r2 r7
 mov r5 r8
 
 ; Rotate YZ.
-imm r12 50
+imm r12 34
 load r13 r12
 inc r12
 load r14 r12
@@ -115,7 +113,7 @@ mov r3 r7
 mov r4 r8
 
 ; Rotate ZW.
-imm r12 52
+imm r12 36
 load r13 r12
 inc r12
 load r14 r12
@@ -133,7 +131,7 @@ mov r4 r7
 mov r5 r8
 
 ; Rotate XY.
-imm r12 54
+imm r12 38
 load r13 r12
 inc r12
 load r14 r12
@@ -199,14 +197,11 @@ project_y_high:
 imm r11 63
 project_y_ready:
 
-; Store projected x,y and depth.
+; Store projected x,y.
 muli r12 r6 2
 store r12 r10
 inc r12
 store r12 r11
-addi r12 r6 32
-add r13 r5 r9
-store r12 r13
 
 inc r6
 subi r0 r6 15
@@ -270,73 +265,12 @@ edge_dimension_3:
 addi r14 r13 8
 
 edge_ready:
-; Average endpoint depth chooses far, middle, or near colors.
-addi r11 r13 32
-load r15 r11
-addi r11 r14 32
-load r10 r11
-add r15 r15 r10
-subi r0 r15 11264
-jc r0 edge_color_near
-addi r0 r15 7168
-jc r0 edge_color_middle
+; Give each edge slot one stable color from the vivid half of the palette.
+mov r0 r6
+andi0 7
+addi0 1
+mov r15 r0
 
-; Far palette: Blue, Green, Red, Brown.
-jc r12 edge_far_nonzero
-imm r15 6
-jmp edge_color_ready
-edge_far_nonzero:
-subi r0 r12 1
-jc r0 edge_far_2_or_3
-imm r15 5
-jmp edge_color_ready
-edge_far_2_or_3:
-subi r0 r12 2
-jc r0 edge_far_3
-imm r15 2
-jmp edge_color_ready
-edge_far_3:
-imm r15 9
-jmp edge_color_ready
-
-edge_color_middle:
-; Middle palette: LightBlue, LightGreen, LightRed, Orange.
-jc r12 edge_middle_nonzero
-imm r15 14
-jmp edge_color_ready
-edge_middle_nonzero:
-subi r0 r12 1
-jc r0 edge_middle_2_or_3
-imm r15 13
-jmp edge_color_ready
-edge_middle_2_or_3:
-subi r0 r12 2
-jc r0 edge_middle_3
-imm r15 10
-jmp edge_color_ready
-edge_middle_3:
-imm r15 8
-jmp edge_color_ready
-
-edge_color_near:
-; Near palette: Cyan, Yellow, White, LightGray.
-jc r12 edge_near_nonzero
-imm r15 3
-jmp edge_color_ready
-edge_near_nonzero:
-subi r0 r12 1
-jc r0 edge_near_2_or_3
-imm r15 7
-jmp edge_color_ready
-edge_near_2_or_3:
-subi r0 r12 2
-jc r0 edge_near_3
-imm r15 1
-jmp edge_color_ready
-edge_near_3:
-imm r15 15
-
-edge_color_ready:
 ; Load x0,y0,x1,y1 into r7..r10.
 muli r11 r13 2
 load r7 r11
@@ -399,7 +333,7 @@ imm r0 0
 screen_swap r0
 
 ; Advance XW by 0.017 radians.
-imm r12 48
+imm r12 32
 load r7 r12
 inc r12
 load r8 r12
@@ -413,13 +347,13 @@ muli r11 r7 16999181
 sub r0 r10 r11
 divi0 1000000000
 mov r10 r0
-imm r12 48
+imm r12 32
 store r12 r9
 inc r12
 store r12 r10
 
 ; Advance YZ by 0.013 radians.
-imm r12 50
+imm r12 34
 load r7 r12
 inc r12
 load r8 r12
@@ -433,13 +367,13 @@ muli r11 r7 12999634
 sub r0 r10 r11
 divi0 1000000000
 mov r10 r0
-imm r12 50
+imm r12 34
 store r12 r9
 inc r12
 store r12 r10
 
 ; Advance ZW by 0.009 radians.
-imm r12 52
+imm r12 36
 load r7 r12
 inc r12
 load r8 r12
@@ -453,13 +387,13 @@ muli r11 r7 8999879
 sub r0 r10 r11
 divi0 1000000000
 mov r10 r0
-imm r12 52
+imm r12 36
 store r12 r9
 inc r12
 store r12 r10
 
 ; Advance XY by 0.006 radians.
-imm r12 54
+imm r12 38
 load r7 r12
 inc r12
 load r8 r12
@@ -473,7 +407,7 @@ muli r11 r7 5999964
 sub r0 r10 r11
 divi0 1000000000
 mov r10 r0
-imm r12 54
+imm r12 38
 store r12 r9
 inc r12
 store r12 r10
