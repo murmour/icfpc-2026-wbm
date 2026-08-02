@@ -2067,30 +2067,6 @@ fn memory_storage_path(memory_size: usize) -> Result<MemoryStoragePath, String> 
         });
     }
 
-    // A U fits lengths 9..=25 without growing beyond the main room.
-    for right in 7..=17 {
-        for span in 1..=4 {
-            if right + 2 * span != memory_size {
-                continue;
-            }
-            let top = 4 - span;
-            let mut path = vec![(4, 4), (4, 5), (5, 5), (5, 4)];
-            for y in (top..=4).rev() {
-                path.push((6, y));
-            }
-            for x in 7..=right {
-                path.push((x, top));
-            }
-            for y in top + 1..=5 {
-                path.push((right, y));
-            }
-            return Ok(MemoryStoragePath {
-                cells: path,
-                top_padding: 0,
-            });
-        }
-    }
-
     // Extend the existing accordion horizontally first. Once it reaches x=17,
     // distribute additional cells among the same vertical tooth pairs.
     // Slightly uneven tooth heights provide every exact even length without
@@ -4941,6 +4917,15 @@ fn main() -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn short_memory_pipes_stay_clear_of_the_module_top_edge() {
+        for cells in (16..=24).step_by(2) {
+            let storage = memory_storage_path(cells).expect("build storage path");
+            assert_eq!(storage.cells.len(), cells);
+            assert!(storage.cells.iter().all(|&(_, y)| y > 0));
+        }
+    }
 
     #[test]
     fn memoryless_tall_display_bottom_aligns_with_cpu_bottom() {
