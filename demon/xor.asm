@@ -3,283 +3,283 @@
 ; Multicolor radial XOR
 ;
 ; Oscillator states use a scale of 100,000,000.
-;
-; r2: frame
-; r3: x1
-; r4: y1
-; r5: x2
-; r6: y2
-; r7: distance 1 scanline delta
-; r8: distance 2 scanline delta
-; r9: pixels
-; r10: rows left
-; r11: distance 1 squared
-; r12: distance 2 squared
-; r13: distance 1 band/temporary
-; r14: distance 2 band/temporary
-; r15: color
-; r16-r23: oscillator (previous, current) pairs
+
+.reg frame r2
+.reg x1 r3
+.reg y1 r4
+.reg x2 r5
+.reg y2 r6
+.reg d1_scanline_delta r7
+.reg d2_scanline_delta r8
+.reg pixels r9
+.reg rows_left r10
+.reg dist1_squared r11
+.reg dist2_squared r12
+.reg dist1_band r13
+.reg dist2_band r14
+.reg color r15
+.reg oscillator[8] r16
 
 start:
-  imm r2 0
-  imm r16 -1963369
-  imm r18 99946459
-  imm r19 100000000
-  imm r20 2617695
-  imm r22 -99946459
-  imm r23 -100000000
+  imm frame 0
+  imm oscillator[0] -1963369
+  imm oscillator[2] 99946459
+  imm oscillator[3] 100000000
+  imm oscillator[4] 2617695
+  imm oscillator[6] -99946459
+  imm oscillator[7] -100000000
 
 frame:
   ; Convert oscillator amplitudes to pixel centers. Horizontal motion has
   ; amplitude 30; vertical motion has amplitude 20.
-  muli r0 r17 3
+  muli r0 oscillator[1] 3
   divi0 10000000
   addi0 32
-  mov r3 r0
+  mov x1 r0
 
-  divi r0 r19 5000000
+  divi r0 oscillator[3] 5000000
   addi0 32
-  mov r4 r0
+  mov y1 r0
 
-  muli r0 r21 3
+  muli r0 oscillator[5] 3
   divi0 10000000
   addi0 32
-  mov r5 r0
+  mov x2 r0
 
-  divi r0 r23 5000000
+  divi r0 oscillator[7] 5000000
   addi0 32
-  mov r6 r0
+  mov y2 r0
 
-  imm r10 64
+  imm rows_left 64
 
 row:
   ; Initialize both squared distances at x=0. Their first differences
   ; advance the squared distances across the row using additions only.
   imm r0 64
-  sub0 r10
-  mov r13 r0
+  sub0 rows_left
+  mov dist1_band r0
 
-  mul r11 r3 r3
-  sub r14 r13 r4
-  mul r14 r14 r14
-  add r11 r11 r14
+  mul dist1_squared x1 x1
+  sub dist2_band dist1_band y1
+  mul dist2_band dist2_band dist2_band
+  add dist1_squared dist1_squared dist2_band
 
-  mul r12 r5 r5
-  sub r14 r13 r6
-  mul r14 r14 r14
-  add r12 r12 r14
+  mul dist2_squared x2 x2
+  sub dist2_band dist1_band y2
+  mul dist2_band dist2_band dist2_band
+  add dist2_squared dist2_squared dist2_band
 
-  muli r7 r3 -2
-  inc r7
-  muli r8 r5 -2
-  inc r8
-  imm r9 64
+  muli d1_scanline_delta x1 -2
+  inc d1_scanline_delta
+  muli d2_scanline_delta x2 -2
+  inc d2_scanline_delta
+  imm pixels 64
 
 pixel:
   ; d1_band = floor(sqrt(d1_squared) / 8). The threshold tree compares
   ; against (8*k)^2 and therefore computes the exact visible distance bits.
-  subi r0 r11 2303
+  subi r0 dist1_squared 2303
   jc r0 d1_band_6_11
-  subi r0 r11 575
+  subi r0 dist1_squared 575
   jc r0 d1_band_3_5
-  subi r0 r11 255
+  subi r0 dist1_squared 255
   jc r0 d1_band_2
-  subi r0 r11 63
+  subi r0 dist1_squared 63
   jc r0 d1_band_1
-  imm r13 0
+  imm dist1_band 0
   jmp d1_band_ready
 
 d1_band_1:
-  imm r13 1
+  imm dist1_band 1
   jmp d1_band_ready
 
 d1_band_2:
-  imm r13 2
+  imm dist1_band 2
   jmp d1_band_ready
 
 d1_band_3_5:
-  subi r0 r11 1599
+  subi r0 dist1_squared 1599
   jc r0 d1_band_5
-  subi r0 r11 1023
+  subi r0 dist1_squared 1023
   jc r0 d1_band_4
-  imm r13 3
+  imm dist1_band 3
   jmp d1_band_ready
 
 d1_band_4:
-  imm r13 4
+  imm dist1_band 4
   jmp d1_band_ready
 
 d1_band_5:
-  imm r13 5
+  imm dist1_band 5
   jmp d1_band_ready
 
 d1_band_6_11:
-  subi r0 r11 5183
+  subi r0 dist1_squared 5183
   jc r0 d1_band_9_11
-  subi r0 r11 4095
+  subi r0 dist1_squared 4095
   jc r0 d1_band_8
-  subi r0 r11 3135
+  subi r0 dist1_squared 3135
   jc r0 d1_band_7
-  imm r13 6
+  imm dist1_band 6
   jmp d1_band_ready
 
 d1_band_7:
-  imm r13 7
+  imm dist1_band 7
   jmp d1_band_ready
 
 d1_band_8:
-  imm r13 8
+  imm dist1_band 8
   jmp d1_band_ready
 
 d1_band_9_11:
-  subi r0 r11 7743
+  subi r0 dist1_squared 7743
   jc r0 d1_band_11
-  subi r0 r11 6399
+  subi r0 dist1_squared 6399
   jc r0 d1_band_10
-  imm r13 9
+  imm dist1_band 9
   jmp d1_band_ready
 
 d1_band_10:
-  imm r13 10
+  imm dist1_band 10
   jmp d1_band_ready
 
 d1_band_11:
-  imm r13 11
+  imm dist1_band 11
 
 d1_band_ready:
   ; Classify the second squared distance through the same thresholds.
-  subi r0 r12 2303
+  subi r0 dist2_squared 2303
   jc r0 d2_band_6_11
-  subi r0 r12 575
+  subi r0 dist2_squared 575
   jc r0 d2_band_3_5
-  subi r0 r12 255
+  subi r0 dist2_squared 255
   jc r0 d2_band_2
-  subi r0 r12 63
+  subi r0 dist2_squared 63
   jc r0 d2_band_1
-  imm r14 0
+  imm dist2_band 0
   jmp d2_band_ready
 
 d2_band_1:
-  imm r14 1
+  imm dist2_band 1
   jmp d2_band_ready
 
 d2_band_2:
-  imm r14 2
+  imm dist2_band 2
   jmp d2_band_ready
 
 d2_band_3_5:
-  subi r0 r12 1599
+  subi r0 dist2_squared 1599
   jc r0 d2_band_5
-  subi r0 r12 1023
+  subi r0 dist2_squared 1023
   jc r0 d2_band_4
-  imm r14 3
+  imm dist2_band 3
   jmp d2_band_ready
 
 d2_band_4:
-  imm r14 4
+  imm dist2_band 4
   jmp d2_band_ready
 
 d2_band_5:
-  imm r14 5
+  imm dist2_band 5
   jmp d2_band_ready
 
 d2_band_6_11:
-  subi r0 r12 5183
+  subi r0 dist2_squared 5183
   jc r0 d2_band_9_11
-  subi r0 r12 4095
+  subi r0 dist2_squared 4095
   jc r0 d2_band_8
-  subi r0 r12 3135
+  subi r0 dist2_squared 3135
   jc r0 d2_band_7
-  imm r14 6
+  imm dist2_band 6
   jmp d2_band_ready
 
 d2_band_7:
-  imm r14 7
+  imm dist2_band 7
   jmp d2_band_ready
 
 d2_band_8:
-  imm r14 8
+  imm dist2_band 8
   jmp d2_band_ready
 
 d2_band_9_11:
-  subi r0 r12 7743
+  subi r0 dist2_squared 7743
   jc r0 d2_band_11
-  subi r0 r12 6399
+  subi r0 dist2_squared 6399
   jc r0 d2_band_10
-  imm r14 9
+  imm dist2_band 9
   jmp d2_band_ready
 
 d2_band_10:
-  imm r14 10
+  imm dist2_band 10
   jmp d2_band_ready
 
 d2_band_11:
-  imm r14 11
+  imm dist2_band 11
 
 d2_band_ready:
   ; pattern = d1_band XOR d2_band. Odd bands are black; even bands
   ; cycle through colors 10..15, advancing once every ten frames.
-  mov r0 r13
-  xor0 r14
-  mov r13 r0
+  mov r0 dist1_band
+  xor0 dist2_band
+  mov dist1_band r0
   andi0 1
   jc r0 pixel_black
 
-  divi r14 r2 10
-  add r0 r13 r14
-  mov r14 r0
+  divi dist2_band frame 10
+  add r0 dist1_band dist2_band
+  mov dist2_band r0
   divi0 6
   muli0 6
-  mov r15 r0
-  mov r0 r14
-  sub0 r15
+  mov color r0
+  mov r0 dist2_band
+  sub0 color
   addi0 10
   screen_data r0
   jmp pixel_done
 
 pixel_black:
-  imm r15 0
-  screen_data r15
+  imm color 0
+  screen_data color
 
 pixel_done:
-  add r11 r11 r7
-  addi r7 r7 2
-  add r12 r12 r8
-  addi r8 r8 2
-  dec r9
-  jc r9 pixel
-  dec r10
-  jc r10 row
-  imm r15 0
-  screen_swap r15
+  add dist1_squared dist1_squared d1_scanline_delta
+  addi d1_scanline_delta d1_scanline_delta 2
+  add dist2_squared dist2_squared d2_scanline_delta
+  addi d2_scanline_delta d2_scanline_delta 2
+  dec pixels
+  jc pixels pixel
+  dec rows_left
+  jc rows_left row
+  imm color 0
+  screen_swap color
 
   ; x1: three turns per loop, 2*cos(w) = 1.99961448.
-  muli r0 r17 199961448
+  muli r0 oscillator[1] 199961448
   divi0 100000000
-  sub0 r16
-  mov r16 r17
-  mov r17 r0
+  sub0 oscillator[0]
+  mov oscillator[0] oscillator[1]
+  mov oscillator[1] r0
 
   ; y1: five turns per loop, 2*cos(w) = 1.99892917.
-  muli r0 r19 199892917
+  muli r0 oscillator[3] 199892917
   divi0 100000000
-  sub0 r18
-  mov r18 r19
-  mov r19 r0
+  sub0 oscillator[2]
+  mov oscillator[2] oscillator[3]
+  mov oscillator[3] r0
 
   ; x2: four turns per loop, 2*cos(w) = 1.99931465.
-  muli r0 r21 199931465
+  muli r0 oscillator[5] 199931465
   divi0 100000000
-  sub0 r20
-  mov r20 r21
-  mov r21 r0
+  sub0 oscillator[4]
+  mov oscillator[4] oscillator[5]
+  mov oscillator[5] r0
 
   ; y2: five turns per loop, 2*cos(w) = 1.99892917.
-  muli r0 r23 199892917
+  muli r0 oscillator[7] 199892917
   divi0 100000000
-  sub0 r22
-  mov r22 r23
-  mov r23 r0
+  sub0 oscillator[6]
+  mov oscillator[6] oscillator[7]
+  mov oscillator[7] r0
 
-  inc r2
+  inc frame
   jmp frame

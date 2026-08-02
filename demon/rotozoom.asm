@@ -1,208 +1,212 @@
 .screen 64 64
 .memory 17
 
+.reg phase r2
+.reg du r3
+.reg dv r4
+; The table aliases are used only during initialization.
+.reg table_addr r4
+.reg row_u r5
+.reg table_value r5
+.reg row_v r6
+.reg u r7
+.reg v r8
+.reg pixels r9
+.reg rows r10
+.reg sine r11
+.reg cosine r12
+.reg zoom r13
+.reg temp r14
+.reg color r15
+
 ; Fixed-point rotozoomed checkerboard using 16 registers.
 ;
-; r2: phase
-; r3: du/dx
-; r4: dv/dx
-; r5: row u
-; r6: row v
-; r7: pixel u
-; r8: pixel v
-; r9: pixels left
-; r10: rows left
-; r11: sine/quotient
-; r12: cosine/product
-; r13: zoom/u remainder
-; r14: temporary/v remainder
-; r15: color
 ; Initialize the 17-entry quarter-wave sine table.
 
 start:
-  imm r2 0
-  imm r4 0
-  imm r5 0
-  store r4 r5
-  imm r4 1
-  imm r5 100
-  store r4 r5
-  imm r4 2
-  imm r5 200
-  store r4 r5
-  imm r4 3
-  imm r5 297
-  store r4 r5
-  imm r4 4
-  imm r5 392
-  store r4 r5
-  imm r4 5
-  imm r5 483
-  store r4 r5
-  imm r4 6
-  imm r5 569
-  store r4 r5
-  imm r4 7
-  imm r5 650
-  store r4 r5
-  imm r4 8
-  imm r5 724
-  store r4 r5
-  imm r4 9
-  imm r5 792
-  store r4 r5
-  imm r4 10
-  imm r5 851
-  store r4 r5
-  imm r4 11
-  imm r5 903
-  store r4 r5
-  imm r4 12
-  imm r5 946
-  store r4 r5
-  imm r4 13
-  imm r5 980
-  store r4 r5
-  imm r4 14
-  imm r5 1004
-  store r4 r5
-  imm r4 15
-  imm r5 1019
-  store r4 r5
-  imm r4 16
-  imm r5 1024
-  store r4 r5
+  imm phase 0
+  imm table_addr 0
+  imm table_value 0
+  store table_addr table_value
+  imm table_addr 1
+  imm table_value 100
+  store table_addr table_value
+  imm table_addr 2
+  imm table_value 200
+  store table_addr table_value
+  imm table_addr 3
+  imm table_value 297
+  store table_addr table_value
+  imm table_addr 4
+  imm table_value 392
+  store table_addr table_value
+  imm table_addr 5
+  imm table_value 483
+  store table_addr table_value
+  imm table_addr 6
+  imm table_value 569
+  store table_addr table_value
+  imm table_addr 7
+  imm table_value 650
+  store table_addr table_value
+  imm table_addr 8
+  imm table_value 724
+  store table_addr table_value
+  imm table_addr 9
+  imm table_value 792
+  store table_addr table_value
+  imm table_addr 10
+  imm table_value 851
+  store table_addr table_value
+  imm table_addr 11
+  imm table_value 903
+  store table_addr table_value
+  imm table_addr 12
+  imm table_value 946
+  store table_addr table_value
+  imm table_addr 13
+  imm table_value 980
+  store table_addr table_value
+  imm table_addr 14
+  imm table_value 1004
+  store table_addr table_value
+  imm table_addr 15
+  imm table_value 1019
+  store table_addr table_value
+  imm table_addr 16
+  imm table_value 1024
+  store table_addr table_value
 
 frame:
-  ; r11 = sin(phase). r3 is the quadrant, r4 the table offset, and
-  ; r5 a temporary.
-  divi r3 r2 16
-  muli r5 r3 16
-  sub r4 r2 r5
-  jeq r3 1 sin_mirror
-  jeq r3 3 sin_mirror
+  ; sine = sin(phase). du is the quadrant, dv the table offset, and
+  ; row_u a temporary.
+  divi du phase 16
+  muli row_u du 16
+  sub dv phase row_u
+  jeq du 1 sin_mirror
+  jeq du 3 sin_mirror
   jmp sin_lookup
 
 sin_mirror:
   imm r0 16
-  mov r1 r4
+  mov r1 dv
   sub0 r1
-  mov r4 r0
+  mov dv r0
 
 sin_lookup:
-  load r11 r4
-  subi r0 r3 1
+  load sine dv
+  subi r0 du 1
   jc r0 sin_negate
   jmp sin_done
 
 sin_negate:
-  neg r11
+  neg sine
 
 sin_done:
-  ; r12 = cos(phase) = sin(phase + 16).
-  addi r6 r2 16
-  subi r0 r6 63
+  ; cosine = cos(phase) = sin(phase + 16).
+  addi row_v phase 16
+  subi r0 row_v 63
   jc r0 wrap_cos
   jmp cos_phase_ready
 
 wrap_cos:
-  subi r6 r6 64
+  subi row_v row_v 64
 
 cos_phase_ready:
-  divi r3 r6 16
-  muli r5 r3 16
-  sub r4 r6 r5
-  jeq r3 1 cos_mirror
-  jeq r3 3 cos_mirror
+  divi du row_v 16
+  muli row_u du 16
+  sub dv row_v row_u
+  jeq du 1 cos_mirror
+  jeq du 3 cos_mirror
   jmp cos_lookup
 
 cos_mirror:
   imm r0 16
-  mov r1 r4
+  mov r1 dv
   sub0 r1
-  mov r4 r0
+  mov dv r0
 
 cos_lookup:
-  load r12 r4
-  subi r0 r3 1
+  load cosine dv
+  subi r0 du 1
   jc r0 cos_negate
   jmp cos_done
 
 cos_negate:
-  neg r12
+  neg cosine
 
 cos_done:
   ; Apply a small sinusoidal zoom and build the affine increments.
-  divi r0 r11 4
+  divi r0 sine 4
   addi0 1024
-  mov r13 r0
-  mul r14 r12 r13
-  divi r3 r14 1024
-  mul r14 r11 r13
-  divi r4 r14 1024
+  mov zoom r0
+  mul temp cosine zoom
+  divi du temp 1024
+  mul temp sine zoom
+  divi dv temp 1024
 
   ; Start at the transformed upper-left corner.
-  sub r14 r3 r4
-  muli r5 r14 32
-  neg r5
-  add r14 r4 r3
-  muli r6 r14 32
-  neg r6
-  imm r10 64
+  sub temp du dv
+  muli row_u temp 32
+  neg row_u
+  add temp dv du
+  muli row_v temp 32
+  neg row_v
+  imm rows 64
 
 row:
-  mov r7 r5
-  mov r8 r6
-  imm r9 64
+  mov u row_u
+  mov v row_v
+  imm pixels 64
 
 pixel:
   ; Reduce u and v modulo 16384 without a dedicated remainder operation.
-  divi r11 r7 16384
-  muli r12 r11 16384
-  sub r13 r7 r12
-  divi r11 r8 16384
-  muli r12 r11 16384
-  sub r14 r8 r12
+  divi sine u 16384
+  muli cosine sine 16384
+  sub zoom u cosine
+  divi sine v 16384
+  muli cosine sine 16384
+  sub temp v cosine
 
   ; XOR the high half-period bits to form the checkerboard.
-  subi r0 r13 8191
+  subi r0 zoom 8191
   jc r0 u_high
-  subi r0 r14 8191
+  subi r0 temp 8191
   jc r0 light
   jmp dark
 
 u_high:
-  subi r0 r14 8191
+  subi r0 temp 8191
   jc r0 dark
   jmp light
 
 light:
-  imm r15 14
+  imm color 14
   jmp emit
 
 dark:
-  imm r15 2
+  imm color 2
 
 emit:
-  screen_data r15
+  screen_data color
 
-  add r7 r7 r3
-  add r8 r8 r4
-  dec r9
-  jc r9 pixel
+  add u u du
+  add v v dv
+  dec pixels
+  jc pixels pixel
 
-  sub r5 r5 r4
-  add r6 r6 r3
-  dec r10
-  jc r10 row
+  sub row_u row_u dv
+  add row_v row_v du
+  dec rows
+  jc rows row
 
-  imm r15 0
-  screen_swap r15
-  inc r2
-  subi r0 r2 63
+  imm color 0
+  screen_swap color
+  inc phase
+  subi r0 phase 63
   jc r0 wrap_phase
   jmp frame
 
 wrap_phase:
-  subi r2 r2 64
+  subi phase phase 64
   jmp frame

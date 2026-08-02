@@ -1,5 +1,20 @@
 .screen 64 64
 
+.reg phase r2
+.reg x r3
+.reg y r4
+.reg rows r5
+.reg pixels r6
+.reg sum r7
+.reg angle r8
+.reg abs_angle r9
+.reg sine r10
+.reg dx r11
+.reg dy r12
+.reg distance r13
+.reg test r14
+.reg color r15
+
 ; Four-wave plasma.
 ;
 ; Angles use tenths of a degree.
@@ -10,243 +25,232 @@
 ;
 ; Hypot uses:
 ;   max(abs(dx), abs(dy)) + 3/8 * min(abs(dx), abs(dy)).
-;
-; r2: frame phase in half-degree steps
-; r3: pixel x
-; r4: pixel y
-; r5: rows left
-; r6: pixels left
-; r7: sum of four waves
-; r8-r10: angle and sine temporaries
-; r11-r13: distance temporaries
-; r14: temporary
-; r15: temporary/color
 
 start:
-  imm r2 0
+  imm phase 0
 
 frame:
-  imm r4 0
-  imm r5 64
+  imm y 0
+  imm rows 64
 
 row:
-  imm r3 0
-  imm r6 64
+  imm x 0
+  imm pixels 64
 
 pixel:
-  imm r7 0
+  imm sum 0
 
   ; sin(x*0.8 + frame*2.0)
-  muli r8 r3 8
-  muli r9 r2 4
-  add r8 r8 r9
+  muli angle x 8
+  muli abs_angle phase 4
+  add angle angle abs_angle
 
 wave1_upper:
-  subi r0 r8 1799
+  subi r0 angle 1799
   jc r0 wave1_subtract_turn
   jmp wave1_lower
 
 wave1_subtract_turn:
-  subi r8 r8 3600
+  subi angle angle 3600
   jmp wave1_upper
 
 wave1_lower:
   imm r0 -1800
-  sub0 r8
+  sub0 angle
   jc r0 wave1_add_turn
   jmp wave1_sine
 
 wave1_add_turn:
-  addi r8 r8 3600
+  addi angle angle 3600
   jmp wave1_lower
 
 wave1_sine:
-  mov r9 r8
-  jc r9 wave1_abs_ready
-  neg r9
+  mov abs_angle angle
+  jc abs_angle wave1_abs_ready
+  neg abs_angle
 
 wave1_abs_ready:
-  imm r10 1800
-  sub r0 r10 r9
-  mul0 r8
+  imm sine 1800
+  sub r0 sine abs_angle
+  mul0 angle
   divi0 791
-  mov r10 r0
-  add r7 r7 r10
+  mov sine r0
+  add sum sum sine
 
   ; sin(y*0.5 - frame*1.5)
-  muli r8 r4 5
-  muli r9 r2 3
-  sub r8 r8 r9
+  muli angle y 5
+  muli abs_angle phase 3
+  sub angle angle abs_angle
 
 wave2_upper:
-  subi r0 r8 1799
+  subi r0 angle 1799
   jc r0 wave2_subtract_turn
   jmp wave2_lower
 
 wave2_subtract_turn:
-  subi r8 r8 3600
+  subi angle angle 3600
   jmp wave2_upper
 
 wave2_lower:
   imm r0 -1800
-  sub0 r8
+  sub0 angle
   jc r0 wave2_add_turn
   jmp wave2_sine
 
 wave2_add_turn:
-  addi r8 r8 3600
+  addi angle angle 3600
   jmp wave2_lower
 
 wave2_sine:
-  mov r9 r8
-  jc r9 wave2_abs_ready
-  neg r9
+  mov abs_angle angle
+  jc abs_angle wave2_abs_ready
+  neg abs_angle
 
 wave2_abs_ready:
-  imm r10 1800
-  sub r0 r10 r9
-  mul0 r8
+  imm sine 1800
+  sub r0 sine abs_angle
+  mul0 angle
   divi0 791
-  mov r10 r0
-  add r7 r7 r10
+  mov sine r0
+  add sum sum sine
 
   ; sin((x+y)*0.4 + frame*1.0)
-  add r0 r3 r4
+  add r0 x y
   muli0 4
-  mov r8 r0
-  muli r9 r2 2
-  add r8 r8 r9
+  mov angle r0
+  muli abs_angle phase 2
+  add angle angle abs_angle
 
 wave3_upper:
-  subi r0 r8 1799
+  subi r0 angle 1799
   jc r0 wave3_subtract_turn
   jmp wave3_lower
 
 wave3_subtract_turn:
-  subi r8 r8 3600
+  subi angle angle 3600
   jmp wave3_upper
 
 wave3_lower:
   imm r0 -1800
-  sub0 r8
+  sub0 angle
   jc r0 wave3_add_turn
   jmp wave3_sine
 
 wave3_add_turn:
-  addi r8 r8 3600
+  addi angle angle 3600
   jmp wave3_lower
 
 wave3_sine:
-  mov r9 r8
-  jc r9 wave3_abs_ready
-  neg r9
+  mov abs_angle angle
+  jc abs_angle wave3_abs_ready
+  neg abs_angle
 
 wave3_abs_ready:
-  imm r10 1800
-  sub r0 r10 r9
-  mul0 r8
+  imm sine 1800
+  sub r0 sine abs_angle
+  mul0 angle
   divi0 791
-  mov r10 r0
-  add r7 r7 r10
+  mov sine r0
+  add sum sum sine
 
   ; Approximate hypot(x-32, y-32).
-  subi r11 r3 32
-  jc r11 distance_dx_ready
-  neg r11
+  subi dx x 32
+  jc dx distance_dx_ready
+  neg dx
 
 distance_dx_ready:
-  subi r12 r4 32
-  jc r12 distance_dy_ready
-  neg r12
+  subi dy y 32
+  jc dy distance_dy_ready
+  neg dy
 
 distance_dy_ready:
 
-  sub r0 r11 r12
+  sub r0 dx dy
   jc r0 distance_dx_larger
 
   ; abs(dy) >= abs(dx)
-  muli r0 r11 3
+  muli r0 dx 3
   divi0 8
-  mov r13 r0
-  add r13 r12 r13
+  mov distance r0
+  add distance dy distance
   jmp distance_ready
 
 distance_dx_larger:
-  muli r0 r12 3
+  muli r0 dy 3
   divi0 8
-  mov r13 r0
-  add r13 r11 r13
+  mov distance r0
+  add distance dx distance
 
 distance_ready:
   ; sin(distance*0.3 - frame*0.5)
-  muli r0 r13 3
-  sub0 r2
-  mov r8 r0
+  muli r0 distance 3
+  sub0 phase
+  mov angle r0
 
 wave4_upper:
-  subi r0 r8 1799
+  subi r0 angle 1799
   jc r0 wave4_subtract_turn
   jmp wave4_lower
 
 wave4_subtract_turn:
-  subi r8 r8 3600
+  subi angle angle 3600
   jmp wave4_upper
 
 wave4_lower:
   imm r0 -1800
-  sub0 r8
+  sub0 angle
   jc r0 wave4_add_turn
   jmp wave4_sine
 
 wave4_add_turn:
-  addi r8 r8 3600
+  addi angle angle 3600
   jmp wave4_lower
 
 wave4_sine:
-  mov r9 r8
-  jc r9 wave4_abs_ready
-  neg r9
+  mov abs_angle angle
+  jc abs_angle wave4_abs_ready
+  neg abs_angle
 
 wave4_abs_ready:
-  imm r10 1800
-  sub r0 r10 r9
-  mul0 r8
+  imm sine 1800
+  sub r0 sine abs_angle
+  mul0 angle
   divi0 791
-  mov r10 r0
-  add r7 r7 r10
+  mov sine r0
+  add sum sum sine
 
   ; Original mapping: ((value + 4.0) * 2.0) % 16.
-  addi r0 r7 4096
+  addi r0 sum 4096
   divi0 512
-  mov r15 r0
-  subi r14 r15 15
-  jc r14 color_wrap
+  mov color r0
+  subi test color 15
+  jc test color_wrap
   jmp emit
 
 color_wrap:
-  subi r15 r15 16
+  subi color color 16
 
 emit:
-  screen_data r15
+  screen_data color
 
-  inc r3
-  dec r6
-  jc r6 pixel
+  inc x
+  dec pixels
+  jc pixels pixel
 
-  inc r4
-  dec r5
-  jc r5 row
+  inc y
+  dec rows
+  jc rows row
 
   imm r0 0
   screen_swap r0
 
   ; One frame is 0.5 degrees in the shared phase. It yields the source's
   ; +2.0, -1.5, +1.0, and -0.5 degree wave velocities.
-  addi r2 r2 5
-  subi r0 r2 3599
+  addi phase phase 5
+  subi r0 phase 3599
   jc r0 phase_wrap
   jmp frame
 
 phase_wrap:
-  subi r2 r2 3600
+  subi phase phase 3600
   jmp frame

@@ -4,309 +4,442 @@
 .memory 32 132
 .kind llm
 
+.reg width r2
+.reg height r3
+
+; Source loading aliases; these registers become pipe bitplanes afterwards.
+.reg cells_total r4
+.reg source_pos r5
+.reg mem_addr r6
+.reg packed r7
+.reg factor r8
+.reg pack_count r9
+.reg cell r10
+.reg x r11
+.reg y r12
+.reg man_count r13
+.reg test r14
+.reg p0_source r15
+.reg display_addr r16
+.reg color r17
+.reg halt_action r17
+.reg one r18
+.reg rounds r19
+
+; Pipe value bitplanes and destination masks.
+.reg p0_plane1 r4
+.reg p0_plane2 r5
+.reg p0_plane3 r6
+.reg p0_plane4 r7
+.reg p0_dest r8
+.reg p1_plane1 r9
+.reg p1_plane2 r11
+.reg p1_plane3 r12
+.reg p1_plane4 r16
+.reg p1_dest r53
+
+; Persistent state for the three possible men.
+.reg m0_x r20
+.reg m0_y r21
+.reg m0_dir r22
+.reg m0_a r23
+.reg m0_b r24
+.reg m0_halted r25
+.reg m0_left r26
+.reg m0_right r27
+.reg m0_top r28
+.reg m0_bottom r29
+.reg m0_prev r30
+
+.reg m1_x r31
+.reg m1_y r32
+.reg m1_dir r33
+.reg m1_a r34
+.reg m1_b r35
+.reg m1_halted r36
+.reg m1_left r37
+.reg m1_right r38
+.reg m1_top r39
+.reg m1_bottom r40
+.reg m1_prev r41
+
+.reg m2_x r42
+.reg m2_y r43
+.reg m2_dir r44
+.reg m2_a r45
+.reg m2_b r46
+.reg m2_halted r47
+.reg m2_left r48
+.reg m2_right r49
+.reg m2_top r50
+.reg m2_bottom r51
+.reg m2_prev r52
+
+; Shared topology scratch. `room_idx` becomes pipe 1's destination mask.
+.reg room_idx r53
+.reg t0 r54
+.reg t1 r55
+.reg t2 r56
+.reg t3 r57
+.reg t4 r58
+.reg t5 r59
+.reg t6 r60
+.reg t7 r61
+.reg t8 r62
+.reg t9 r63
+.reg t10 r64
+.reg t11 r65
+.reg man_idx r66
+
+; Persistent metadata for both pipes.
+.reg p0_len r67
+.reg p0_src r68
+.reg p0_dst r69
+.reg p0_first r70
+.reg p0_last r71
+.reg p0_path0 r72
+.reg p0_path1 r73
+.reg p0_path2 r74
+.reg p0_occ r75
+.reg p0_plane0 r76
+
+.reg p1_len r77
+.reg p1_src r78
+.reg p1_dst r79
+.reg p1_first r80
+.reg p1_last r81
+.reg p1_path0 r82
+.reg p1_path1 r83
+.reg p1_path2 r84
+.reg p1_occ r85
+.reg p1_plane0 r86
+.reg pipe_count r87
+
+; General workspace, aliased to the currently executing man's state.
+.reg work0 r88
+.reg work1 r89
+.reg work2 r90
+.reg work3 r91
+.reg work4 r92
+.reg work5 r93
+.reg work6 r94
+.reg cur_x r88
+.reg cur_y r89
+.reg cur_dir r90
+.reg cur_a r91
+.reg cur_b r92
+.reg cur_halted r93
+.reg cur_left r94
+.reg cur_right r30
+.reg cur_top r41
+.reg cur_bottom r52
+.reg room_right r30
+.reg room_top r41
+.reg room_bottom r52
+.reg pipe_mask r41
+.reg gap r52
+
 ; Interpret an LLM program containing up to three rooms and two pipes.
 ;
 ; Source memory:
 ;   0..31  eight row-major ASCII cells packed in base 256
 ;
-; Persistent man state:
-;             x   y  dir   A   B  halted  left right top bottom previous
-;   man 0:   20  21   22  23  24    25     26   27   28   29     30
-;   man 1:   31  32   33  34  35    36     37   38   39   40     41
-;   man 2:   42  43   44  45  46    47     48   49   50   51     52
+; Each man keeps its position, direction, A/B registers, halted flag, room
+; bounds, and previous display position in the corresponding `m0_*`/`m1_*`/
+; `m2_*` registers.
 
 start:
-  read r2
-  read r3
-  mul r4 r2 r3
+  read width
+  read height
+  mul cells_total width height
 
-  imm r5 0
-  imm r6 0
-  imm r7 0
-  imm r8 1
-  mov r0 r8
-  imm r9 0
-  imm r11 0
-  imm r12 0
-  imm r13 0
-  imm r18 1
+  imm source_pos 0
+  imm mem_addr 0
+  imm packed 0
+  imm factor 1
+  mov r0 factor
+  imm pack_count 0
+  imm x 0
+  imm y 0
+  imm man_count 0
+  imm one 1
 
   ; Missing man slots are permanently halted.
-  imm r25 1
-  imm r36 1
-  imm r47 1
+  imm m0_halted 1
+  imm m1_halted 1
+  imm m2_halted 1
 
 read_source:
-  read r10
+  read cell
 
   ; Record each @ in row-major room order.
-  subi r14 r10 64
-  jc r14 read_not_at
-  subi r14 r10 63
-  jc r14 read_at
+  subi test cell 64
+  jc test read_not_at
+  subi test cell 63
+  jc test read_at
   jmp read_not_at
 
 read_at:
-  jeqs r13 0 read_at_man0
-  jeqs r13 1 read_at_man1
+  jeqs man_count 0 read_at_man0
+  jeqs man_count 1 read_at_man1
 
 read_at_man2:
-  mov r42 r11
-  mov r43 r12
-  imm r44 1
-  imm r45 0
-  imm r46 0
-  imm r47 0
-  inc r13
+  mov m2_x x
+  mov m2_y y
+  imm m2_dir 1
+  imm m2_a 0
+  imm m2_b 0
+  imm m2_halted 0
+  inc man_count
   jmp read_not_at
 
 read_at_man0:
-  mov r20 r11
-  mov r21 r12
-  imm r22 1
-  imm r23 0
-  imm r24 0
-  imm r25 0
-  inc r13
+  mov m0_x x
+  mov m0_y y
+  imm m0_dir 1
+  imm m0_a 0
+  imm m0_b 0
+  imm m0_halted 0
+  inc man_count
   jmp read_not_at
 
 read_at_man1:
-  mov r31 r11
-  mov r32 r12
-  imm r33 1
-  imm r34 0
-  imm r35 0
-  imm r36 0
-  inc r13
+  mov m1_x x
+  mov m1_y y
+  imm m1_dir 1
+  imm m1_a 0
+  imm m1_b 0
+  imm m1_halted 0
+  inc man_count
 
 read_not_at:
   ; Paint a provisional cell while the source is already in hand. Room
   ; horizontals and all pipe cells are corrected after topology parsing.
-  imm r17 3
-  jeqs r10 32 read_color_black
-  jeqs r10 64 read_color_man
-  jeqs r10 124 read_color_wall
-  jeqs r10 43 read_color_arithmetic
-  jeqs r10 45 read_color_arithmetic
-  jeqs r10 77 read_color_blue
-  jeqs r10 114 read_color_pipe_instruction
-  jeqs r10 115 read_color_pipe_instruction
-  subi r14 r10 47
-  jc r14 read_color_digit_high
+  imm color 3
+  jeqs cell 32 read_color_black
+  jeqs cell 64 read_color_man
+  jeqs cell 124 read_color_wall
+  jeqs cell 43 read_color_arithmetic
+  jeqs cell 45 read_color_arithmetic
+  jeqs cell 77 read_color_blue
+  jeqs cell 114 read_color_pipe_instruction
+  jeqs cell 115 read_color_pipe_instruction
+  subi test cell 47
+  jc test read_color_digit_high
   jmp read_color_ready
 
 read_color_digit_high:
-  subi r14 r10 57
-  jc r14 read_color_ready
-  imm r17 8
+  subi test cell 57
+  jc test read_color_ready
+  imm color 8
   jmp read_color_ready
 
 read_color_black:
-  imm r17 0
+  imm color 0
   jmp read_color_ready
 
 read_color_man:
-  imm r17 9
+  imm color 9
   jmp read_color_ready
 
 read_color_wall:
-  imm r17 4
+  imm color 4
   jmp read_color_ready
 
 read_color_arithmetic:
-  imm r17 10
+  imm color 10
   jmp read_color_ready
 
 read_color_blue:
-  imm r17 12
+  imm color 12
   jmp read_color_ready
 
 read_color_pipe_instruction:
-  imm r17 13
+  imm color 13
 
 read_color_ready:
-  screen_data r17
+  screen_data color
 
-  mov r0 r10
-  mul0 r8
-  add0 r7
-  mov r7 r0
-  muli r8 r8 256
-  inc r9
-  inc r5
-  inc r11
+  mov r0 cell
+  mul0 factor
+  add0 packed
+  mov packed r0
+  muli factor factor 256
+  inc pack_count
+  inc source_pos
+  inc x
 
 read_after_position:
 
-  jeqs r9 8 read_flush
+  jeqs pack_count 8 read_flush
 
 read_after_flush:
-  jeqrs r5 r4 read_source_done
-  jeqrs r11 r2 read_next_row
+  jeqrs source_pos cells_total read_source_done
+  jeqrs x width read_next_row
   jmp read_source
 
 read_next_row:
-  imm r11 0
-  inc r12
-  muli r16 r12 16
-  screen_addr r16
+  imm x 0
+  inc y
+  muli display_addr y 16
+  screen_addr display_addr
   jmp read_source
 
 read_flush:
-  store r6 r7
-  inc r6
-  imm r7 0
-  imm r8 1
-  mov r0 r8
-  imm r9 0
+  store mem_addr packed
+  inc mem_addr
+  imm packed 0
+  imm factor 1
+  mov r0 factor
+  imm pack_count 0
   jmp read_after_flush
 
 read_source_done:
-  jc r9 read_flush_final
+  jc pack_count read_flush_final
   jmp source_stored
 
 read_flush_final:
-  store r6 r7
+  store mem_addr packed
 
 source_stored:
   ; A blocking read fences the asynchronous source stores.
-  imm r6 0
-  load r10 r6
+  imm mem_addr 0
+  load cell mem_addr
 
   ; Find each room's bounds from its @. A row scan reaches | walls;
   ; scanning the left wall vertically reaches + corners.
-  imm r53 0
+  imm room_idx 0
 
 find_room:
-  jeqs r53 0 find_room_load0
-  jeqs r53 1 find_room_load1
+  jeqs room_idx 0 find_room_load0
+  jeqs room_idx 1 find_room_load1
 
 find_room_load2:
-  mov r54 r42
-  mov r55 r43
+  mov t0 m2_x
+  mov t1 m2_y
   jmp find_left_start
 
 find_room_load0:
-  mov r54 r20
-  mov r55 r21
+  mov t0 m0_x
+  mov t1 m0_y
   jmp find_left_start
 
 find_room_load1:
-  mov r54 r31
-  mov r55 r32
+  mov t0 m1_x
+  mov t1 m1_y
 
 find_left_start:
-  mov r56 r54
+  mov t2 t0
 
 find_left:
-  dec r56
-  mov r0 r55
-  mul0 r2
-  add0 r56
-  mov r60 r0
-  load8 r61 r60 r62 r63 r64 r65
-  jeqs r61 124 find_right_start
+  dec t2
+  mov r0 t1
+  mul0 width
+  add0 t2
+  mov t6 r0
+  load8 t7 t6 t8 t9 t10 t11
+  jeqs t7 124 find_right_start
   jmp find_left
 
 find_right_start:
-  mov r57 r54
+  mov t3 t0
 
 find_right:
-  inc r57
-  mov r0 r55
-  mul0 r2
-  add0 r57
-  mov r60 r0
-  load8 r61 r60 r62 r63 r64 r65
-  jeqs r61 124 find_top_start
+  inc t3
+  mov r0 t1
+  mul0 width
+  add0 t3
+  mov t6 r0
+  load8 t7 t6 t8 t9 t10 t11
+  jeqs t7 124 find_top_start
   jmp find_right
 
 find_top_start:
-  mov r58 r55
+  mov t4 t1
 
 find_top:
-  dec r58
-  mov r0 r58
-  mul0 r2
-  add0 r56
-  mov r60 r0
-  load8 r61 r60 r62 r63 r64 r65
-  jeqs r61 43 find_bottom_start
+  dec t4
+  mov r0 t4
+  mul0 width
+  add0 t2
+  mov t6 r0
+  load8 t7 t6 t8 t9 t10 t11
+  jeqs t7 43 find_bottom_start
   jmp find_top
 
 find_bottom_start:
-  mov r59 r55
+  mov t5 t1
 
 find_bottom:
-  inc r59
-  mov r0 r59
-  mul0 r2
-  add0 r56
-  mov r60 r0
-  load8 r61 r60 r62 r63 r64 r65
-  jeqs r61 43 find_room_save
+  inc t5
+  mov r0 t5
+  mul0 width
+  add0 t2
+  mov t6 r0
+  load8 t7 t6 t8 t9 t10 t11
+  jeqs t7 43 find_room_save
   jmp find_bottom
 
 find_room_save:
-  jeqs r53 0 find_room_save0
-  jeqs r53 1 find_room_save1
+  jeqs room_idx 0 find_room_save0
+  jeqs room_idx 1 find_room_save1
 
 find_room_save2:
-  mov r48 r56
-  mov r49 r57
-  mov r50 r58
-  mov r51 r59
+  mov m2_left t2
+  mov m2_right t3
+  mov m2_top t4
+  mov m2_bottom t5
   jmp find_room_next
 
 find_room_save0:
-  mov r26 r56
-  mov r27 r57
-  mov r28 r58
-  mov r29 r59
+  mov m0_left t2
+  mov m0_right t3
+  mov m0_top t4
+  mov m0_bottom t5
   jmp find_room_next
 
 find_room_save1:
-  mov r37 r56
-  mov r38 r57
-  mov r39 r58
-  mov r40 r59
+  mov m1_left t2
+  mov m1_right t3
+  mov m1_top t4
+  mov m1_bottom t5
 
 find_room_next:
   ; The streaming renderer treats '-' and '+' as instructions. Correct the
   ; two horizontal walls now that this room's bounds are known.
-  imm r17 4
-  mov r0 r58
+  imm color 4
+  mov r0 t4
   muli0 16
-  add0 r56
-  mov r16 r0
-  screen_addr r16
-  mov r0 r57
-  sub0 r56
+  add0 t2
+  mov display_addr r0
+  screen_addr display_addr
+  mov r0 t3
+  sub0 t2
   addi0 1
-  mov r60 r0
+  mov t6 r0
 
 find_room_draw_top:
-  screen_data r17
-  dec r60
-  jc r60 find_room_draw_top
+  screen_data color
+  dec t6
+  jc t6 find_room_draw_top
 
-  mov r0 r59
+  mov r0 t5
   muli0 16
-  add0 r56
-  mov r16 r0
-  screen_addr r16
-  mov r0 r57
-  sub0 r56
+  add0 t2
+  mov display_addr r0
+  screen_addr display_addr
+  mov r0 t3
+  sub0 t2
   addi0 1
-  mov r60 r0
+  mov t6 r0
 
 find_room_draw_bottom:
-  screen_data r17
-  dec r60
-  jc r60 find_room_draw_bottom
+  screen_data color
+  dec t6
+  jc t6 find_room_draw_bottom
 
-  inc r53
-  jeqrs r53 r13 render_initial_start
+  inc room_idx
+  jeqrs room_idx man_count render_initial_start
   jmp find_room
 
 render_initial_start:
@@ -314,664 +447,664 @@ render_initial_start:
 
 ; Pipe metadata:
 ;             len src dst first last path0 path1 path2 occupancy plane0
-;   pipe 0:    67  68  69   70    71    72    73    74      75       76
-;   pipe 1:    77  78  79   80    81    82    83    84      85       86
+;   pipe 0:   p0_len through p0_plane0
+;   pipe 1:   p1_len through p1_plane0
 ;
-; The remaining value bitplanes are r4..r7 for pipe 0 and
-; r9,r11,r12,r16 for pipe 1. Destination masks are r8 and r53.
-; r87 is the pipe count.
+; The remaining value bitplanes are p0_plane1..p0_plane4 for pipe 0 and
+; p1_plane1,p1_plane2,p1_plane3,p1_plane4 for pipe 1. Destination masks are
+; p0_dest and p1_dest.
 
 parse_pipes_start:
   ; Force both paths to be painted on the initial frame.
-  imm r54 -1
-  imm r55 -1
-  imm r67 0
-  imm r68 -1
-  imm r69 -1
-  imm r77 0
-  imm r78 -1
-  imm r79 -1
-  imm r87 0
-  imm r88 0
+  imm t0 -1
+  imm t1 -1
+  imm p0_len 0
+  imm p0_src -1
+  imm p0_dst -1
+  imm p1_len 0
+  imm p1_src -1
+  imm p1_dst -1
+  imm pipe_count 0
+  imm work0 0
 
 pipe_scan_room:
-  jeqs r88 0 pipe_scan_room0
-  jeqs r88 1 pipe_scan_room1
+  jeqs work0 0 pipe_scan_room0
+  jeqs work0 1 pipe_scan_room1
 
 pipe_scan_room2:
-  mov r52 r48
-  mov r56 r49
-  mov r57 r50
-  mov r17 r51
+  mov m2_prev m2_left
+  mov t2 m2_right
+  mov t3 m2_top
+  mov color m2_bottom
   jmp pipe_scan_top_start
 
 pipe_scan_room0:
-  mov r52 r26
-  mov r56 r27
-  mov r57 r28
-  mov r17 r29
+  mov m2_prev m0_left
+  mov t2 m0_right
+  mov t3 m0_top
+  mov color m0_bottom
   jmp pipe_scan_top_start
 
 pipe_scan_room1:
-  mov r52 r37
-  mov r56 r38
-  mov r57 r39
-  mov r17 r40
+  mov m2_prev m1_left
+  mov t2 m1_right
+  mov t3 m1_top
+  mov color m1_bottom
 
 pipe_scan_top_start:
-  imm r55 0
-  jc r57 pipe_scan_top_setup
+  imm t1 0
+  jc t3 pipe_scan_top_setup
   jmp pipe_scan_right_start
 
 pipe_scan_top_setup:
-  mov r90 r52
-  addi r91 r57 -1
+  mov work2 m2_prev
+  addi work3 t3 -1
 
 pipe_scan_top:
-  mov r0 r91
-  mul0 r2
-  add0 r90
-  mov r89 r0
-  load8 r10 r89 r62 r63 r64 r65
-  jeqs r10 94 pipe_candidate_up
+  mov r0 work3
+  mul0 width
+  add0 work2
+  mov work1 r0
+  load8 cell work1 t8 t9 t10 t11
+  jeqs cell 94 pipe_candidate_up
 
 pipe_scan_top_next:
-  inc r90
-  sub r14 r90 r56
-  jc r14 pipe_scan_right_start
+  inc work2
+  sub test work2 t2
+  jc test pipe_scan_right_start
   jmp pipe_scan_top
 
 pipe_candidate_up:
-  imm r93 0
+  imm work5 0
   jmp pipe_trace_start
 
 pipe_scan_right_start:
-  imm r55 1
-  addi r90 r56 1
-  jeqrs r90 r2 pipe_scan_bottom_start
-  mov r91 r57
+  imm t1 1
+  addi work2 t2 1
+  jeqrs work2 width pipe_scan_bottom_start
+  mov work3 t3
 
 pipe_scan_right:
-  mov r0 r91
-  mul0 r2
-  add0 r90
-  mov r89 r0
-  load8 r10 r89 r62 r63 r64 r65
-  jeqs r10 62 pipe_candidate_right
+  mov r0 work3
+  mul0 width
+  add0 work2
+  mov work1 r0
+  load8 cell work1 t8 t9 t10 t11
+  jeqs cell 62 pipe_candidate_right
 
 pipe_scan_right_next:
-  inc r91
-  sub r14 r91 r17
-  jc r14 pipe_scan_bottom_start
+  inc work3
+  sub test work3 color
+  jc test pipe_scan_bottom_start
   jmp pipe_scan_right
 
 pipe_candidate_right:
-  imm r93 1
+  imm work5 1
   jmp pipe_trace_start
 
 pipe_scan_bottom_start:
-  imm r55 2
-  addi r91 r17 1
-  jeqrs r91 r3 pipe_scan_left_start
-  mov r90 r52
+  imm t1 2
+  addi work3 color 1
+  jeqrs work3 height pipe_scan_left_start
+  mov work2 m2_prev
 
 pipe_scan_bottom:
-  mov r0 r91
-  mul0 r2
-  add0 r90
-  mov r89 r0
-  load8 r10 r89 r62 r63 r64 r65
-  jeqs r10 118 pipe_candidate_down
+  mov r0 work3
+  mul0 width
+  add0 work2
+  mov work1 r0
+  load8 cell work1 t8 t9 t10 t11
+  jeqs cell 118 pipe_candidate_down
 
 pipe_scan_bottom_next:
-  inc r90
-  sub r14 r90 r56
-  jc r14 pipe_scan_left_start
+  inc work2
+  sub test work2 t2
+  jc test pipe_scan_left_start
   jmp pipe_scan_bottom
 
 pipe_candidate_down:
-  imm r93 2
+  imm work5 2
   jmp pipe_trace_start
 
 pipe_scan_left_start:
-  imm r55 3
-  jc r52 pipe_scan_left_setup
+  imm t1 3
+  jc m2_prev pipe_scan_left_setup
   jmp pipe_scan_room_done
 
 pipe_scan_left_setup:
-  addi r90 r52 -1
-  mov r91 r57
+  addi work2 m2_prev -1
+  mov work3 t3
 
 pipe_scan_left:
-  mov r0 r91
-  mul0 r2
-  add0 r90
-  mov r89 r0
-  load8 r10 r89 r62 r63 r64 r65
-  jeqs r10 60 pipe_candidate_left
+  mov r0 work3
+  mul0 width
+  add0 work2
+  mov work1 r0
+  load8 cell work1 t8 t9 t10 t11
+  jeqs cell 60 pipe_candidate_left
 
 pipe_scan_left_next:
-  inc r91
-  sub r14 r91 r17
-  jc r14 pipe_scan_room_done
+  inc work3
+  sub test work3 color
+  jc test pipe_scan_room_done
   jmp pipe_scan_left
 
 pipe_candidate_left:
-  imm r93 3
+  imm work5 3
 
 pipe_trace_start:
-  mov r58 r90
-  mov r59 r91
+  mov t4 work2
+  mov t5 work3
 
   ; Keep the source room and first arrowhead.
-  mov r94 r88
-  mov r0 r91
+  mov work6 work0
+  mov r0 work3
   muli0 16
-  add0 r90
-  mov r9 r0
-  imm r11 0
-  imm r12 0
-  imm r16 0
-  imm r30 0
-  imm r19 1
-  mov r0 r19
-  imm r92 0
-  imm r54 0
-  imm r88 0
-  imm r15 1
+  add0 work2
+  mov p1_plane1 r0
+  imm p1_plane2 0
+  imm p1_plane3 0
+  imm p1_plane4 0
+  imm m0_prev 0
+  imm rounds 1
+  mov r0 rounds
+  imm work4 0
+  imm t0 0
+  imm work0 0
+  imm p0_source 1
 
 pipe_trace_append:
-  mov r0 r91
+  mov r0 work3
   muli0 16
-  add0 r90
-  mov r62 r0
-  mul0 r19
-  add0 r30
-  mov r30 r0
-  muli r19 r19 256
-  inc r92
-  inc r54
-  muli r15 r15 2
-  jeqs r54 21 pipe_trace_overflow
-  jeqs r92 7 pipe_trace_flush
+  add0 work2
+  mov t8 r0
+  mul0 rounds
+  add0 m0_prev
+  mov m0_prev r0
+  muli rounds rounds 256
+  inc work4
+  inc t0
+  muli p0_source p0_source 2
+  jeqs t0 21 pipe_trace_overflow
+  jeqs work4 7 pipe_trace_flush
 
 pipe_trace_after_flush:
 
-  jeqs r93 0 pipe_trace_move_up
-  jeqs r93 1 pipe_trace_move_right
-  jeqs r93 2 pipe_trace_move_down
+  jeqs work5 0 pipe_trace_move_up
+  jeqs work5 1 pipe_trace_move_right
+  jeqs work5 2 pipe_trace_move_down
 
 pipe_trace_move_left:
-  addi r61 r90 -1
-  mov r60 r91
+  addi t7 work2 -1
+  mov t6 work3
   jmp pipe_trace_moved
 
 pipe_trace_move_up:
-  mov r61 r90
-  addi r60 r91 -1
+  mov t7 work2
+  addi t6 work3 -1
   jmp pipe_trace_moved
 
 pipe_trace_move_right:
-  addi r61 r90 1
-  mov r60 r91
+  addi t7 work2 1
+  mov t6 work3
   jmp pipe_trace_moved
 
 pipe_trace_move_down:
-  mov r61 r90
-  addi r60 r91 1
+  mov t7 work2
+  addi t6 work3 1
 
 pipe_trace_moved:
   ; A point inside any room is necessarily the destination border.
-  sub r14 r26 r61
-  jc r14 pipe_trace_check_room1
-  sub r14 r61 r27
-  jc r14 pipe_trace_check_room1
-  sub r14 r28 r60
-  jc r14 pipe_trace_check_room1
-  sub r14 r60 r29
-  jc r14 pipe_trace_check_room1
-  imm r66 0
+  sub test m0_left t7
+  jc test pipe_trace_check_room1
+  sub test t7 m0_right
+  jc test pipe_trace_check_room1
+  sub test m0_top t6
+  jc test pipe_trace_check_room1
+  sub test t6 m0_bottom
+  jc test pipe_trace_check_room1
+  imm man_idx 0
   jmp pipe_trace_done
 
 pipe_trace_check_room1:
-  subi r14 r13 1
-  jc r14 pipe_trace_check_room1_body
+  subi test man_count 1
+  jc test pipe_trace_check_room1_body
   jmp pipe_trace_check_room2
 
 pipe_trace_check_room1_body:
-  sub r14 r37 r61
-  jc r14 pipe_trace_check_room2
-  sub r14 r61 r38
-  jc r14 pipe_trace_check_room2
-  sub r14 r39 r60
-  jc r14 pipe_trace_check_room2
-  sub r14 r60 r40
-  jc r14 pipe_trace_check_room2
-  imm r66 1
+  sub test m1_left t7
+  jc test pipe_trace_check_room2
+  sub test t7 m1_right
+  jc test pipe_trace_check_room2
+  sub test m1_top t6
+  jc test pipe_trace_check_room2
+  sub test t6 m1_bottom
+  jc test pipe_trace_check_room2
+  imm man_idx 1
   jmp pipe_trace_done
 
 pipe_trace_check_room2:
-  subi r14 r13 2
-  jc r14 pipe_trace_check_room2_body
+  subi test man_count 2
+  jc test pipe_trace_check_room2_body
   jmp pipe_trace_continue
 
 pipe_trace_check_room2_body:
-  sub r14 r48 r61
-  jc r14 pipe_trace_continue
-  sub r14 r61 r49
-  jc r14 pipe_trace_continue
-  sub r14 r50 r60
-  jc r14 pipe_trace_continue
-  sub r14 r60 r51
-  jc r14 pipe_trace_continue
-  imm r66 2
+  sub test m2_left t7
+  jc test pipe_trace_continue
+  sub test t7 m2_right
+  jc test pipe_trace_continue
+  sub test m2_top t6
+  jc test pipe_trace_continue
+  sub test t6 m2_bottom
+  jc test pipe_trace_continue
+  imm man_idx 2
   jmp pipe_trace_done
 
 pipe_trace_continue:
-  mov r90 r61
-  mov r91 r60
-  mov r14 r90
-  neg r14
-  jc r14 pipe_trace_overflow
-  mov r14 r91
-  neg r14
-  jc r14 pipe_trace_overflow
-  jeqrs r90 r2 pipe_trace_overflow
-  sub r14 r90 r2
-  jc r14 pipe_trace_overflow
-  jeqrs r91 r3 pipe_trace_overflow
-  sub r14 r91 r3
-  jc r14 pipe_trace_overflow
-  mov r0 r91
-  mul0 r2
-  add0 r90
-  mov r89 r0
-  load8 r10 r89 r62 r63 r64 r65
-  jeqs r10 94 pipe_trace_set_up
-  jeqs r10 62 pipe_trace_set_right
-  jeqs r10 118 pipe_trace_set_down
-  jeqs r10 60 pipe_trace_set_left
+  mov work2 t7
+  mov work3 t6
+  mov test work2
+  neg test
+  jc test pipe_trace_overflow
+  mov test work3
+  neg test
+  jc test pipe_trace_overflow
+  jeqrs work2 width pipe_trace_overflow
+  sub test work2 width
+  jc test pipe_trace_overflow
+  jeqrs work3 height pipe_trace_overflow
+  sub test work3 height
+  jc test pipe_trace_overflow
+  mov r0 work3
+  mul0 width
+  add0 work2
+  mov work1 r0
+  load8 cell work1 t8 t9 t10 t11
+  jeqs cell 94 pipe_trace_set_up
+  jeqs cell 62 pipe_trace_set_right
+  jeqs cell 118 pipe_trace_set_down
+  jeqs cell 60 pipe_trace_set_left
   jmp pipe_trace_append
 
 pipe_trace_set_up:
-  imm r93 0
+  imm work5 0
   jmp pipe_trace_append
 
 pipe_trace_set_right:
-  imm r93 1
+  imm work5 1
   jmp pipe_trace_append
 
 pipe_trace_set_down:
-  imm r93 2
+  imm work5 2
   jmp pipe_trace_append
 
 pipe_trace_set_left:
-  imm r93 3
+  imm work5 3
   jmp pipe_trace_append
 
 pipe_trace_overflow:
-  imm r66 9
+  imm man_idx 9
   jmp pipe_trace_done
 
 pipe_trace_flush:
-  jeqs r88 0 pipe_trace_flush0
-  jeqs r88 1 pipe_trace_flush1
+  jeqs work0 0 pipe_trace_flush0
+  jeqs work0 1 pipe_trace_flush1
 
 pipe_trace_flush2:
-  mov r16 r30
+  mov p1_plane4 m0_prev
   jmp pipe_trace_flush_reset
 
 pipe_trace_flush0:
-  mov r11 r30
+  mov p1_plane2 m0_prev
   jmp pipe_trace_flush_reset
 
 pipe_trace_flush1:
-  mov r12 r30
+  mov p1_plane3 m0_prev
 
 pipe_trace_flush_reset:
-  inc r88
-  imm r30 0
-  imm r19 1
-  mov r0 r19
-  imm r92 0
+  inc work0
+  imm m0_prev 0
+  imm rounds 1
+  mov r0 rounds
+  imm work4 0
   jmp pipe_trace_after_flush
 
 pipe_trace_done:
-  divi r15 r15 2
+  divi p0_source p0_source 2
 
   ; Save a partial final path chunk.
-  jc r92 pipe_trace_flush_final
+  jc work4 pipe_trace_flush_final
   jmp pipe_trace_save
 
 pipe_trace_flush_final:
-  jeqs r88 0 pipe_trace_flush_final0
-  jeqs r88 1 pipe_trace_flush_final1
-  mov r16 r30
+  jeqs work0 0 pipe_trace_flush_final0
+  jeqs work0 1 pipe_trace_flush_final1
+  mov p1_plane4 m0_prev
   jmp pipe_trace_save
 
 pipe_trace_flush_final0:
-  mov r11 r30
+  mov p1_plane2 m0_prev
   jmp pipe_trace_save
 
 pipe_trace_flush_final1:
-  mov r12 r30
+  mov p1_plane3 m0_prev
 
 pipe_trace_save:
-  mov r0 r91
+  mov r0 work3
   muli0 16
-  add0 r90
-  mov r63 r0
+  add0 work2
+  mov t9 r0
 
   ; A bend beside another room can look like a second source. Such a ghost
   ; traces the same suffix and terminal cell as its parent. Keep the longest
   ; candidate for each terminal cell, matching the canonical pipe parser.
-  imm r92 1
-  jc r87 pipe_trace_compare0
+  imm work4 1
+  jc pipe_count pipe_trace_compare0
   jmp pipe_trace_save0
 
 pipe_trace_compare0:
-  jeqrs r63 r71 pipe_trace_same0
-  subi r14 r87 1
-  jc r14 pipe_trace_compare1
+  jeqrs t9 p0_last pipe_trace_same0
+  subi test pipe_count 1
+  jc test pipe_trace_compare1
   jmp pipe_trace_save1
 
 pipe_trace_same0:
-  sub r14 r54 r67
-  jc r14 pipe_trace_replace0
+  sub test t0 p0_len
+  jc test pipe_trace_replace0
   jmp pipe_scan_resume
 
 pipe_trace_replace0:
-  imm r92 0
+  imm work4 0
   jmp pipe_trace_save0
 
 pipe_trace_compare1:
-  jeqrs r63 r81 pipe_trace_same1
+  jeqrs t9 p1_last pipe_trace_same1
   jmp pipe_scan_resume
 
 pipe_trace_same1:
-  sub r14 r54 r77
-  jc r14 pipe_trace_replace1
+  sub test t0 p1_len
+  jc test pipe_trace_replace1
   jmp pipe_scan_resume
 
 pipe_trace_replace1:
-  imm r92 0
+  imm work4 0
   jmp pipe_trace_save1
 
 pipe_trace_save0:
-  mov r67 r54
-  mov r68 r94
-  mov r69 r66
-  mov r70 r9
-  mov r71 r63
-  mov r72 r11
-  mov r73 r12
-  mov r74 r16
-  imm r75 0
-  imm r76 0
-  imm r4 0
-  imm r5 0
-  imm r6 0
-  imm r7 0
-  mov r8 r15
-  jc r92 pipe_trace_increment_count
+  mov p0_len t0
+  mov p0_src work6
+  mov p0_dst man_idx
+  mov p0_first p1_plane1
+  mov p0_last t9
+  mov p0_path0 p1_plane2
+  mov p0_path1 p1_plane3
+  mov p0_path2 p1_plane4
+  imm p0_occ 0
+  imm p0_plane0 0
+  imm p0_plane1 0
+  imm p0_plane2 0
+  imm p0_plane3 0
+  imm p0_plane4 0
+  mov p0_dest p0_source
+  jc work4 pipe_trace_increment_count
   jmp pipe_scan_resume
 
 pipe_trace_save1:
-  mov r77 r54
-  mov r78 r94
-  mov r79 r66
-  mov r80 r9
-  mov r81 r63
-  mov r82 r11
-  mov r83 r12
-  mov r84 r16
-  imm r85 0
-  imm r86 0
-  imm r9 0
-  imm r11 0
-  imm r12 0
-  imm r16 0
-  mov r53 r15
-  jc r92 pipe_trace_increment_count
+  mov p1_len t0
+  mov p1_src work6
+  mov p1_dst man_idx
+  mov p1_first p1_plane1
+  mov p1_last t9
+  mov p1_path0 p1_plane2
+  mov p1_path1 p1_plane3
+  mov p1_path2 p1_plane4
+  imm p1_occ 0
+  imm p1_plane0 0
+  imm p1_plane1 0
+  imm p1_plane2 0
+  imm p1_plane3 0
+  imm p1_plane4 0
+  mov p1_dest p0_source
+  jc work4 pipe_trace_increment_count
   jmp pipe_scan_resume
 
 pipe_trace_increment_count:
-  inc r87
+  inc pipe_count
 
 pipe_scan_resume:
-  mov r88 r94
-  mov r90 r58
-  mov r91 r59
-  jeqs r55 0 pipe_scan_top_next
-  jeqs r55 1 pipe_scan_right_next
-  jeqs r55 2 pipe_scan_bottom_next
+  mov work0 work6
+  mov work2 t4
+  mov work3 t5
+  jeqs t1 0 pipe_scan_top_next
+  jeqs t1 1 pipe_scan_right_next
+  jeqs t1 2 pipe_scan_bottom_next
   jmp pipe_scan_left_next
 
 pipe_scan_room_done:
-  inc r88
-  jeqrs r88 r13 topology_ready
+  inc work0
+  jeqrs work0 man_count topology_ready
   jmp pipe_scan_room
 
 topology_ready:
   ; These two runtime flags reuse dirty topology slots and otherwise relied
   ; on power-on zero. Every other reused temporary is assigned before use.
-  imm r64 0
-  imm r19 0
-  imm r54 -1
-  imm r55 -1
+  imm t10 0
+  imm rounds 0
+  imm t0 -1
+  imm t1 -1
   jmp render_pipes_start
 
 next_round:
-  read r19
+  read rounds
 
   ; Clear the old man pixels before executing. This frees the three previous
   ; position slots for runtime scratch throughout the tick loop.
-  imm r66 0
+  imm man_idx 0
 
 render_restore_man:
-  jeqs r66 0 render_restore_load0
-  jeqs r66 1 render_restore_load1
+  jeqs man_idx 0 render_restore_load0
+  jeqs man_idx 1 render_restore_load1
 
 render_restore_load2:
-  mov r0 r43
+  mov r0 m2_y
   muli0 16
-  add0 r42
-  mov r54 r0
-  mov r94 r48
-  mov r30 r49
-  mov r41 r50
-  mov r52 r51
+  add0 m2_x
+  mov t0 r0
+  mov work6 m2_left
+  mov room_right m2_right
+  mov room_top m2_top
+  mov room_bottom m2_bottom
   jmp render_restore_loaded
 
 render_restore_load0:
-  mov r0 r21
+  mov r0 m0_y
   muli0 16
-  add0 r20
-  mov r54 r0
-  mov r94 r26
-  mov r30 r27
-  mov r41 r28
-  mov r52 r29
+  add0 m0_x
+  mov t0 r0
+  mov work6 m0_left
+  mov room_right m0_right
+  mov room_top m0_top
+  mov room_bottom m0_bottom
   jmp render_restore_loaded
 
 render_restore_load1:
-  mov r0 r32
+  mov r0 m1_y
   muli0 16
-  add0 r31
-  mov r54 r0
-  mov r94 r37
-  mov r30 r38
-  mov r41 r39
-  mov r52 r40
+  add0 m1_x
+  mov t0 r0
+  mov work6 m1_left
+  mov room_right m1_right
+  mov room_top m1_top
+  mov room_bottom m1_bottom
 
 render_restore_loaded:
-  divi r89 r54 16
-  mov r0 r54
+  divi work1 t0 16
+  mov r0 t0
   andi0 15
-  mov r88 r0
-  jeqrs r88 r94 render_restore_wall
-  jeqrs r88 r30 render_restore_wall
-  jeqrs r89 r41 render_restore_wall
-  jeqrs r89 r52 render_restore_wall
-  mov r0 r89
-  mul0 r2
-  add0 r88
-  mov r14 r0
-  load8 r10 r14 r62 r63 r64 r65
-  jeqs r10 32 render_restore_black
-  jeqs r10 64 render_restore_black
-  jeqs r10 43 render_restore_arithmetic
-  jeqs r10 45 render_restore_arithmetic
-  subi r14 r10 47
-  jc r14 render_restore_digit_or_symbol
+  mov work0 r0
+  jeqrs work0 work6 render_restore_wall
+  jeqrs work0 room_right render_restore_wall
+  jeqrs work1 room_top render_restore_wall
+  jeqrs work1 room_bottom render_restore_wall
+  mov r0 work1
+  mul0 width
+  add0 work0
+  mov test r0
+  load8 cell test t8 t9 t10 t11
+  jeqs cell 32 render_restore_black
+  jeqs cell 64 render_restore_black
+  jeqs cell 43 render_restore_arithmetic
+  jeqs cell 45 render_restore_arithmetic
+  subi test cell 47
+  jc test render_restore_digit_or_symbol
   jmp render_restore_yellow
 
 render_restore_digit_or_symbol:
-  subi r14 r10 57
-  jc r14 render_restore_symbol
-  imm r17 8
+  subi test cell 57
+  jc test render_restore_symbol
+  imm color 8
   jmp render_restore_emit
 
 render_restore_symbol:
-  jeqs r10 77 render_restore_blue
-  jeqs r10 114 render_restore_pipe_instruction
-  jeqs r10 115 render_restore_pipe_instruction
+  jeqs cell 77 render_restore_blue
+  jeqs cell 114 render_restore_pipe_instruction
+  jeqs cell 115 render_restore_pipe_instruction
 
 render_restore_yellow:
-  imm r17 3
+  imm color 3
   jmp render_restore_emit
 
 render_restore_arithmetic:
-  imm r17 10
+  imm color 10
   jmp render_restore_emit
 
 render_restore_blue:
-  imm r17 12
+  imm color 12
   jmp render_restore_emit
 
 render_restore_pipe_instruction:
-  imm r17 13
+  imm color 13
   jmp render_restore_emit
 
 render_restore_wall:
-  imm r17 4
+  imm color 4
   jmp render_restore_emit
 
 render_restore_black:
-  imm r17 0
+  imm color 0
 
 render_restore_emit:
-  screen_addr r54
-  screen_data r17
-  inc r66
-  jeqrs r66 r13 tick_loop
+  screen_addr t0
+  screen_data color
+  inc man_idx
+  jeqrs man_idx man_count tick_loop
   jmp render_restore_man
 
 tick_loop:
-  jc r19 execute_tick
+  jc rounds execute_tick
   jmp render_pipes_start
 
 execute_tick:
-  imm r88 0
+  imm work0 0
 
 shift_pipe:
-  jc r88 shift_pipe_load1
+  jc work0 shift_pipe_load1
 
 shift_pipe_load0:
-  mov r89 r67
-  mov r90 r75
-  mov r91 r76
-  mov r92 r4
-  mov r93 r5
-  mov r94 r6
-  mov r30 r7
-  mov r41 r8
+  mov work1 p0_len
+  mov work2 p0_occ
+  mov work3 p0_plane0
+  mov work4 p0_plane1
+  mov work5 p0_plane2
+  mov work6 p0_plane3
+  mov m0_prev p0_plane4
+  mov m1_prev p0_dest
   jmp shift_pipe_loaded
 
 shift_pipe_load1:
-  mov r89 r77
-  mov r90 r85
-  mov r91 r86
-  mov r92 r9
-  mov r93 r11
-  mov r94 r12
-  mov r30 r16
-  mov r41 r53
+  mov work1 p1_len
+  mov work2 p1_occ
+  mov work3 p1_plane0
+  mov work4 p1_plane1
+  mov work5 p1_plane2
+  mov work6 p1_plane3
+  mov m0_prev p1_plane4
+  mov m1_prev p1_dest
 
 shift_pipe_loaded:
-  jc r89 shift_pipe_begin
-  imm r62 1
-  imm r63 0
+  jc work1 shift_pipe_begin
+  imm t8 1
+  imm t9 0
   jmp shift_pipe_save
 
 shift_pipe_begin:
-  jc r90 shift_pipe_nonempty
-  imm r62 0
-  imm r63 0
+  jc work2 shift_pipe_nonempty
+  imm t8 0
+  imm t9 0
   jmp shift_pipe_save
 
 shift_pipe_nonempty:
   ; Pipes update destination-to-source. An empty destination lets every token
   ; advance. Otherwise, find the highest gap: every token below it advances,
   ; while the packed suffix above it remains in place.
-  mov r0 r41
+  mov r0 pipe_mask
   muli0 2
   subi0 1
-  mov r14 r0
-  sub r10 r14 r90
-  and r52 r10 r41
-  jc r52 shift_pipe_move_all
-  jc r10 shift_pipe_find_gap
+  mov test r0
+  sub cell test work2
+  and gap cell pipe_mask
+  jc gap shift_pipe_move_all
+  jc cell shift_pipe_find_gap
   jmp shift_pipe_decode
 
 shift_pipe_find_gap:
   ; Normalize the highest nonzero nibble of the empty-cell mask.
-  subi r52 r10 255
-  jc r52 shift_pipe_gap_above8
-  subi r52 r10 15
-  jc r52 shift_pipe_gap4
+  subi gap cell 255
+  jc gap shift_pipe_gap_above8
+  subi gap cell 15
+  jc gap shift_pipe_gap4
 
 shift_pipe_gap0:
-  mov r52 r10
-  imm r14 1
+  mov gap cell
+  imm test 1
   jmp shift_pipe_gap_nibble
 
 shift_pipe_gap4:
-  divi r52 r10 16
-  imm r14 16
+  divi gap cell 16
+  imm test 16
   jmp shift_pipe_gap_nibble
 
 shift_pipe_gap_above8:
-  subi r52 r10 4095
-  jc r52 shift_pipe_gap_above12
+  subi gap cell 4095
+  jc gap shift_pipe_gap_above12
 
 shift_pipe_gap8:
-  divi r52 r10 256
-  imm r14 256
+  divi gap cell 256
+  imm test 256
   jmp shift_pipe_gap_nibble
 
 shift_pipe_gap_above12:
-  subi r52 r10 65535
-  jc r52 shift_pipe_gap16
+  subi gap cell 65535
+  jc gap shift_pipe_gap16
 
 shift_pipe_gap12:
-  divi r52 r10 4096
-  imm r14 4096
+  divi gap cell 4096
+  imm test 4096
   jmp shift_pipe_gap_nibble
 
 shift_pipe_gap16:
-  divi r52 r10 65536
-  imm r14 65536
+  divi gap cell 65536
+  imm test 65536
 
 shift_pipe_gap_nibble:
-  ; Highest power of two in the four-bit value r52.
-  mov r0 r52
+  ; Highest power of two in the four-bit `gap` value.
+  mov r0 gap
   subi0 7
   jc r0 shift_pipe_gap_power8
-  mov r0 r52
+  mov r0 gap
   subi0 3
   jc r0 shift_pipe_gap_power4
-  mov r0 r52
+  mov r0 gap
   subi0 1
   jc r0 shift_pipe_gap_power2
   imm r0 1
@@ -989,719 +1122,719 @@ shift_pipe_gap_power8:
   imm r0 8
 
 shift_pipe_gap_power_ready:
-  mul0 r14
+  mul0 test
   subi0 1
-  and0 r90
-  mov r64 r0
-  jc r64 shift_pipe_moving
+  and0 work2
+  mov t10 r0
+  jc t10 shift_pipe_moving
   jmp shift_pipe_decode
 
 ; Shift occupancy and all five value bitplanes by the same mask.
 shift_pipe_moving:
-  add r90 r90 r64
+  add work2 work2 t10
 
-  mov r0 r91
-  and0 r64
-  add0 r91
-  mov r91 r0
+  mov r0 work3
+  and0 t10
+  add0 work3
+  mov work3 r0
 
-  mov r0 r92
-  and0 r64
-  add0 r92
-  mov r92 r0
+  mov r0 work4
+  and0 t10
+  add0 work4
+  mov work4 r0
 
-  mov r0 r93
-  and0 r64
-  add0 r93
-  mov r93 r0
+  mov r0 work5
+  and0 t10
+  add0 work5
+  mov work5 r0
 
-  mov r0 r94
-  and0 r64
-  add0 r94
-  mov r94 r0
+  mov r0 work6
+  and0 t10
+  add0 work6
+  mov work6 r0
 
-  mov r0 r30
-  and0 r64
-  add0 r30
-  mov r30 r0
+  mov r0 m0_prev
+  and0 t10
+  add0 m0_prev
+  mov m0_prev r0
   jmp shift_pipe_decode
 
 shift_pipe_move_all:
-  muli r90 r90 2
-  muli r91 r91 2
-  muli r92 r92 2
-  muli r93 r93 2
-  muli r94 r94 2
-  muli r30 r30 2
+  muli work2 work2 2
+  muli work3 work3 2
+  muli work4 work4 2
+  muli work5 work5 2
+  muli work6 work6 2
+  muli m0_prev m0_prev 2
 
 shift_pipe_decode:
-  and r62 r90 r18
-  imm r63 0
-  mov r0 r91
-  and0 r41
-  div0 r41
-  add0 r63
-  mov r63 r0
-  mov r0 r92
-  and0 r41
-  div0 r41
+  and t8 work2 one
+  imm t9 0
+  mov r0 work3
+  and0 pipe_mask
+  div0 pipe_mask
+  add0 t9
+  mov t9 r0
+  mov r0 work4
+  and0 pipe_mask
+  div0 pipe_mask
   muli0 2
-  add0 r63
-  mov r63 r0
-  mov r0 r93
-  and0 r41
-  div0 r41
+  add0 t9
+  mov t9 r0
+  mov r0 work5
+  and0 pipe_mask
+  div0 pipe_mask
   muli0 4
-  add0 r63
-  mov r63 r0
-  mov r0 r94
-  and0 r41
-  div0 r41
+  add0 t9
+  mov t9 r0
+  mov r0 work6
+  and0 pipe_mask
+  div0 pipe_mask
   muli0 8
-  add0 r63
-  mov r63 r0
-  mov r0 r30
-  and0 r41
-  div0 r41
+  add0 t9
+  mov t9 r0
+  mov r0 m0_prev
+  and0 pipe_mask
+  div0 pipe_mask
   muli0 16
-  add0 r63
-  mov r63 r0
+  add0 t9
+  mov t9 r0
 
 shift_pipe_save:
-  jc r88 shift_pipe_save1
+  jc work0 shift_pipe_save1
 
 shift_pipe_save0:
-  mov r75 r90
-  mov r76 r91
-  mov r4 r92
-  mov r5 r93
-  mov r6 r94
-  mov r7 r30
-  imm r3 0
-  jc r62 shift_pipe0_source_ready
-  imm r3 1
+  mov p0_occ work2
+  mov p0_plane0 work3
+  mov p0_plane1 work4
+  mov p0_plane2 work5
+  mov p0_plane3 work6
+  mov p0_plane4 m0_prev
+  imm height 0
+  jc t8 shift_pipe0_source_ready
+  imm height 1
 
 shift_pipe0_source_ready:
-  mov r15 r63
-  jeqs r87 1 shift_pipe1_missing
-  imm r88 1
+  mov p0_source t9
+  jeqs pipe_count 1 shift_pipe1_missing
+  imm work0 1
   jmp shift_pipe
 
 shift_pipe1_missing:
-  imm r56 0
-  imm r57 0
+  imm t2 0
+  imm t3 0
   jmp shift_pipes_done
 
 shift_pipe_save1:
-  mov r85 r90
-  mov r86 r91
-  mov r9 r92
-  mov r11 r93
-  mov r12 r94
-  mov r16 r30
-  imm r56 0
-  jc r62 shift_pipe1_source_ready
-  imm r56 1
+  mov p1_occ work2
+  mov p1_plane0 work3
+  mov p1_plane1 work4
+  mov p1_plane2 work5
+  mov p1_plane3 work6
+  mov p1_plane4 m0_prev
+  imm t2 0
+  jc t8 shift_pipe1_source_ready
+  imm t2 1
 
 shift_pipe1_source_ready:
-  mov r57 r63
+  mov t3 t9
 
 shift_pipes_done:
-  imm r58 0
-  imm r59 0
-  imm r60 0
-  imm r61 0
-  imm r17 0
-  imm r66 0
+  imm t4 0
+  imm t5 0
+  imm t6 0
+  imm t7 0
+  imm halt_action 0
+  imm man_idx 0
 
 execute_man:
-  jeqs r66 0 execute_man_load0
-  jeqs r66 1 execute_man_load1
+  jeqs man_idx 0 execute_man_load0
+  jeqs man_idx 1 execute_man_load1
 
 execute_man_load2:
-  mov r88 r42
-  mov r89 r43
-  mov r90 r44
-  mov r91 r45
-  mov r92 r46
-  mov r93 r47
-  mov r94 r48
-  mov r30 r49
-  mov r41 r50
-  mov r52 r51
+  mov cur_x m2_x
+  mov cur_y m2_y
+  mov cur_dir m2_dir
+  mov cur_a m2_a
+  mov cur_b m2_b
+  mov cur_halted m2_halted
+  mov cur_left m2_left
+  mov cur_right m2_right
+  mov cur_top m2_top
+  mov cur_bottom m2_bottom
   jmp execute_man_loaded
 
 execute_man_load0:
-  mov r88 r20
-  mov r89 r21
-  mov r90 r22
-  mov r91 r23
-  mov r92 r24
-  mov r93 r25
-  mov r94 r26
-  mov r30 r27
-  mov r41 r28
-  mov r52 r29
+  mov cur_x m0_x
+  mov cur_y m0_y
+  mov cur_dir m0_dir
+  mov cur_a m0_a
+  mov cur_b m0_b
+  mov cur_halted m0_halted
+  mov cur_left m0_left
+  mov cur_right m0_right
+  mov cur_top m0_top
+  mov cur_bottom m0_bottom
   jmp execute_man_loaded
 
 execute_man_load1:
-  mov r88 r31
-  mov r89 r32
-  mov r90 r33
-  mov r91 r34
-  mov r92 r35
-  mov r93 r36
-  mov r94 r37
-  mov r30 r38
-  mov r41 r39
-  mov r52 r40
+  mov cur_x m1_x
+  mov cur_y m1_y
+  mov cur_dir m1_dir
+  mov cur_a m1_a
+  mov cur_b m1_b
+  mov cur_halted m1_halted
+  mov cur_left m1_left
+  mov cur_right m1_right
+  mov cur_top m1_top
+  mov cur_bottom m1_bottom
 
 execute_man_loaded:
-  jc r93 execute_man_save
-  mov r0 r89
-  mul0 r2
-  add0 r88
-  mov r54 r0
-  load8 r10 r54 r62 r63 r64 r65
+  jc cur_halted execute_man_save
+  mov r0 cur_y
+  mul0 width
+  add0 cur_x
+  mov t0 r0
+  load8 cell t0 t8 t9 t10 t11
 
-  jeqs r10 32 execute_move
-  jeqs r10 64 execute_move
-  jeqs r10 94 execute_up
-  jeqs r10 62 execute_right
-  jeqs r10 118 execute_down
-  jeqs r10 60 execute_left
-  jeqs r10 77 execute_m
-  jeqs r10 43 execute_plus
-  jeqs r10 45 execute_minus
-  jeqs r10 88 execute_x
-  jeqs r10 115 execute_send
-  jeqs r10 114 execute_receive
-  jeqs r10 72 execute_h
+  jeqs cell 32 execute_move
+  jeqs cell 64 execute_move
+  jeqs cell 94 execute_up
+  jeqs cell 62 execute_right
+  jeqs cell 118 execute_down
+  jeqs cell 60 execute_left
+  jeqs cell 77 execute_m
+  jeqs cell 43 execute_plus
+  jeqs cell 45 execute_minus
+  jeqs cell 88 execute_x
+  jeqs cell 115 execute_send
+  jeqs cell 114 execute_receive
+  jeqs cell 72 execute_h
 
-  subi r14 r10 47
-  jc r14 execute_digit_high
+  subi test cell 47
+  jc test execute_digit_high
   jmp execute_move
 
 execute_digit_high:
-  subi r14 r10 57
-  jc r14 execute_move
-  subi r91 r10 48
+  subi test cell 57
+  jc test execute_move
+  subi cur_a cell 48
   jmp execute_move
 
 execute_up:
-  imm r90 0
+  imm cur_dir 0
   jmp execute_move
 
 execute_right:
-  imm r90 1
+  imm cur_dir 1
   jmp execute_move
 
 execute_down:
-  imm r90 2
+  imm cur_dir 2
   jmp execute_move
 
 execute_left:
-  imm r90 3
+  imm cur_dir 3
   jmp execute_move
 
 execute_m:
-  mov r92 r91
+  mov cur_b cur_a
   jmp execute_move
 
 execute_plus:
-  add r91 r91 r92
+  add cur_a cur_a cur_b
   jmp execute_move
 
 execute_minus:
-  sub r91 r91 r92
+  sub cur_a cur_a cur_b
   jmp execute_move
 
 execute_x:
-  jc r91 execute_x_clockwise
-  mov r14 r91
-  divi r14 r14 2
-  neg r14
-  jc r14 execute_x_counterclockwise
+  jc cur_a execute_x_clockwise
+  mov test cur_a
+  divi test test 2
+  neg test
+  jc test execute_x_counterclockwise
   jmp execute_move
 
 execute_x_clockwise:
-  inc r90
-  subi r14 r90 3
-  jc r14 execute_x_wrap_zero
+  inc cur_dir
+  subi test cur_dir 3
+  jc test execute_x_wrap_zero
   jmp execute_move
 
 execute_x_wrap_zero:
-  imm r90 0
+  imm cur_dir 0
   jmp execute_move
 
 execute_x_counterclockwise:
-  jc r90 execute_x_counter_nonzero
-  imm r90 3
+  jc cur_dir execute_x_counter_nonzero
+  imm cur_dir 3
   jmp execute_move
 
 execute_x_counter_nonzero:
-  dec r90
+  dec cur_dir
   jmp execute_move
 
 execute_h:
-  imm r93 1
+  imm cur_halted 1
   jmp execute_man_save
 
 execute_send:
   ; Choose the nearest outgoing pipe. Ties use endpoint reading order.
-  jeqr r66 r68 execute_send_pipe0_match
+  jeqr man_idx p0_src execute_send_pipe0_match
   jmp execute_send_pipe1
 
 execute_send_pipe0_match:
-  jeqr r66 r78 execute_send_choose_nearest
+  jeqr man_idx p1_src execute_send_choose_nearest
   jmp execute_send_pipe0
 
 execute_send_choose_nearest:
-  mov r54 r70
-  mov r14 r80
+  mov t0 p0_first
+  mov test p1_first
   jmp choose_nearest_pipe
 
 execute_send_nearest_ready:
-  jc r64 execute_send_pipe1
+  jc t10 execute_send_pipe1
 
 execute_send_pipe0:
-  jc r3 execute_send_pipe0_ready
+  jc height execute_send_pipe0_ready
   jmp execute_man_save
 
 execute_send_pipe0_ready:
-  addi r58 r91 10
-  imm r3 0
+  addi t4 cur_a 10
+  imm height 0
   jmp execute_move
 
 execute_send_pipe1:
-  jc r56 execute_send_pipe1_ready
+  jc t2 execute_send_pipe1_ready
   jmp execute_man_save
 
 execute_send_pipe1_ready:
-  addi r59 r91 10
-  imm r56 0
+  addi t5 cur_a 10
+  imm t2 0
   jmp execute_move
 
 execute_receive:
-  jeqr r66 r69 execute_receive_pipe0_match
+  jeqr man_idx p0_dst execute_receive_pipe0_match
   jmp execute_receive_pipe1
 
 execute_receive_pipe0_match:
-  jeqr r66 r79 execute_receive_choose_nearest
+  jeqr man_idx p1_dst execute_receive_choose_nearest
   jmp execute_receive_pipe0
 
 execute_receive_choose_nearest:
-  mov r54 r71
-  mov r14 r81
+  mov t0 p0_last
+  mov test p1_last
   jmp choose_nearest_pipe
 
 execute_receive_nearest_ready:
-  jc r64 execute_receive_pipe1
+  jc t10 execute_receive_pipe1
 
 execute_receive_pipe0:
-  jc r15 execute_receive_pipe0_ready
+  jc p0_source execute_receive_pipe0_ready
   jmp execute_man_save
 
 execute_receive_pipe0_ready:
-  addi r91 r15 -10
-  imm r60 1
-  imm r15 0
+  addi cur_a p0_source -10
+  imm t6 1
+  imm p0_source 0
   jmp execute_move
 
 execute_receive_pipe1:
-  jc r57 execute_receive_pipe1_ready
+  jc t3 execute_receive_pipe1_ready
   jmp execute_man_save
 
 execute_receive_pipe1_ready:
-  addi r91 r57 -10
-  imm r61 1
-  imm r57 0
+  addi cur_a t3 -10
+  imm t7 1
+  imm t3 0
   jmp execute_move
 
 choose_nearest_pipe:
-  ; r54/r14 are packed endpoint positions. Return 0/1 in r64.
-  divi r64 r54 16
-  mov r0 r54
+  ; t0/test are packed endpoint positions. Return 0/1 in t10.
+  divi t10 t0 16
+  mov r0 t0
   andi0 15
-  mov r62 r0
-  sub r63 r88 r62
-  jc r63 choose_p0_dx_ready
-  neg r63
+  mov t8 r0
+  sub t9 cur_x t8
+  jc t9 choose_p0_dx_ready
+  neg t9
 
 choose_p0_dx_ready:
-  sub r64 r89 r64
-  jc r64 choose_p0_dy_ready
-  neg r64
+  sub t10 cur_y t10
+  jc t10 choose_p0_dy_ready
+  neg t10
 
 choose_p0_dy_ready:
-  add r63 r63 r64
+  add t9 t9 t10
 
-  divi r65 r14 16
-  mov r0 r14
+  divi t11 test 16
+  mov r0 test
   andi0 15
-  mov r62 r0
-  sub r64 r88 r62
-  jc r64 choose_p1_dx_ready
-  neg r64
+  mov t8 r0
+  sub t10 cur_x t8
+  jc t10 choose_p1_dx_ready
+  neg t10
 
 choose_p1_dx_ready:
-  sub r65 r89 r65
-  jc r65 choose_p1_dy_ready
-  neg r65
+  sub t11 cur_y t11
+  jc t11 choose_p1_dy_ready
+  neg t11
 
 choose_p1_dy_ready:
-  add r64 r64 r65
+  add t10 t10 t11
 
-  sub r65 r63 r64
-  jc r65 choose_pipe1
-  neg r65
-  jc r65 choose_pipe0
+  sub t11 t9 t10
+  jc t11 choose_pipe1
+  neg t11
+  jc t11 choose_pipe0
 
 choose_tie:
-  sub r65 r54 r14
-  jc r65 choose_pipe1
+  sub t11 t0 test
+  jc t11 choose_pipe1
 
 choose_pipe0:
-  imm r64 0
+  imm t10 0
   jmp choose_nearest_return
 
 choose_pipe1:
-  imm r64 1
+  imm t10 1
 
 choose_nearest_return:
-  jeqs r10 115 execute_send_nearest_ready
+  jeqs cell 115 execute_send_nearest_ready
   jmp execute_receive_nearest_ready
 
 execute_move:
-  jeqs r90 0 execute_move_up
-  jeqs r90 1 execute_move_right
-  jeqs r90 2 execute_move_down
+  jeqs cur_dir 0 execute_move_up
+  jeqs cur_dir 1 execute_move_right
+  jeqs cur_dir 2 execute_move_down
 
 execute_move_left:
-  dec r88
+  dec cur_x
   jmp execute_wall_check
 
 execute_move_up:
-  dec r89
+  dec cur_y
   jmp execute_wall_check
 
 execute_move_right:
-  inc r88
+  inc cur_x
   jmp execute_wall_check
 
 execute_move_down:
-  inc r89
+  inc cur_y
 
 execute_wall_check:
-  jeqrs r88 r94 execute_wall_hit
-  jeqrs r88 r30 execute_wall_hit
-  jeqrs r89 r41 execute_wall_hit
-  jeqrs r89 r52 execute_wall_hit
+  jeqrs cur_x cur_left execute_wall_hit
+  jeqrs cur_x cur_right execute_wall_hit
+  jeqrs cur_y cur_top execute_wall_hit
+  jeqrs cur_y cur_bottom execute_wall_hit
   jmp execute_man_save
 
 execute_wall_hit:
-  imm r17 1
+  imm halt_action 1
 
 execute_man_save:
-  jeqs r66 0 execute_man_save0
-  jeqs r66 1 execute_man_save1
+  jeqs man_idx 0 execute_man_save0
+  jeqs man_idx 1 execute_man_save1
 
 execute_man_save2:
-  mov r42 r88
-  mov r43 r89
-  mov r44 r90
-  mov r45 r91
-  mov r46 r92
-  mov r47 r93
+  mov m2_x cur_x
+  mov m2_y cur_y
+  mov m2_dir cur_dir
+  mov m2_a cur_a
+  mov m2_b cur_b
+  mov m2_halted cur_halted
   jmp execute_man_next
 
 execute_man_save0:
-  mov r20 r88
-  mov r21 r89
-  mov r22 r90
-  mov r23 r91
-  mov r24 r92
-  mov r25 r93
+  mov m0_x cur_x
+  mov m0_y cur_y
+  mov m0_dir cur_dir
+  mov m0_a cur_a
+  mov m0_b cur_b
+  mov m0_halted cur_halted
   jmp execute_man_next
 
 execute_man_save1:
-  mov r31 r88
-  mov r32 r89
-  mov r33 r90
-  mov r34 r91
-  mov r35 r92
-  mov r36 r93
+  mov m1_x cur_x
+  mov m1_y cur_y
+  mov m1_dir cur_dir
+  mov m1_a cur_a
+  mov m1_b cur_b
+  mov m1_halted cur_halted
 
 execute_man_next:
-  inc r66
-  jeqrs r66 r13 apply_pipe_actions
+  inc man_idx
+  jeqrs man_idx man_count apply_pipe_actions
   jmp execute_man
 
 apply_pipe_actions:
-  jc r60 apply_pipe0_receive
+  jc t6 apply_pipe0_receive
 
 apply_pipe0_after_receive:
-  jc r58 apply_pipe0_send
+  jc t4 apply_pipe0_send
 
 apply_pipe0_after_send:
-  jc r61 apply_pipe1_receive
+  jc t7 apply_pipe1_receive
 
 apply_pipe1_after_receive:
-  jc r59 apply_pipe1_send
+  jc t5 apply_pipe1_send
 
 apply_pipe1_after_send:
 
-  dec r19
-  jc r17 render_halted
+  dec rounds
+  jc halt_action render_halted
 
   ; Halt when all three slots are halted (missing slots start halted).
-  jc r25 apply_check_halted1
+  jc m0_halted apply_check_halted1
   jmp tick_loop
 
 apply_check_halted1:
-  jc r36 apply_check_halted2
+  jc m1_halted apply_check_halted2
   jmp tick_loop
 
 apply_check_halted2:
-  jc r47 render_halted
+  jc m2_halted render_halted
   jmp tick_loop
 
 apply_pipe0_receive:
-  sub r75 r75 r8
-  addi r14 r8 -1
-  and r76 r76 r14
-  and r4 r4 r14
-  and r5 r5 r14
-  and r6 r6 r14
-  and r7 r7 r14
+  sub p0_occ p0_occ p0_dest
+  addi test p0_dest -1
+  and p0_plane0 p0_plane0 test
+  and p0_plane1 p0_plane1 test
+  and p0_plane2 p0_plane2 test
+  and p0_plane3 p0_plane3 test
+  and p0_plane4 p0_plane4 test
   jmp apply_pipe0_after_receive
 
 apply_pipe0_send:
-  inc r75
-  mov r14 r58
-  mov r0 r14
-  and0 r18
-  add0 r76
-  mov r76 r0
-  divi r62 r14 2
-  mov r14 r62
-  mov r0 r14
-  and0 r18
-  add0 r4
-  mov r4 r0
-  divi r62 r14 2
-  mov r14 r62
-  mov r0 r14
-  and0 r18
-  add0 r5
-  mov r5 r0
-  divi r62 r14 2
-  mov r14 r62
-  mov r0 r14
-  and0 r18
-  add0 r6
-  mov r6 r0
-  divi r62 r14 2
-  mov r0 r62
-  and0 r18
-  add0 r7
-  mov r7 r0
+  inc p0_occ
+  mov test t4
+  mov r0 test
+  and0 one
+  add0 p0_plane0
+  mov p0_plane0 r0
+  divi t8 test 2
+  mov test t8
+  mov r0 test
+  and0 one
+  add0 p0_plane1
+  mov p0_plane1 r0
+  divi t8 test 2
+  mov test t8
+  mov r0 test
+  and0 one
+  add0 p0_plane2
+  mov p0_plane2 r0
+  divi t8 test 2
+  mov test t8
+  mov r0 test
+  and0 one
+  add0 p0_plane3
+  mov p0_plane3 r0
+  divi t8 test 2
+  mov r0 t8
+  and0 one
+  add0 p0_plane4
+  mov p0_plane4 r0
   jmp apply_pipe0_after_send
 
 apply_pipe1_receive:
-  sub r85 r85 r53
-  addi r14 r53 -1
-  and r86 r86 r14
-  and r9 r9 r14
-  and r11 r11 r14
-  and r12 r12 r14
-  and r16 r16 r14
+  sub p1_occ p1_occ p1_dest
+  addi test p1_dest -1
+  and p1_plane0 p1_plane0 test
+  and p1_plane1 p1_plane1 test
+  and p1_plane2 p1_plane2 test
+  and p1_plane3 p1_plane3 test
+  and p1_plane4 p1_plane4 test
   jmp apply_pipe1_after_receive
 
 apply_pipe1_send:
-  inc r85
-  mov r14 r59
-  mov r0 r14
-  and0 r18
-  add0 r86
-  mov r86 r0
-  divi r62 r14 2
-  mov r14 r62
-  mov r0 r14
-  and0 r18
-  add0 r9
-  mov r9 r0
-  divi r62 r14 2
-  mov r14 r62
-  mov r0 r14
-  and0 r18
-  add0 r11
-  mov r11 r0
-  divi r62 r14 2
-  mov r14 r62
-  mov r0 r14
-  and0 r18
-  add0 r12
-  mov r12 r0
-  divi r62 r14 2
-  mov r0 r62
-  and0 r18
-  add0 r16
-  mov r16 r0
+  inc p1_occ
+  mov test t5
+  mov r0 test
+  and0 one
+  add0 p1_plane0
+  mov p1_plane0 r0
+  divi t8 test 2
+  mov test t8
+  mov r0 test
+  and0 one
+  add0 p1_plane1
+  mov p1_plane1 r0
+  divi t8 test 2
+  mov test t8
+  mov r0 test
+  and0 one
+  add0 p1_plane2
+  mov p1_plane2 r0
+  divi t8 test 2
+  mov test t8
+  mov r0 test
+  and0 one
+  add0 p1_plane3
+  mov p1_plane3 r0
+  divi t8 test 2
+  mov r0 t8
+  and0 one
+  add0 p1_plane4
+  mov p1_plane4 r0
   jmp apply_pipe1_after_send
 
 render_halted:
-  imm r19 1
+  imm rounds 1
   jmp render_pipes_start
 
 render_pipes_start:
-  imm r88 0
+  imm work0 0
 
 render_pipe:
-  jc r88 render_pipe_load1
+  jc work0 render_pipe_load1
 
 render_pipe_load0:
-  mov r89 r67
-  mov r90 r75
-  mov r14 r75
-  mov r63 r54
-  mov r17 r72
-  mov r62 r73
-  mov r61 r74
+  mov work1 p0_len
+  mov work2 p0_occ
+  mov test p0_occ
+  mov t9 t0
+  mov color p0_path0
+  mov t8 p0_path1
+  mov t7 p0_path2
   jmp render_pipe_loaded
 
 render_pipe_load1:
-  mov r89 r77
-  mov r90 r85
-  mov r14 r85
-  mov r63 r55
-  mov r17 r82
-  mov r62 r83
-  mov r61 r84
+  mov work1 p1_len
+  mov work2 p1_occ
+  mov test p1_occ
+  mov t9 t1
+  mov color p1_path0
+  mov t8 p1_path1
+  mov t7 p1_path2
 
 render_pipe_loaded:
-  jeqr r14 r63 render_pipe_unchanged
-  mov r60 r17
+  jeqr test t9 render_pipe_unchanged
+  mov t6 color
 
   .repeat 0 6
     render_pipe_cell_{i}:
-    jeqs r89 {i} render_pipe_done
-    mov r0 r60
+    jeqs work1 {i} render_pipe_done
+    mov r0 t6
     andi0 255
-    mov r54 r0
-    mov r0 r60
+    mov t0 r0
+    mov r0 t6
     divi0 256
-    mov r60 r0
+    mov t6 r0
 
-    and r63 r90 r18
-    divi r90 r90 2
-    imm r17 6
-    jc r63 render_pipe_occupied_{i}
+    and t9 work2 one
+    divi work2 work2 2
+    imm color 6
+    jc t9 render_pipe_occupied_{i}
     jmp render_pipe_emit_{i}
     render_pipe_occupied_{i}:
-    imm r17 14
+    imm color 14
     render_pipe_emit_{i}:
-    screen_addr r54
-    screen_data r17
+    screen_addr t0
+    screen_data color
   .endrepeat
 
-  mov r60 r62
+  mov t6 t8
 
   .repeat 7 13
     render_pipe_cell_{i}:
-    jeqs r89 {i} render_pipe_done
-    mov r0 r60
+    jeqs work1 {i} render_pipe_done
+    mov r0 t6
     andi0 255
-    mov r54 r0
-    mov r0 r60
+    mov t0 r0
+    mov r0 t6
     divi0 256
-    mov r60 r0
+    mov t6 r0
 
-    and r63 r90 r18
-    divi r90 r90 2
-    imm r17 6
-    jc r63 render_pipe_occupied_{i}
+    and t9 work2 one
+    divi work2 work2 2
+    imm color 6
+    jc t9 render_pipe_occupied_{i}
     jmp render_pipe_emit_{i}
     render_pipe_occupied_{i}:
-    imm r17 14
+    imm color 14
     render_pipe_emit_{i}:
-    screen_addr r54
-    screen_data r17
+    screen_addr t0
+    screen_data color
   .endrepeat
 
-  mov r60 r61
+  mov t6 t7
 
   .repeat 14 19
     render_pipe_cell_{i}:
-    jeqs r89 {i} render_pipe_done
-    mov r0 r60
+    jeqs work1 {i} render_pipe_done
+    mov r0 t6
     andi0 255
-    mov r54 r0
-    mov r0 r60
+    mov t0 r0
+    mov r0 t6
     divi0 256
-    mov r60 r0
+    mov t6 r0
 
-    and r63 r90 r18
-    divi r90 r90 2
-    imm r17 6
-    jc r63 render_pipe_occupied_{i}
+    and t9 work2 one
+    divi work2 work2 2
+    imm color 6
+    jc t9 render_pipe_occupied_{i}
     jmp render_pipe_emit_{i}
     render_pipe_occupied_{i}:
-    imm r17 14
+    imm color 14
     render_pipe_emit_{i}:
-    screen_addr r54
-    screen_data r17
+    screen_addr t0
+    screen_data color
   .endrepeat
 
 render_pipe_done:
-  jc r88 render_pipe_save1
-  mov r54 r14
+  jc work0 render_pipe_save1
+  mov t0 test
   jmp render_pipe_next
 
 render_pipe_save1:
-  mov r55 r14
+  mov t1 test
 
 render_pipe_unchanged:
 render_pipe_next:
-  jc r88 render_current_men
-  jeqs r87 1 render_current_men
-  imm r88 1
+  jc work0 render_current_men
+  jeqs pipe_count 1 render_current_men
+  imm work0 1
   jmp render_pipe
 
 render_current_men:
-  imm r17 9
-  mov r0 r21
+  imm color 9
+  mov r0 m0_y
   muli0 16
-  add0 r20
+  add0 m0_x
   mov r1 r0
   screen_addr r1
-  screen_data r17
-  subi r14 r13 1
-  jc r14 render_current_man1
+  screen_data color
+  subi test man_count 1
+  jc test render_current_man1
   jmp render_commit
 
 render_current_man1:
-  mov r0 r32
+  mov r0 m1_y
   muli0 16
-  add0 r31
+  add0 m1_x
   mov r1 r0
   screen_addr r1
-  screen_data r17
-  subi r14 r13 2
-  jc r14 render_current_man2
+  screen_data color
+  subi test man_count 2
+  jc test render_current_man2
   jmp render_commit
 
 render_current_man2:
-  mov r0 r43
+  mov r0 m2_y
   muli0 16
-  add0 r42
+  add0 m2_x
   mov r1 r0
   screen_addr r1
-  screen_data r17
+  screen_data color
 
 render_commit:
-  screen_swap r18
-  jc r19 halt
+  screen_swap one
+  jc rounds halt
   jmp next_round
 
 halt:
