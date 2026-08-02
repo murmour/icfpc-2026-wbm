@@ -52,14 +52,17 @@ setup_cell:
   ; Coordinate checks distinguish outer walls from the `-` instruction.
   jc r5 setup_not_top
   jmp setup_wall
+
 setup_not_top:
   mov r0 r6
   subi0 1
   jc r0 setup_not_bottom
   jmp setup_wall
+
 setup_not_bottom:
   jc r14 setup_not_left
   jmp setup_wall
+
 setup_not_left:
   mov r0 r7
   subi0 1
@@ -82,10 +85,12 @@ setup_nonspace:
   mov r0 r11
   subi0 43
   jc r0 setup_minus
+
 setup_plus:
   imm r10 16
   imm r11 10
   jmp setup_emit
+
 setup_minus:
   imm r10 17
   imm r11 10
@@ -108,6 +113,7 @@ setup_symbol:
   imm r10 4
   imm r11 3
   jmp setup_emit
+
 setup_after_left:
   mov r0 r11
   subi0 62
@@ -120,6 +126,7 @@ setup_at_or_later:
   mov r0 r11
   subi0 64
   jc r0 setup_after_at
+
   ; Store the start as one packed position. The @ token itself is empty.
   mov r0 r5
   muli0 16
@@ -128,6 +135,7 @@ setup_at_or_later:
   imm r10 0
   imm r11 9
   jmp setup_emit
+
 setup_after_at:
   mov r0 r11
   subi0 72
@@ -135,6 +143,7 @@ setup_after_at:
   imm r10 19
   imm r11 3
   jmp setup_emit
+
 setup_after_h:
   mov r0 r11
   subi0 77
@@ -142,6 +151,7 @@ setup_after_h:
   imm r10 15
   imm r11 12
   jmp setup_emit
+
 setup_after_m:
   mov r0 r11
   subi0 88
@@ -149,6 +159,7 @@ setup_after_m:
   imm r10 18
   imm r11 3
   jmp setup_emit
+
 setup_after_x:
   mov r0 r11
   subi0 94
@@ -156,6 +167,7 @@ setup_after_x:
   imm r10 1
   imm r11 3
   jmp setup_emit
+
 setup_down:
   imm r10 3
   imm r11 3
@@ -182,6 +194,7 @@ setup_emit:
   inc r8
 
   jeqs r8 12 setup_flush
+
 setup_after_flush:
   jc r7 setup_cell
 
@@ -298,6 +311,7 @@ execute_after_minus:
   ; X turns clockwise for positive A and counterclockwise for negative A.
   jc r7 turn_clockwise
   mov r0 r7
+
   ; Divide first to avoid the INT64_MIN negation edge case.
   divi0 2
   neg r0
@@ -310,6 +324,7 @@ turn_clockwise:
   subi0 3
   jc r0 turn_wrap_zero
   jmp move_man
+
 turn_wrap_zero:
   imm r6 0
   jmp move_man
@@ -318,6 +333,7 @@ turn_counterclockwise:
   jc r6 turn_counter_nonzero
   imm r6 3
   jmp move_man
+
 turn_counter_nonzero:
   dec r6
   jmp move_man
@@ -329,18 +345,21 @@ move_man:
   jc r6 move_not_up
   dec r5
   jmp fetch_token
+
 move_not_up:
   mov r0 r6
   subi0 1
   jc r0 move_down_or_left
   inc r4
   jmp fetch_token
+
 move_down_or_left:
   mov r0 r6
   subi0 2
   jc r0 move_left
   inc r5
   jmp fetch_token
+
 move_left:
   dec r4
 
@@ -410,36 +429,42 @@ render_common:
   imm r12 0
   jc r11 restore_nonspace
   jmp restore_ready
+
 restore_nonspace:
   mov r0 r11
   subi0 4
   jc r0 restore_after_direction
   imm r12 3
   jmp restore_ready
+
 restore_after_direction:
   mov r0 r11
   subi0 14
   jc r0 restore_after_digit
   imm r12 8
   jmp restore_ready
+
 restore_after_digit:
   mov r0 r11
   subi0 15
   jc r0 restore_after_m
   imm r12 12
   jmp restore_ready
+
 restore_after_m:
   mov r0 r11
   subi0 17
   jc r0 restore_after_arithmetic
   imm r12 10
   jmp restore_ready
+
 restore_after_arithmetic:
   mov r0 r11
   subi0 19
   jc r0 restore_wall
   imm r12 3
   jmp restore_ready
+
 restore_wall:
   imm r12 4
 
@@ -459,5 +484,6 @@ restore_ready:
 
   ; A negative r10 marks H or a wall collision.
   jc r10 next_round
+
 halt:
   jmp halt

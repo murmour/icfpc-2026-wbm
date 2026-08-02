@@ -45,9 +45,11 @@ read_source:
   subi r14 r10 63
   jc r14 read_at
   jmp read_not_at
+
 read_at:
   jeqs r13 0 read_at_man0
   jeqs r13 1 read_at_man1
+
 read_at_man2:
   mov r42 r11
   mov r43 r12
@@ -57,6 +59,7 @@ read_at_man2:
   imm r47 0
   inc r13
   jmp read_not_at
+
 read_at_man0:
   mov r20 r11
   mov r21 r12
@@ -66,6 +69,7 @@ read_at_man0:
   imm r25 0
   inc r13
   jmp read_not_at
+
 read_at_man1:
   mov r31 r11
   mov r32 r12
@@ -90,28 +94,36 @@ read_not_at:
   subi r14 r10 47
   jc r14 read_color_digit_high
   jmp read_color_ready
+
 read_color_digit_high:
   subi r14 r10 57
   jc r14 read_color_ready
   imm r17 8
   jmp read_color_ready
+
 read_color_black:
   imm r17 0
   jmp read_color_ready
+
 read_color_man:
   imm r17 9
   jmp read_color_ready
+
 read_color_wall:
   imm r17 4
   jmp read_color_ready
+
 read_color_arithmetic:
   imm r17 10
   jmp read_color_ready
+
 read_color_blue:
   imm r17 12
   jmp read_color_ready
+
 read_color_pipe_instruction:
   imm r17 13
+
 read_color_ready:
   screen_data r17
 
@@ -123,9 +135,11 @@ read_color_ready:
   inc r9
   inc r5
   inc r11
+
 read_after_position:
 
   jeqs r9 8 read_flush
+
 read_after_flush:
   jeqrs r5 r4 read_source_done
   jeqrs r11 r2 read_next_row
@@ -150,6 +164,7 @@ read_flush:
 read_source_done:
   jc r9 read_flush_final
   jmp source_stored
+
 read_flush_final:
   store r6 r7
 
@@ -165,20 +180,24 @@ source_stored:
 find_room:
   jeqs r53 0 find_room_load0
   jeqs r53 1 find_room_load1
+
 find_room_load2:
   mov r54 r42
   mov r55 r43
   jmp find_left_start
+
 find_room_load0:
   mov r54 r20
   mov r55 r21
   jmp find_left_start
+
 find_room_load1:
   mov r54 r31
   mov r55 r32
 
 find_left_start:
   mov r56 r54
+
 find_left:
   dec r56
   mov r0 r55
@@ -191,6 +210,7 @@ find_left:
 
 find_right_start:
   mov r57 r54
+
 find_right:
   inc r57
   mov r0 r55
@@ -203,6 +223,7 @@ find_right:
 
 find_top_start:
   mov r58 r55
+
 find_top:
   dec r58
   mov r0 r58
@@ -215,6 +236,7 @@ find_top:
 
 find_bottom_start:
   mov r59 r55
+
 find_bottom:
   inc r59
   mov r0 r59
@@ -228,18 +250,21 @@ find_bottom:
 find_room_save:
   jeqs r53 0 find_room_save0
   jeqs r53 1 find_room_save1
+
 find_room_save2:
   mov r48 r56
   mov r49 r57
   mov r50 r58
   mov r51 r59
   jmp find_room_next
+
 find_room_save0:
   mov r26 r56
   mov r27 r57
   mov r28 r58
   mov r29 r59
   jmp find_room_next
+
 find_room_save1:
   mov r37 r56
   mov r38 r57
@@ -259,6 +284,7 @@ find_room_next:
   sub0 r56
   addi0 1
   mov r60 r0
+
 find_room_draw_top:
   screen_data r17
   dec r60
@@ -273,6 +299,7 @@ find_room_draw_top:
   sub0 r56
   addi0 1
   mov r60 r0
+
 find_room_draw_bottom:
   screen_data r17
   dec r60
@@ -310,18 +337,21 @@ parse_pipes_start:
 pipe_scan_room:
   jeqs r88 0 pipe_scan_room0
   jeqs r88 1 pipe_scan_room1
+
 pipe_scan_room2:
   mov r52 r48
   mov r56 r49
   mov r57 r50
   mov r17 r51
   jmp pipe_scan_top_start
+
 pipe_scan_room0:
   mov r52 r26
   mov r56 r27
   mov r57 r28
   mov r17 r29
   jmp pipe_scan_top_start
+
 pipe_scan_room1:
   mov r52 r37
   mov r56 r38
@@ -332,9 +362,11 @@ pipe_scan_top_start:
   imm r55 0
   jc r57 pipe_scan_top_setup
   jmp pipe_scan_right_start
+
 pipe_scan_top_setup:
   mov r90 r52
   addi r91 r57 -1
+
 pipe_scan_top:
   mov r0 r91
   mul0 r2
@@ -342,11 +374,13 @@ pipe_scan_top:
   mov r89 r0
   load8 r10 r89 r62 r63 r64 r65
   jeqs r10 94 pipe_candidate_up
+
 pipe_scan_top_next:
   inc r90
   sub r14 r90 r56
   jc r14 pipe_scan_right_start
   jmp pipe_scan_top
+
 pipe_candidate_up:
   imm r93 0
   jmp pipe_trace_start
@@ -356,6 +390,7 @@ pipe_scan_right_start:
   addi r90 r56 1
   jeqrs r90 r2 pipe_scan_bottom_start
   mov r91 r57
+
 pipe_scan_right:
   mov r0 r91
   mul0 r2
@@ -363,11 +398,13 @@ pipe_scan_right:
   mov r89 r0
   load8 r10 r89 r62 r63 r64 r65
   jeqs r10 62 pipe_candidate_right
+
 pipe_scan_right_next:
   inc r91
   sub r14 r91 r17
   jc r14 pipe_scan_bottom_start
   jmp pipe_scan_right
+
 pipe_candidate_right:
   imm r93 1
   jmp pipe_trace_start
@@ -377,6 +414,7 @@ pipe_scan_bottom_start:
   addi r91 r17 1
   jeqrs r91 r3 pipe_scan_left_start
   mov r90 r52
+
 pipe_scan_bottom:
   mov r0 r91
   mul0 r2
@@ -384,11 +422,13 @@ pipe_scan_bottom:
   mov r89 r0
   load8 r10 r89 r62 r63 r64 r65
   jeqs r10 118 pipe_candidate_down
+
 pipe_scan_bottom_next:
   inc r90
   sub r14 r90 r56
   jc r14 pipe_scan_left_start
   jmp pipe_scan_bottom
+
 pipe_candidate_down:
   imm r93 2
   jmp pipe_trace_start
@@ -397,9 +437,11 @@ pipe_scan_left_start:
   imm r55 3
   jc r52 pipe_scan_left_setup
   jmp pipe_scan_room_done
+
 pipe_scan_left_setup:
   addi r90 r52 -1
   mov r91 r57
+
 pipe_scan_left:
   mov r0 r91
   mul0 r2
@@ -407,17 +449,20 @@ pipe_scan_left:
   mov r89 r0
   load8 r10 r89 r62 r63 r64 r65
   jeqs r10 60 pipe_candidate_left
+
 pipe_scan_left_next:
   inc r91
   sub r14 r91 r17
   jc r14 pipe_scan_room_done
   jmp pipe_scan_left
+
 pipe_candidate_left:
   imm r93 3
 
 pipe_trace_start:
   mov r58 r90
   mov r59 r91
+
   ; Keep the source room and first arrowhead.
   mov r94 r88
   mov r0 r91
@@ -449,23 +494,28 @@ pipe_trace_append:
   muli r15 r15 2
   jeqs r54 21 pipe_trace_overflow
   jeqs r92 7 pipe_trace_flush
+
 pipe_trace_after_flush:
 
   jeqs r93 0 pipe_trace_move_up
   jeqs r93 1 pipe_trace_move_right
   jeqs r93 2 pipe_trace_move_down
+
 pipe_trace_move_left:
   addi r61 r90 -1
   mov r60 r91
   jmp pipe_trace_moved
+
 pipe_trace_move_up:
   mov r61 r90
   addi r60 r91 -1
   jmp pipe_trace_moved
+
 pipe_trace_move_right:
   addi r61 r90 1
   mov r60 r91
   jmp pipe_trace_moved
+
 pipe_trace_move_down:
   mov r61 r90
   addi r60 r91 1
@@ -487,6 +537,7 @@ pipe_trace_check_room1:
   subi r14 r13 1
   jc r14 pipe_trace_check_room1_body
   jmp pipe_trace_check_room2
+
 pipe_trace_check_room1_body:
   sub r14 r37 r61
   jc r14 pipe_trace_check_room2
@@ -503,6 +554,7 @@ pipe_trace_check_room2:
   subi r14 r13 2
   jc r14 pipe_trace_check_room2_body
   jmp pipe_trace_continue
+
 pipe_trace_check_room2_body:
   sub r14 r48 r61
   jc r14 pipe_trace_continue
@@ -540,15 +592,19 @@ pipe_trace_continue:
   jeqs r10 118 pipe_trace_set_down
   jeqs r10 60 pipe_trace_set_left
   jmp pipe_trace_append
+
 pipe_trace_set_up:
   imm r93 0
   jmp pipe_trace_append
+
 pipe_trace_set_right:
   imm r93 1
   jmp pipe_trace_append
+
 pipe_trace_set_down:
   imm r93 2
   jmp pipe_trace_append
+
 pipe_trace_set_left:
   imm r93 3
   jmp pipe_trace_append
@@ -560,14 +616,18 @@ pipe_trace_overflow:
 pipe_trace_flush:
   jeqs r88 0 pipe_trace_flush0
   jeqs r88 1 pipe_trace_flush1
+
 pipe_trace_flush2:
   mov r16 r30
   jmp pipe_trace_flush_reset
+
 pipe_trace_flush0:
   mov r11 r30
   jmp pipe_trace_flush_reset
+
 pipe_trace_flush1:
   mov r12 r30
+
 pipe_trace_flush_reset:
   inc r88
   imm r30 0
@@ -578,17 +638,21 @@ pipe_trace_flush_reset:
 
 pipe_trace_done:
   divi r15 r15 2
+
   ; Save a partial final path chunk.
   jc r92 pipe_trace_flush_final
   jmp pipe_trace_save
+
 pipe_trace_flush_final:
   jeqs r88 0 pipe_trace_flush_final0
   jeqs r88 1 pipe_trace_flush_final1
   mov r16 r30
   jmp pipe_trace_save
+
 pipe_trace_flush_final0:
   mov r11 r30
   jmp pipe_trace_save
+
 pipe_trace_flush_final1:
   mov r12 r30
 
@@ -597,34 +661,42 @@ pipe_trace_save:
   muli0 16
   add0 r90
   mov r63 r0
+
   ; A bend beside another room can look like a second source. Such a ghost
   ; traces the same suffix and terminal cell as its parent. Keep the longest
   ; candidate for each terminal cell, matching the canonical pipe parser.
   imm r92 1
   jc r87 pipe_trace_compare0
   jmp pipe_trace_save0
+
 pipe_trace_compare0:
   jeqrs r63 r71 pipe_trace_same0
   subi r14 r87 1
   jc r14 pipe_trace_compare1
   jmp pipe_trace_save1
+
 pipe_trace_same0:
   sub r14 r54 r67
   jc r14 pipe_trace_replace0
   jmp pipe_scan_resume
+
 pipe_trace_replace0:
   imm r92 0
   jmp pipe_trace_save0
+
 pipe_trace_compare1:
   jeqrs r63 r81 pipe_trace_same1
   jmp pipe_scan_resume
+
 pipe_trace_same1:
   sub r14 r54 r77
   jc r14 pipe_trace_replace1
   jmp pipe_scan_resume
+
 pipe_trace_replace1:
   imm r92 0
   jmp pipe_trace_save1
+
 pipe_trace_save0:
   mov r67 r54
   mov r68 r94
@@ -643,6 +715,7 @@ pipe_trace_save0:
   mov r8 r15
   jc r92 pipe_trace_increment_count
   jmp pipe_scan_resume
+
 pipe_trace_save1:
   mov r77 r54
   mov r78 r94
@@ -661,6 +734,7 @@ pipe_trace_save1:
   mov r53 r15
   jc r92 pipe_trace_increment_count
   jmp pipe_scan_resume
+
 pipe_trace_increment_count:
   inc r87
 
@@ -689,6 +763,7 @@ topology_ready:
 
 next_round:
   read r19
+
   ; Clear the old man pixels before executing. This frees the three previous
   ; position slots for runtime scratch throughout the tick loop.
   imm r66 0
@@ -696,6 +771,7 @@ next_round:
 render_restore_man:
   jeqs r66 0 render_restore_load0
   jeqs r66 1 render_restore_load1
+
 render_restore_load2:
   mov r0 r43
   muli0 16
@@ -706,6 +782,7 @@ render_restore_load2:
   mov r41 r50
   mov r52 r51
   jmp render_restore_loaded
+
 render_restore_load0:
   mov r0 r21
   muli0 16
@@ -716,6 +793,7 @@ render_restore_load0:
   mov r41 r28
   mov r52 r29
   jmp render_restore_loaded
+
 render_restore_load1:
   mov r0 r32
   muli0 16
@@ -747,32 +825,41 @@ render_restore_loaded:
   subi r14 r10 47
   jc r14 render_restore_digit_or_symbol
   jmp render_restore_yellow
+
 render_restore_digit_or_symbol:
   subi r14 r10 57
   jc r14 render_restore_symbol
   imm r17 8
   jmp render_restore_emit
+
 render_restore_symbol:
   jeqs r10 77 render_restore_blue
   jeqs r10 114 render_restore_pipe_instruction
   jeqs r10 115 render_restore_pipe_instruction
+
 render_restore_yellow:
   imm r17 3
   jmp render_restore_emit
+
 render_restore_arithmetic:
   imm r17 10
   jmp render_restore_emit
+
 render_restore_blue:
   imm r17 12
   jmp render_restore_emit
+
 render_restore_pipe_instruction:
   imm r17 13
   jmp render_restore_emit
+
 render_restore_wall:
   imm r17 4
   jmp render_restore_emit
+
 render_restore_black:
   imm r17 0
+
 render_restore_emit:
   screen_addr r54
   screen_data r17
@@ -789,6 +876,7 @@ execute_tick:
 
 shift_pipe:
   jc r88 shift_pipe_load1
+
 shift_pipe_load0:
   mov r89 r67
   mov r90 r75
@@ -799,6 +887,7 @@ shift_pipe_load0:
   mov r30 r7
   mov r41 r8
   jmp shift_pipe_loaded
+
 shift_pipe_load1:
   mov r89 r77
   mov r90 r85
@@ -841,28 +930,35 @@ shift_pipe_find_gap:
   jc r52 shift_pipe_gap_above8
   subi r52 r10 15
   jc r52 shift_pipe_gap4
+
 shift_pipe_gap0:
   mov r52 r10
   imm r14 1
   jmp shift_pipe_gap_nibble
+
 shift_pipe_gap4:
   divi r52 r10 16
   imm r14 16
   jmp shift_pipe_gap_nibble
+
 shift_pipe_gap_above8:
   subi r52 r10 4095
   jc r52 shift_pipe_gap_above12
+
 shift_pipe_gap8:
   divi r52 r10 256
   imm r14 256
   jmp shift_pipe_gap_nibble
+
 shift_pipe_gap_above12:
   subi r52 r10 65535
   jc r52 shift_pipe_gap16
+
 shift_pipe_gap12:
   divi r52 r10 4096
   imm r14 4096
   jmp shift_pipe_gap_nibble
+
 shift_pipe_gap16:
   divi r52 r10 65536
   imm r14 65536
@@ -880,14 +976,18 @@ shift_pipe_gap_nibble:
   jc r0 shift_pipe_gap_power2
   imm r0 1
   jmp shift_pipe_gap_power_ready
+
 shift_pipe_gap_power2:
   imm r0 2
   jmp shift_pipe_gap_power_ready
+
 shift_pipe_gap_power4:
   imm r0 4
   jmp shift_pipe_gap_power_ready
+
 shift_pipe_gap_power8:
   imm r0 8
+
 shift_pipe_gap_power_ready:
   mul0 r14
   subi0 1
@@ -896,7 +996,7 @@ shift_pipe_gap_power_ready:
   jc r64 shift_pipe_moving
   jmp shift_pipe_decode
 
-  ; Shift occupancy and all five value bitplanes by the same mask.
+; Shift occupancy and all five value bitplanes by the same mask.
 shift_pipe_moving:
   add r90 r90 r64
 
@@ -969,6 +1069,7 @@ shift_pipe_decode:
 
 shift_pipe_save:
   jc r88 shift_pipe_save1
+
 shift_pipe_save0:
   mov r75 r90
   mov r76 r91
@@ -979,15 +1080,18 @@ shift_pipe_save0:
   imm r3 0
   jc r62 shift_pipe0_source_ready
   imm r3 1
+
 shift_pipe0_source_ready:
   mov r15 r63
   jeqs r87 1 shift_pipe1_missing
   imm r88 1
   jmp shift_pipe
+
 shift_pipe1_missing:
   imm r56 0
   imm r57 0
   jmp shift_pipes_done
+
 shift_pipe_save1:
   mov r85 r90
   mov r86 r91
@@ -998,6 +1102,7 @@ shift_pipe_save1:
   imm r56 0
   jc r62 shift_pipe1_source_ready
   imm r56 1
+
 shift_pipe1_source_ready:
   mov r57 r63
 
@@ -1012,6 +1117,7 @@ shift_pipes_done:
 execute_man:
   jeqs r66 0 execute_man_load0
   jeqs r66 1 execute_man_load1
+
 execute_man_load2:
   mov r88 r42
   mov r89 r43
@@ -1024,6 +1130,7 @@ execute_man_load2:
   mov r41 r50
   mov r52 r51
   jmp execute_man_loaded
+
 execute_man_load0:
   mov r88 r20
   mov r89 r21
@@ -1036,6 +1143,7 @@ execute_man_load0:
   mov r41 r28
   mov r52 r29
   jmp execute_man_loaded
+
 execute_man_load1:
   mov r88 r31
   mov r89 r32
@@ -1073,6 +1181,7 @@ execute_man_loaded:
   subi r14 r10 47
   jc r14 execute_digit_high
   jmp execute_move
+
 execute_digit_high:
   subi r14 r10 57
   jc r14 execute_move
@@ -1082,21 +1191,27 @@ execute_digit_high:
 execute_up:
   imm r90 0
   jmp execute_move
+
 execute_right:
   imm r90 1
   jmp execute_move
+
 execute_down:
   imm r90 2
   jmp execute_move
+
 execute_left:
   imm r90 3
   jmp execute_move
+
 execute_m:
   mov r92 r91
   jmp execute_move
+
 execute_plus:
   add r91 r91 r92
   jmp execute_move
+
 execute_minus:
   sub r91 r91 r92
   jmp execute_move
@@ -1108,18 +1223,22 @@ execute_x:
   neg r14
   jc r14 execute_x_counterclockwise
   jmp execute_move
+
 execute_x_clockwise:
   inc r90
   subi r14 r90 3
   jc r14 execute_x_wrap_zero
   jmp execute_move
+
 execute_x_wrap_zero:
   imm r90 0
   jmp execute_move
+
 execute_x_counterclockwise:
   jc r90 execute_x_counter_nonzero
   imm r90 3
   jmp execute_move
+
 execute_x_counter_nonzero:
   dec r90
   jmp execute_move
@@ -1132,25 +1251,32 @@ execute_send:
   ; Choose the nearest outgoing pipe. Ties use endpoint reading order.
   jeqr r66 r68 execute_send_pipe0_match
   jmp execute_send_pipe1
+
 execute_send_pipe0_match:
   jeqr r66 r78 execute_send_choose_nearest
   jmp execute_send_pipe0
+
 execute_send_choose_nearest:
   mov r54 r70
   mov r14 r80
   jmp choose_nearest_pipe
+
 execute_send_nearest_ready:
   jc r64 execute_send_pipe1
+
 execute_send_pipe0:
   jc r3 execute_send_pipe0_ready
   jmp execute_man_save
+
 execute_send_pipe0_ready:
   addi r58 r91 10
   imm r3 0
   jmp execute_move
+
 execute_send_pipe1:
   jc r56 execute_send_pipe1_ready
   jmp execute_man_save
+
 execute_send_pipe1_ready:
   addi r59 r91 10
   imm r56 0
@@ -1159,26 +1285,33 @@ execute_send_pipe1_ready:
 execute_receive:
   jeqr r66 r69 execute_receive_pipe0_match
   jmp execute_receive_pipe1
+
 execute_receive_pipe0_match:
   jeqr r66 r79 execute_receive_choose_nearest
   jmp execute_receive_pipe0
+
 execute_receive_choose_nearest:
   mov r54 r71
   mov r14 r81
   jmp choose_nearest_pipe
+
 execute_receive_nearest_ready:
   jc r64 execute_receive_pipe1
+
 execute_receive_pipe0:
   jc r15 execute_receive_pipe0_ready
   jmp execute_man_save
+
 execute_receive_pipe0_ready:
   addi r91 r15 -10
   imm r60 1
   imm r15 0
   jmp execute_move
+
 execute_receive_pipe1:
   jc r57 execute_receive_pipe1_ready
   jmp execute_man_save
+
 execute_receive_pipe1_ready:
   addi r91 r57 -10
   imm r61 1
@@ -1194,10 +1327,12 @@ choose_nearest_pipe:
   sub r63 r88 r62
   jc r63 choose_p0_dx_ready
   neg r63
+
 choose_p0_dx_ready:
   sub r64 r89 r64
   jc r64 choose_p0_dy_ready
   neg r64
+
 choose_p0_dy_ready:
   add r63 r63 r64
 
@@ -1208,10 +1343,12 @@ choose_p0_dy_ready:
   sub r64 r88 r62
   jc r64 choose_p1_dx_ready
   neg r64
+
 choose_p1_dx_ready:
   sub r65 r89 r65
   jc r65 choose_p1_dy_ready
   neg r65
+
 choose_p1_dy_ready:
   add r64 r64 r65
 
@@ -1219,14 +1356,18 @@ choose_p1_dy_ready:
   jc r65 choose_pipe1
   neg r65
   jc r65 choose_pipe0
+
 choose_tie:
   sub r65 r54 r14
   jc r65 choose_pipe1
+
 choose_pipe0:
   imm r64 0
   jmp choose_nearest_return
+
 choose_pipe1:
   imm r64 1
+
 choose_nearest_return:
   jeqs r10 115 execute_send_nearest_ready
   jmp execute_receive_nearest_ready
@@ -1235,15 +1376,19 @@ execute_move:
   jeqs r90 0 execute_move_up
   jeqs r90 1 execute_move_right
   jeqs r90 2 execute_move_down
+
 execute_move_left:
   dec r88
   jmp execute_wall_check
+
 execute_move_up:
   dec r89
   jmp execute_wall_check
+
 execute_move_right:
   inc r88
   jmp execute_wall_check
+
 execute_move_down:
   inc r89
 
@@ -1253,12 +1398,14 @@ execute_wall_check:
   jeqrs r89 r41 execute_wall_hit
   jeqrs r89 r52 execute_wall_hit
   jmp execute_man_save
+
 execute_wall_hit:
   imm r17 1
 
 execute_man_save:
   jeqs r66 0 execute_man_save0
   jeqs r66 1 execute_man_save1
+
 execute_man_save2:
   mov r42 r88
   mov r43 r89
@@ -1267,6 +1414,7 @@ execute_man_save2:
   mov r46 r92
   mov r47 r93
   jmp execute_man_next
+
 execute_man_save0:
   mov r20 r88
   mov r21 r89
@@ -1275,6 +1423,7 @@ execute_man_save0:
   mov r24 r92
   mov r25 r93
   jmp execute_man_next
+
 execute_man_save1:
   mov r31 r88
   mov r32 r89
@@ -1290,12 +1439,16 @@ execute_man_next:
 
 apply_pipe_actions:
   jc r60 apply_pipe0_receive
+
 apply_pipe0_after_receive:
   jc r58 apply_pipe0_send
+
 apply_pipe0_after_send:
   jc r61 apply_pipe1_receive
+
 apply_pipe1_after_receive:
   jc r59 apply_pipe1_send
+
 apply_pipe1_after_send:
 
   dec r19
@@ -1304,9 +1457,11 @@ apply_pipe1_after_send:
   ; Halt when all three slots are halted (missing slots start halted).
   jc r25 apply_check_halted1
   jmp tick_loop
+
 apply_check_halted1:
   jc r36 apply_check_halted2
   jmp tick_loop
+
 apply_check_halted2:
   jc r47 render_halted
   jmp tick_loop
@@ -1320,6 +1475,7 @@ apply_pipe0_receive:
   and r6 r6 r14
   and r7 r7 r14
   jmp apply_pipe0_after_receive
+
 apply_pipe0_send:
   inc r75
   mov r14 r58
@@ -1351,6 +1507,7 @@ apply_pipe0_send:
   add0 r7
   mov r7 r0
   jmp apply_pipe0_after_send
+
 apply_pipe1_receive:
   sub r85 r85 r53
   addi r14 r53 -1
@@ -1360,6 +1517,7 @@ apply_pipe1_receive:
   and r12 r12 r14
   and r16 r16 r14
   jmp apply_pipe1_after_receive
+
 apply_pipe1_send:
   inc r85
   mov r14 r59
@@ -1398,8 +1556,10 @@ render_halted:
 
 render_pipes_start:
   imm r88 0
+
 render_pipe:
   jc r88 render_pipe_load1
+
 render_pipe_load0:
   mov r89 r67
   mov r90 r75
@@ -1409,6 +1569,7 @@ render_pipe_load0:
   mov r62 r73
   mov r61 r74
   jmp render_pipe_loaded
+
 render_pipe_load1:
   mov r89 r77
   mov r90 r85
@@ -1417,84 +1578,86 @@ render_pipe_load1:
   mov r17 r82
   mov r62 r83
   mov r61 r84
+
 render_pipe_loaded:
   jeqr r14 r63 render_pipe_unchanged
   mov r60 r17
 
-.repeat 0 6
-render_pipe_cell_{i}:
-  jeqs r89 {i} render_pipe_done
-  mov r0 r60
-  andi0 255
-  mov r54 r0
-  mov r0 r60
-  divi0 256
-  mov r60 r0
+  .repeat 0 6
+    render_pipe_cell_{i}:
+    jeqs r89 {i} render_pipe_done
+    mov r0 r60
+    andi0 255
+    mov r54 r0
+    mov r0 r60
+    divi0 256
+    mov r60 r0
 
-  and r63 r90 r18
-  divi r90 r90 2
-  imm r17 6
-  jc r63 render_pipe_occupied_{i}
-  jmp render_pipe_emit_{i}
-render_pipe_occupied_{i}:
-  imm r17 14
-render_pipe_emit_{i}:
-  screen_addr r54
-  screen_data r17
-.endrepeat
+    and r63 r90 r18
+    divi r90 r90 2
+    imm r17 6
+    jc r63 render_pipe_occupied_{i}
+    jmp render_pipe_emit_{i}
+    render_pipe_occupied_{i}:
+    imm r17 14
+    render_pipe_emit_{i}:
+    screen_addr r54
+    screen_data r17
+  .endrepeat
 
   mov r60 r62
 
-.repeat 7 13
-render_pipe_cell_{i}:
-  jeqs r89 {i} render_pipe_done
-  mov r0 r60
-  andi0 255
-  mov r54 r0
-  mov r0 r60
-  divi0 256
-  mov r60 r0
+  .repeat 7 13
+    render_pipe_cell_{i}:
+    jeqs r89 {i} render_pipe_done
+    mov r0 r60
+    andi0 255
+    mov r54 r0
+    mov r0 r60
+    divi0 256
+    mov r60 r0
 
-  and r63 r90 r18
-  divi r90 r90 2
-  imm r17 6
-  jc r63 render_pipe_occupied_{i}
-  jmp render_pipe_emit_{i}
-render_pipe_occupied_{i}:
-  imm r17 14
-render_pipe_emit_{i}:
-  screen_addr r54
-  screen_data r17
-.endrepeat
+    and r63 r90 r18
+    divi r90 r90 2
+    imm r17 6
+    jc r63 render_pipe_occupied_{i}
+    jmp render_pipe_emit_{i}
+    render_pipe_occupied_{i}:
+    imm r17 14
+    render_pipe_emit_{i}:
+    screen_addr r54
+    screen_data r17
+  .endrepeat
 
   mov r60 r61
 
-.repeat 14 19
-render_pipe_cell_{i}:
-  jeqs r89 {i} render_pipe_done
-  mov r0 r60
-  andi0 255
-  mov r54 r0
-  mov r0 r60
-  divi0 256
-  mov r60 r0
+  .repeat 14 19
+    render_pipe_cell_{i}:
+    jeqs r89 {i} render_pipe_done
+    mov r0 r60
+    andi0 255
+    mov r54 r0
+    mov r0 r60
+    divi0 256
+    mov r60 r0
 
-  and r63 r90 r18
-  divi r90 r90 2
-  imm r17 6
-  jc r63 render_pipe_occupied_{i}
-  jmp render_pipe_emit_{i}
-render_pipe_occupied_{i}:
-  imm r17 14
-render_pipe_emit_{i}:
-  screen_addr r54
-  screen_data r17
-.endrepeat
+    and r63 r90 r18
+    divi r90 r90 2
+    imm r17 6
+    jc r63 render_pipe_occupied_{i}
+    jmp render_pipe_emit_{i}
+    render_pipe_occupied_{i}:
+    imm r17 14
+    render_pipe_emit_{i}:
+    screen_addr r54
+    screen_data r17
+  .endrepeat
 
 render_pipe_done:
   jc r88 render_pipe_save1
   mov r54 r14
   jmp render_pipe_next
+
 render_pipe_save1:
   mov r55 r14
 
@@ -1516,6 +1679,7 @@ render_current_men:
   subi r14 r13 1
   jc r14 render_current_man1
   jmp render_commit
+
 render_current_man1:
   mov r0 r32
   muli0 16
@@ -1526,6 +1690,7 @@ render_current_man1:
   subi r14 r13 2
   jc r14 render_current_man2
   jmp render_commit
+
 render_current_man2:
   mov r0 r43
   muli0 16

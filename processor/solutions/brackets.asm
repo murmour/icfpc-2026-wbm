@@ -25,6 +25,7 @@ loop:
   andi0 9223372036854775807
   jc r0 unclosed
   write r3
+
 halt:
   jmp halt
 
@@ -71,6 +72,7 @@ can_close:
   divi0 4
   jc r0 pop_store
   andi0 4611686018427387903
+
 pop_store:
   mov r3 r0
   jmp loop

@@ -55,6 +55,7 @@ move_left:
   andi0 15
   jc r0 move_left_valid
   jmp lose
+
 move_left_valid:
   mov r0 r2
   subi0 1
@@ -158,8 +159,10 @@ tail_removed:
   inc r5
   jeqs r5 50 wrap_tail_index
   jmp tail_index_ready
+
 wrap_tail_index:
   imm r5 0
+
 tail_index_ready:
 
   screen_addr r8
@@ -183,8 +186,10 @@ add_head:
   inc r6
   jeqs r6 50 wrap_head_index
   jmp head_index_ready
+
 wrap_head_index:
   imm r6 0
+
 head_index_ready:
 
   mov r2 r9
@@ -202,9 +207,11 @@ lose:
   sub0 r5
   jc r0 loss_length_ready
   addi0 50
+
 loss_length_ready:
   mov r12 r0
   mov r7 r5
+
 lose_loop:
   mov r0 r7
   addi0 16
@@ -218,8 +225,10 @@ lose_loop:
   inc r7
   jeqs r7 50 wrap_loss_index
   jmp loss_index_ready
+
 wrap_loss_index:
   imm r7 0
+
 loss_index_ready:
   dec r12
   jc r12 lose_loop
