@@ -71,9 +71,9 @@ We hope you enjoy the pages below. They were written with care, enthusiasm, and 
 
 The team dashboard asked us to name our programming language.
 
-At first, the honest answer seemed to be Go, Python, Rust, and C. All four were essential.
+At first, the honest answer seemed to be **Go**, **Python**, **Rust**, and **C**. All four were essential.
 
-Then we realized that those were merely the languages in which we built the tools. The languages in which we actually solved the contest problems were our own: Assembler, Plumber, Blang, Meme, and Flow.
+Then we realized that those were merely the languages in which we built the tools. The languages in which we actually solved the contest problems were our own: **Assembler**, **Plumber**, **Blang**, **Meme**, and **Flow**.
 
 Then we looked at what we had actually spent most of the contest typing.
 
