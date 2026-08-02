@@ -1,73 +1,49 @@
 .screen 64 64
-.memory 17
 
-; Two moving radial fields based on demoserv/effect_xor.c.
+; Multicolor radial XOR
 ;
-; Four second-order oscillators implement the source's sin(time/2),
-; sin(time/4), cos(time/3), and cos(time), with time advancing by 0.05.
-; Oscillator states use a scale of 1,000,000.
+; The four second-order oscillators complete 3, 5, 4, and 5 turns in
+; 960 frames. The color phase also repeats there, producing a clean loop.
+; Oscillator states use a scale of 100,000,000.
 ;
+; r2  frame
 ; r3  x1                r10 rows left
 ; r4  y1                r11 distance 1
 ; r5  x2                r12 distance 2
 ; r6  y2                r13 temporary
-; r7  x / address       r14 square-root estimate
-; r8  y / state         r15 temporary / color
-; r9  pixels / state
+; r7  x                 r14 square-root estimate
+; r8  y                 r15 temporary / color
+; r9  pixels
+; r16-r23                oscillator (previous, current) pairs
 
-; Memory stores (previous, current) for each oscillator.
-imm r7 0
-imm r8 -24997
-store r7 r8
-imm r7 1
-imm r8 0
-store r7 r8
+; Preserve each oscillator as a (previous, current) register pair.
+imm r2 0
 
-imm r7 2
-imm r8 -12500
-store r7 r8
-imm r7 3
-imm r8 0
-store r7 r8
-
-imm r7 4
-imm r8 999861
-store r7 r8
-imm r7 5
-imm r8 1000000
-store r7 r8
-
-imm r7 6
-imm r8 998750
-store r7 r8
-imm r7 7
-imm r8 1000000
-store r7 r8
+imm r16 -1963369
+imm r18 99946459
+imm r19 100000000
+imm r20 2617695
+imm r22 -99946459
+imm r23 -100000000
 
 frame:
-; Convert oscillator amplitudes to pixel centers:
-; (64/3) / 1,000,000 = 1 / 46,875.
-imm r7 1
-load r3 r7
-divi r0 r3 46875
+; Convert oscillator amplitudes to pixel centers. Horizontal motion has
+; amplitude 30; vertical motion has amplitude 20.
+muli r0 r17 3
+divi0 10000000
 addi0 32
 mov r3 r0
 
-imm r7 3
-load r4 r7
-divi r0 r4 46875
+divi r0 r19 5000000
 addi0 32
 mov r4 r0
 
-imm r7 5
-load r5 r7
-divi r0 r5 46875
+muli r0 r21 3
+divi0 10000000
 addi0 32
 mov r5 r0
 
-imm r7 7
-load r6 r7
-divi r0 r6 46875
+divi r0 r23 5000000
 addi0 32
 mov r6 r0
 
@@ -109,7 +85,7 @@ jmp d1_ready
 d1_adjust:
 dec r14
 d1_ready:
-divi r11 r14 8
+mov r11 r14
 
 ; d2 = floor(hypot(x - x2, y - y2)).
 sub r12 r7 r5
@@ -141,19 +117,34 @@ jmp d2_ready
 d2_adjust:
 dec r14
 d2_ready:
-divi r12 r14 8
+mov r12 r14
 
-; Bit 3 of d1 XOR d2 selects cyan or black.
-add r13 r11 r12
-divi r0 r13 2
-muli0 2
-mov r14 r0
-sub r0 r13 r14
-muli0 3
+; pattern = (d1 XOR d2) >> 3. Odd bands are black; even bands
+; cycle through colors 10..15, advancing once every ten frames.
+mov r0 r11
+xor0 r12
+divi0 8
 mov r13 r0
-imm r15 3
-sub r15 r15 r13
+andi0 1
+jc r0 pixel_black
+
+divi r14 r2 10
+add r0 r13 r14
+mov r14 r0
+divi0 6
+muli0 6
+mov r15 r0
+mov r0 r14
+sub0 r15
+addi0 10
+screen_data r0
+jmp pixel_done
+
+pixel_black:
+imm r15 0
 screen_data r15
+
+pixel_done:
 
 inc r7
 dec r9
@@ -166,60 +157,33 @@ jc r10 row
 imm r15 0
 screen_swap r15
 
-; x1: w = 0.025, 2*cos(w) = 1.999375.
-imm r7 0
-load r8 r7
-imm r7 1
-load r9 r7
-muli r0 r9 1999375
-divi0 1000000
-sub0 r8
-mov r10 r0
-imm r7 0
-store r7 r9
-imm r7 1
-store r7 r10
+; x1: three turns per loop, 2*cos(w) = 1.99961448.
+muli r0 r17 199961448
+divi0 100000000
+sub0 r16
+mov r16 r17
+mov r17 r0
 
-; y1: w = 0.0125, 2*cos(w) = 1.999844.
-imm r7 2
-load r8 r7
-imm r7 3
-load r9 r7
-muli r0 r9 1999844
-divi0 1000000
-sub0 r8
-mov r10 r0
-imm r7 2
-store r7 r9
-imm r7 3
-store r7 r10
+; y1: five turns per loop, 2*cos(w) = 1.99892917.
+muli r0 r19 199892917
+divi0 100000000
+sub0 r18
+mov r18 r19
+mov r19 r0
 
-; x2: w = 1/60, 2*cos(w) = 1.999722.
-imm r7 4
-load r8 r7
-imm r7 5
-load r9 r7
-muli r0 r9 1999722
-divi0 1000000
-sub0 r8
-mov r10 r0
-imm r7 4
-store r7 r9
-imm r7 5
-store r7 r10
+; x2: four turns per loop, 2*cos(w) = 1.99931465.
+muli r0 r21 199931465
+divi0 100000000
+sub0 r20
+mov r20 r21
+mov r21 r0
 
-; y2: w = 0.05, 2*cos(w) = 1.997501.
-imm r7 6
-load r8 r7
-imm r7 7
-load r9 r7
-muli r0 r9 1997501
-divi0 1000000
-sub0 r8
-mov r10 r0
-imm r7 6
-store r7 r9
-imm r7 7
-store r7 r10
+; y2: five turns per loop, 2*cos(w) = 1.99892917.
+muli r0 r23 199892917
+divi0 100000000
+sub0 r22
+mov r22 r23
+mov r23 r0
 
+inc r2
 jmp frame
