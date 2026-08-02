@@ -2,7 +2,7 @@
 
 These are the exact `.man` files submitted during the contest.
 
-Improved post-contest Processor builds are collected in [`current_best`](../current_best/README.md).
+Improved post-contest solutions are collected in [`current_best`](../current_best/README.md).
 
 Tick counts are arithmetic means over [`public_tests`](../../public_tests).
 
