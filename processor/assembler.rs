@@ -2325,6 +2325,16 @@ const DISPLAY_LEFT: usize = 97;
 const DISPLAY_TOP: usize = 6;
 const MIN_CODE_PIPE_CELLS: usize = 20;
 
+fn display_top_offset(screen_height: usize, cpu_height: usize, memory_present: bool) -> isize {
+    if memory_present {
+        DISPLAY_TOP as isize
+    } else {
+        // Raise tall displays until their bottom border aligns with the CPU.
+        (CPU_TOP as isize + cpu_height as isize - screen_height as isize - 2)
+            .min(DISPLAY_TOP as isize)
+    }
+}
+
 struct FixedFloor {
     grid: Vec<Vec<char>>,
     code_target: (usize, usize),
@@ -2453,6 +2463,13 @@ fn render_fixed_floor(
         .len()
         .saturating_sub(REGISTER_BOTTOM + 1)
         .max(memory_height.saturating_sub(MEMORY_BOTTOM + 1));
+    let display_offset = build
+        .screen
+        .map(|screen| display_top_offset(screen.height, cpu.len(), memory.is_some()));
+    let top_padding = display_offset
+        .map(|offset| (-(expansion as isize + offset)).max(0) as usize)
+        .unwrap_or(0);
+    let base_y = top_padding + expansion;
     let display_right = build
         .screen
         .map(|screen| DISPLAY_LEFT + screen.width + 1)
@@ -2470,12 +2487,12 @@ fn render_fixed_floor(
                     .map(Vec::len)
                     .unwrap_or(0),
         );
-    let height = expansion + base.len();
+    let height = base_y + base.len();
     let mut canvas = Canvas::new(width, height);
-    canvas.paste(0, expansion, &base)?;
+    canvas.paste(0, base_y, &base)?;
 
     let bottom_aligned_y =
-        |bottom: usize, module_height: usize| expansion + bottom + 1 - module_height;
+        |bottom: usize, module_height: usize| base_y + bottom + 1 - module_height;
     canvas.paste(
         register_left,
         bottom_aligned_y(REGISTER_BOTTOM, registers.len()),
@@ -2488,15 +2505,22 @@ fn render_fixed_floor(
             memory,
         )?;
     }
-    canvas.paste(CPU_LEFT, expansion + CPU_TOP, &cpu)?;
+    canvas.paste(CPU_LEFT, base_y + CPU_TOP, &cpu)?;
 
     if let Some(screen) = build.screen {
-        let display_top = expansion + DISPLAY_TOP;
+        let display_top = (base_y as isize + display_offset.unwrap()) as usize;
+        clear_rect(
+            &mut canvas.grid,
+            DISPLAY_LEFT,
+            display_top,
+            DISPLAY_LEFT + screen.width + 1,
+            display_top + screen.height + 1,
+        );
         draw_display(&mut canvas, DISPLAY_LEFT, display_top, screen)?;
 
         // The fixed route leaves the CPU at base row 33 and reaches x=96.
         // Bend below the CPU, then approach the display bottom through x=98.
-        let bend_y = expansion + 36;
+        let bend_y = base_y + 36;
         let turn_y = display_top + screen.height + 2;
         match turn_y.cmp(&bend_y) {
             std::cmp::Ordering::Greater => {
@@ -2534,8 +2558,8 @@ fn render_fixed_floor(
             }
         }
     } else {
-        let peripheral_top = expansion + CPU_TOP + cpu.len() + 2;
-        for y in expansion + CPU_TOP + cpu.len()..peripheral_top {
+        let peripheral_top = base_y + CPU_TOP + cpu.len() + 2;
+        for y in base_y + CPU_TOP + cpu.len()..peripheral_top {
             canvas.put(81, y, 'v')?;
             canvas.put(85, y, '^')?;
         }
@@ -2547,7 +2571,7 @@ fn render_fixed_floor(
 
     let (grid, code_target) = trim_grid_around_anchor(
         canvas.grid,
-        (CPU_LEFT - 1, expansion + CPU_CODE_INPUT_Y),
+        (CPU_LEFT - 1, base_y + CPU_CODE_INPUT_Y),
     );
     Ok(FixedFloor { grid, code_target })
 }
@@ -4915,6 +4939,16 @@ fn main() -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn memoryless_tall_display_bottom_aligns_with_cpu_bottom() {
+        let top = display_top_offset(64, 30, false);
+        let display_bottom = top + 64 + 1;
+        let cpu_bottom = CPU_TOP as isize + 30 - 1;
+        assert_eq!(display_bottom, cpu_bottom);
+        assert_eq!(display_top_offset(24, 30, false), DISPLAY_TOP as isize);
+        assert_eq!(display_top_offset(64, 30, true), DISPLAY_TOP as isize);
+    }
 
     #[test]
     fn fixed_floor_trimming_removes_template_margins_and_moves_anchor() {
