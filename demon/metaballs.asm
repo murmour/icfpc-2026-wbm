@@ -1,5 +1,4 @@
 .screen 64 64
-.memory 17
 
 ; Three moving fixed-point metaballs.
 ;
@@ -17,97 +16,66 @@
 ; r11: pixels left
 ; r12: field sum
 ; r13-r15: temporaries
-
-; Memory stores (previous, current) oscillator samples at scale 1,000,000.
+; r16-r27: oscillator (previous, current) pairs at scale 1,000,000
 
 start:
   ; Ball 1 x: cos(1 + frame*0.016).
-  imm r13 0
-  imm r14 553696
-  store r13 r14
-  imm r13 1
-  imm r14 540302
-  store r13 r14
+  imm r16 553696
+  imm r17 540302
 
   ; Ball 1 y: sin(1 + frame*0.010).
-  imm r13 2
-  imm r14 836026
-  store r13 r14
-  imm r13 3
-  imm r14 841471
-  store r13 r14
+  imm r18 836026
+  imm r19 841471
 
   ; Ball 2 x: cos(2 + frame*0.032).
-  imm r13 4
-  imm r14 -386841
-  store r13 r14
-  imm r13 5
-  imm r14 -416147
-  store r13 r14
+  imm r20 -386841
+  imm r21 -416147
 
   ; Ball 2 y: sin(2 + frame*0.020).
-  imm r13 6
-  imm r14 917438
-  store r13 r14
-  imm r13 7
-  imm r14 909297
-  store r13 r14
+  imm r22 917438
+  imm r23 909297
 
   ; Ball 3 x: cos(3 + frame*0.048).
-  imm r13 8
-  imm r14 -982081
-  store r13 r14
-  imm r13 9
-  imm r14 -989992
-  store r13 r14
+  imm r24 -982081
+  imm r25 -989992
 
   ; Ball 3 y: sin(3 + frame*0.030).
-  imm r13 10
-  imm r14 170752
-  store r13 r14
-  imm r13 11
-  imm r14 141120
-  store r13 r14
+  imm r26 170752
+  imm r27 141120
 
 frame:
   ; Convert oscillator values into 1/64-pixel coordinates.
-  imm r13 1
-  load r2 r13
+  mov r2 r17
   muli r0 r2 1024
   divi0 1000000
   addi0 2048
   mov r2 r0
 
-  imm r13 3
-  load r3 r13
+  mov r3 r19
   muli r0 r3 1024
   divi0 1000000
   addi0 2048
   mov r3 r0
 
-  imm r13 5
-  load r4 r13
+  mov r4 r21
   muli r0 r4 1024
   divi0 1000000
   addi0 2048
   mov r4 r0
 
-  imm r13 7
-  load r5 r13
+  mov r5 r23
   muli r0 r5 1024
   divi0 1000000
   addi0 2048
   mov r5 r0
 
-  imm r13 9
-  load r6 r13
+  mov r6 r25
   muli r0 r6 1024
   divi0 1000000
   addi0 2048
   mov r6 r0
 
-  imm r13 11
-  load r7 r13
+  mov r7 r27
   muli r0 r7 1024
   divi0 1000000
   addi0 2048
@@ -210,87 +178,45 @@ emit:
   screen_swap r15
 
   ; Ball 1 x oscillator.
-  imm r13 0
-  load r8 r13
-  imm r13 1
-  load r9 r13
-  muli r0 r9 1999744
+  muli r0 r17 1999744
   divi0 1000000
-  sub0 r8
-  mov r10 r0
-  imm r13 0
-  store r13 r9
-  imm r13 1
-  store r13 r10
+  sub0 r16
+  mov r16 r17
+  mov r17 r0
 
   ; Ball 1 y oscillator.
-  imm r13 2
-  load r8 r13
-  imm r13 3
-  load r9 r13
-  muli r0 r9 1999900
+  muli r0 r19 1999900
   divi0 1000000
-  sub0 r8
-  mov r10 r0
-  imm r13 2
-  store r13 r9
-  imm r13 3
-  store r13 r10
+  sub0 r18
+  mov r18 r19
+  mov r19 r0
 
   ; Ball 2 x oscillator.
-  imm r13 4
-  load r8 r13
-  imm r13 5
-  load r9 r13
-  muli r0 r9 1998976
+  muli r0 r21 1998976
   divi0 1000000
-  sub0 r8
-  mov r10 r0
-  imm r13 4
-  store r13 r9
-  imm r13 5
-  store r13 r10
+  sub0 r20
+  mov r20 r21
+  mov r21 r0
 
   ; Ball 2 y oscillator.
-  imm r13 6
-  load r8 r13
-  imm r13 7
-  load r9 r13
-  muli r0 r9 1999600
+  muli r0 r23 1999600
   divi0 1000000
-  sub0 r8
-  mov r10 r0
-  imm r13 6
-  store r13 r9
-  imm r13 7
-  store r13 r10
+  sub0 r22
+  mov r22 r23
+  mov r23 r0
 
   ; Ball 3 x oscillator.
-  imm r13 8
-  load r8 r13
-  imm r13 9
-  load r9 r13
-  muli r0 r9 1997696
+  muli r0 r25 1997696
   divi0 1000000
-  sub0 r8
-  mov r10 r0
-  imm r13 8
-  store r13 r9
-  imm r13 9
-  store r13 r10
+  sub0 r24
+  mov r24 r25
+  mov r25 r0
 
   ; Ball 3 y oscillator.
-  imm r13 10
-  load r8 r13
-  imm r13 11
-  load r9 r13
-  muli r0 r9 1999100
+  muli r0 r27 1999100
   divi0 1000000
-  sub0 r8
-  mov r10 r0
-  imm r13 10
-  store r13 r9
-  imm r13 11
-  store r13 r10
+  sub0 r26
+  mov r26 r27
+  mov r27 r0
 
   jmp frame
