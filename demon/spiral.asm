@@ -1,3 +1,11 @@
+; Rotating, breathing polar grid.
+;
+; atan2 is approximated by a 40-sector diamond angle:
+;   quarter_angle = 10 * abs(dy) / (abs(dx) + abs(dy))
+; Distance is approximated by max(abs(dx), abs(dy)) +
+; 3/8 * min(abs(dx), abs(dy)). Radial boundaries retain the source's
+; 3.0 initial spacing and 1.08 exponential growth.
+
 .screen 64 64
 
 .reg sine r2
@@ -16,13 +24,6 @@
 .reg temp r15
 .reg dy_positive r16
 
-; Rotating, breathing polar grid.
-;
-; atan2 is approximated by a 40-sector diamond angle:
-;   quarter_angle = 10 * abs(dy) / (abs(dx) + abs(dy))
-; Distance is approximated by max(abs(dx), abs(dy)) +
-; 3/8 * min(abs(dx), abs(dy)). Radial boundaries retain the source's
-; 3.0 initial spacing and 1.08 exponential growth.
 
 start:
   imm sine 0

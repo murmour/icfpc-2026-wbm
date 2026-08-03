@@ -1,3 +1,12 @@
+; Depth-shaded perspective cube rotating around the X and Y axes.
+;
+; Eight projected (x,y) vertex pairs occupy memory slots 0..15.
+; Camera-space vertex depths occupy memory slots 16..23.
+; Vertices on each z face use cyclic order, allowing all twelve edges
+; to be selected arithmetically and drawn by one fixed-point DDA loop.
+;
+; Geometry uses Q12 fixed point so successive rotations retain subpixel motion.
+
 .screen 64 64
 .memory 24 48
 
@@ -35,14 +44,6 @@
 .reg next_cos r9
 .reg mix1 r10
 
-; Depth-shaded perspective cube rotating around the X and Y axes.
-;
-; Eight projected (x,y) vertex pairs occupy memory slots 0..15.
-; Camera-space vertex depths occupy memory slots 16..23.
-; Vertices on each z face use cyclic order, allowing all twelve edges
-; to be selected arithmetically and drawn by one fixed-point DDA loop.
-;
-; Geometry uses Q12 fixed point so successive rotations retain subpixel motion.
 
 start:
   imm sin_y 0

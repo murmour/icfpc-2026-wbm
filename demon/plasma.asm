@@ -1,3 +1,14 @@
+; Four-wave plasma.
+;
+; Angles use tenths of a degree.
+;
+; Sine uses the signed parabolic approximation:
+;   x * (1800 - abs(x)) / 791,
+; producing values near [-1024, 1024].
+;
+; Hypot uses:
+;   max(abs(dx), abs(dy)) + 3/8 * min(abs(dx), abs(dy)).
+
 .screen 64 64
 
 .reg phase r2
@@ -15,16 +26,6 @@
 .reg test r14
 .reg color r15
 
-; Four-wave plasma.
-;
-; Angles use tenths of a degree.
-;
-; Sine uses the signed parabolic approximation:
-;   x * (1800 - abs(x)) / 791,
-; producing values near [-1024, 1024].
-;
-; Hypot uses:
-;   max(abs(dx), abs(dy)) + 3/8 * min(abs(dx), abs(dy)).
 
 start:
   imm phase 0

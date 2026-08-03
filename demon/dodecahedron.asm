@@ -1,3 +1,20 @@
+; Depth-shaded perspective dodecahedron rotating around two axes.
+;
+; Vertices use an integer golden-ratio approximation:
+;   (+-10, +-10, +-10)
+;   (0, +-6, +-16)
+;   (+-6, +-16, 0)
+;   (+-16, 0, +-6)
+;
+; Memory 0..39 stores twenty projected (x,y) pairs. Memory 40..69
+; stores thirty edges packed as vertex_a * 20 + vertex_b. Memory
+; 70..89 stores the camera-space depth of each projected vertex.
+;
+; Geometry uses Q10 fixed point so successive rotations retain subpixel motion.
+
+; Packed edge table. The integer coordinates make every listed edge
+; length squared 144 or 152, and every vertex has degree three.
+
 .screen 64 64
 .memory 90
 
@@ -36,22 +53,6 @@
 .reg next_cos r9
 .reg mix1 r10
 
-; Depth-shaded perspective dodecahedron rotating around two axes.
-;
-; Vertices use an integer golden-ratio approximation:
-;   (+-10, +-10, +-10)
-;   (0, +-6, +-16)
-;   (+-6, +-16, 0)
-;   (+-16, 0, +-6)
-;
-; Memory 0..39 stores twenty projected (x,y) pairs. Memory 40..69
-; stores thirty edges packed as vertex_a * 20 + vertex_b. Memory
-; 70..89 stores the camera-space depth of each projected vertex.
-;
-; Geometry uses Q10 fixed point so successive rotations retain subpixel motion.
-
-; Packed edge table. The integer coordinates make every listed edge
-; length squared 144 or 152, and every vertex has degree three.
 
 start:
   imm item 40
@@ -405,7 +406,6 @@ edge_steps_ready:
   imm steps 1
 
 edge_steps_nonzero:
-
   muli line_x line_x 1024
   muli line_y line_y 1024
   muli r0 line_dx 1024

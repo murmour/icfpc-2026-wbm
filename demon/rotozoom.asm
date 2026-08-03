@@ -1,3 +1,7 @@
+; Fixed-point rotozoomed checkerboard using 16 registers.
+;
+; Initialize the 17-entry quarter-wave sine table.
+
 .screen 64 64
 .memory 17
 
@@ -19,9 +23,6 @@
 .reg temp r14
 .reg color r15
 
-; Fixed-point rotozoomed checkerboard using 16 registers.
-;
-; Initialize the 17-entry quarter-wave sine table.
 
 start:
   imm phase 0

@@ -1,8 +1,8 @@
-.screen 64 64
-
 ; Multicolor radial XOR
 ;
 ; Oscillator states use a scale of 100,000,000.
+
+.screen 64 64
 
 .reg frame r2
 .reg x1 r3
@@ -19,6 +19,7 @@
 .reg dist2_band r14
 .reg color r15
 .reg oscillator[8] r16
+
 
 start:
   imm frame 0

@@ -1,3 +1,7 @@
+; Three moving fixed-point metaballs.
+;
+; Coordinates use 1/64 pixel units and field strength uses a scale of 1024.
+
 .screen 64 64
 
 .reg ball0_x r2
@@ -18,9 +22,6 @@
 .reg d1_delta r28
 .reg d2_delta r29
 
-; Three moving fixed-point metaballs.
-;
-; Coordinates use 1/64 pixel units and field strength uses a scale of 1024.
 
 start:
   ; Ball 1 x: cos(1 + frame*0.016).

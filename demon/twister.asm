@@ -1,3 +1,13 @@
+; Four-sided scanline twister.
+;
+; The reference effect indexes a 512-entry table with:
+;
+;   roll + y * 1.2 * sin(14*pi*roll/512) * cos(2*pi*roll/512)
+;
+; We evaluate the same expression in fixed point, then approximate sine with
+; x * (1800 - abs(x)) / 791. Angles are measured in tenths of a degree and
+; sine values are scaled by 1024.
+
 .screen 64 64
 
 .reg roll r2
@@ -15,15 +25,6 @@
 .reg row_step r14
 .reg face_width r15
 
-; Four-sided scanline twister.
-;
-; The reference effect indexes a 512-entry table with:
-;
-;   roll + y * 1.2 * sin(14*pi*roll/512) * cos(2*pi*roll/512)
-;
-; We evaluate the same expression in fixed point, then approximate sine with
-; x * (1800 - abs(x)) / 791. Angles are measured in tenths of a degree and
-; sine values are scaled by 1024.
 
 ; Start near a maximum bend so the first frame is already visibly twisted.
 start:

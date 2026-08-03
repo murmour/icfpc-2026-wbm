@@ -1,3 +1,12 @@
+; Rotating four-dimensional hypercube (tesseract).
+;
+; Memory:
+;   0..31   sixteen projected (x,y) pairs
+;   32..39  (sin,cos) oscillator pairs for XW, YZ, ZW, and XY
+;
+; Vertex coordinates use a scale of 3584 to preserve fractional motion
+; through all four rotations. All four rotations begin at zero.
+
 .screen 64 64
 .memory 40
 
@@ -33,14 +42,6 @@
 .reg next_cos r10
 .reg mix r11
 
-; Rotating four-dimensional hypercube (tesseract).
-;
-; Memory:
-;   0..31   sixteen projected (x,y) pairs
-;   32..39  (sin,cos) oscillator pairs for XW, YZ, ZW, and XY
-;
-; Vertex coordinates use a scale of 3584 to preserve fractional motion
-; through all four rotations. All four rotations begin at zero.
 
 start:
   imm addr 32
@@ -78,7 +79,6 @@ vertex_x_positive:
   imm vx 3584
 
 vertex_x_ready:
-
   mov r0 item
   andi0 2
   jc r0 vertex_y_positive
@@ -89,7 +89,6 @@ vertex_y_positive:
   imm vy 3584
 
 vertex_y_ready:
-
   mov r0 item
   andi0 4
   jc r0 vertex_z_positive
@@ -100,7 +99,6 @@ vertex_z_positive:
   imm vz 3584
 
 vertex_z_ready:
-
   mov r0 item
   andi0 8
   jc r0 vertex_w_positive
@@ -223,7 +221,6 @@ project_x_high:
   imm px 63
 
 project_x_ready:
-
   jc py project_y_nonnegative
   imm py 0
   jmp project_y_ready

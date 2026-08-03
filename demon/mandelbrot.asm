@@ -1,3 +1,7 @@
+; Animated Mandelbrot zoom.
+;
+; Complex coordinates use Q24 fixed point (16777216 units per real unit).
+
 .screen 64 64
 
 .reg frame r2
@@ -15,9 +19,6 @@
 .reg pixels r14
 .reg rows r15
 
-; Animated Mandelbrot zoom.
-;
-; Complex coordinates use Q24 fixed point (16777216 units per real unit).
 
 start:
   imm frame 0
