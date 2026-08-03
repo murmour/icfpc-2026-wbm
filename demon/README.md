@@ -87,7 +87,7 @@ A four-wave plasma lets horizontal, vertical, diagonal, and radial waves argue o
 
 ![Plasma animation](gifs/plasma.gif)
 
-**Area:** 114x105 | **First frame ticks:** 133,536,245 | [Assembly](plasma.asm) | [Generated `.man`](plasma.man)
+**Area:** 114x106 | **First frame ticks:** 77,323,351 | [Assembly](plasma.asm) | [Generated `.man`](plasma.man)
 
 [![Plasma Little Man layout](images/plasma.svg)](plasma.man)
 
