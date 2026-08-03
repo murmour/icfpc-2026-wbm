@@ -83,7 +83,7 @@ Three independently oscillating metaballs are not drawn so much as inferred from
 
 ## Plasma
 
-A four-wave plasma lets horizontal, vertical, diagonal, and radial waves argue over each pixel until color emerges as their settlement. Trigonometry becomes a signed parabolic sine approximation, radius a cheap distance estimate, and four approximate truths add up to one truth that is absolute. 🤯
+A four-wave plasma lets horizontal, vertical, diagonal, and radial waves argue over each pixel until color emerges as their settlement. The vertical wave speaks once per scanline, the other two advance by recurrence, and a rough radius feeds the fourth. Signed parabolas impersonate sine, and four approximate truths add up to one truth that is absolute. 🤯
 
 ![Plasma animation](gifs/plasma.gif)
 
